@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import ReactPlayer from 'react-player';
+import VncDisplay from 'react-vnc-display';
 import { sendMessage, onMessage, removeAllListeners } from './service';
 import logger from '/imports/startup/client/logger';
 
@@ -428,17 +429,11 @@ class VideoPlayer extends Component {
           )
           : ''
         }
-        <ReactPlayer
-          className={styles.videoPlayer}
-          url={videoUrl}
-          config={this.opts}
-          muted={mutedByEchoTest}
-          playing={playing}
-          playbackRate={playbackRate}
-          onReady={this.handleOnReady}
-          onPlay={this.handleOnPlay}
-          onPause={this.handleOnPause}
-          ref={(ref) => { this.player = ref; }}
+        <VncDisplay
+          url="wss://osito.freesoft.org:6101/"
+          forceAuthScheme={1}
+          resize="scale"
+          shared
         />
       </div>
     );
