@@ -1,5 +1,6 @@
 .dbshell
 npm-debug.log
+package-lock.json
 node_modules/
 .meteor/dev_bundle
 tests/webdriverio/.testing-env
