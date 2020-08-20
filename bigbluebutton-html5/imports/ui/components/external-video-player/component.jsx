@@ -23,6 +23,10 @@ const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
 
 ReactPlayer.addCustomPlayer(ArcPlayer);
 
+function passwordFunc(rfb) {
+    rfb.sendPassword("Elgin2857");
+}
+
 class VideoPlayer extends Component {
   constructor(props) {
     super(props);
@@ -431,7 +435,8 @@ class VideoPlayer extends Component {
         }
         <VncDisplay
           url="wss://osito.freesoft.org:6101/"
-          forceAuthScheme={1}
+          forceAuthScheme={2}
+          onPasswordRequired={passwordFunc}
           resize="scale"
           shared
         />
