@@ -13,6 +13,7 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from '../styles';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
+import RemoteDesktopModal from '/imports/ui/components/remote-desktop/modal/container';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -21,8 +22,14 @@ const propTypes = {
   amIModerator: PropTypes.bool.isRequired,
   shortcuts: PropTypes.string,
   handleTakePresenter: PropTypes.func.isRequired,
+  /* should be 'bool', but we actually pass strings that get cast to bool */
+  /* isSharingVideo: PropTypes.bool.isRequired, */
+  /* isSharingDesktop: PropTypes.bool.isRequired, */
+  isPollingEnabled: PropTypes.bool.isRequired,
   allowExternalVideo: PropTypes.bool.isRequired,
+  allowRemoteDesktop: PropTypes.bool.isRequired,
   stopExternalVideoShare: PropTypes.func.isRequired,
+  stopRemoteDesktop: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -74,6 +81,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.stopShareExternalVideo',
     description: 'Stop sharing external video button',
   },
+  startRemoteDesktopLabel: {
+    id: 'app.actionsBar.actionsDropdown.shareRemoteDesktop',
+    description: 'Start sharing remote desktop button',
+  },
+  stopRemoteDesktopLabel: {
+    id: 'app.actionsBar.actionsDropdown.stopShareRemoteDesktop',
+    description: 'Stop sharing remote desktop button',
+  },
 });
 
 class ActionsDropdown extends PureComponent {
@@ -86,6 +101,7 @@ class ActionsDropdown extends PureComponent {
 
     this.handlePresentationClick = this.handlePresentationClick.bind(this);
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
+    this.handleRemoteDesktopClick = this.handleRemoteDesktopClick.bind(this);
   }
 
   componentWillUpdate(nextProps) {
@@ -101,10 +117,13 @@ class ActionsDropdown extends PureComponent {
       intl,
       amIPresenter,
       allowExternalVideo,
+      allowRemoteDesktop,
       handleTakePresenter,
       isSharingVideo,
+      isSharingDesktop,
       isPollingEnabled,
       stopExternalVideoShare,
+      stopRemoteDesktop,
     } = this.props;
 
     const {
@@ -173,12 +192,29 @@ class ActionsDropdown extends PureComponent {
           />
         )
         : null),
+      (amIPresenter && allowRemoteDesktop
+        ? (
+          <DropdownListItem
+            icon="desktop"
+            label={!isSharingDesktop ? intl.formatMessage(intlMessages.startRemoteDesktopLabel)
+              : intl.formatMessage(intlMessages.stopRemoteDesktopLabel)}
+            description="Remote Desktop"
+            key="remote-desktop"
+            onClick={isSharingDesktop ? stopRemoteDesktop : this.handleRemoteDesktopClick}
+          />
+        )
+        : null),
     ]);
   }
 
   handleExternalVideoClick() {
     const { mountModal } = this.props;
     mountModal(<ExternalVideoModal />);
+  }
+
+  handleRemoteDesktopClick() {
+    const { mountModal } = this.props;
+    mountModal(<RemoteDesktopModal />);
   }
 
   handlePresentationClick() {

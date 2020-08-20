@@ -26,14 +26,17 @@ class ActionsBar extends PureComponent {
       currentSlidHasContent,
       parseCurrentSlideContent,
       isSharingVideo,
+      isSharingDesktop,
       screenShareEndAlert,
       stopExternalVideoShare,
+      stopRemoteDesktop,
       screenshareDataSavingSetting,
       isCaptionsAvailable,
       isMeteorConnected,
       isPollingEnabled,
       isThereCurrentPresentation,
       allowExternalVideo,
+      allowRemoteDesktop,
     } = this.props;
 
     const actionBarClasses = {};
@@ -50,10 +53,13 @@ class ActionsBar extends PureComponent {
             amIModerator,
             isPollingEnabled,
             allowExternalVideo,
+            allowRemoteDesktop,
             handleTakePresenter,
             intl,
             isSharingVideo,
+            isSharingDesktop,
             stopExternalVideoShare,
+            stopRemoteDesktop,
             isMeteorConnected,
           }}
           />

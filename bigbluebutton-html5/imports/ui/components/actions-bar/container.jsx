@@ -9,6 +9,7 @@ import Presentations from '/imports/api/presentations';
 import ActionsBar from './component';
 import Service from './service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
+import RemoteDesktopService from '/imports/ui/components/remote-desktop/service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import {
   shareScreen,
@@ -30,6 +31,7 @@ export default withTracker(() => ({
   amIPresenter: Service.amIPresenter(),
   amIModerator: Service.amIModerator(),
   stopExternalVideoShare: ExternalVideoService.stopWatching,
+  stopRemoteDesktop: RemoteDesktopService.stopWatching,
   handleShareScreen: onFail => shareScreen(onFail),
   handleUnshareScreen: () => unshareScreen(),
   isVideoBroadcasting: isVideoBroadcasting(),
@@ -41,6 +43,7 @@ export default withTracker(() => ({
   currentSlidHasContent: PresentationService.currentSlidHasContent(),
   parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
   isSharingVideo: Service.isSharingVideo(),
+  isSharingDesktop: Service.isSharingDesktop(),
   screenShareEndAlert,
   screenshareDataSavingSetting: dataSavingSetting(),
   isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
@@ -49,4 +52,5 @@ export default withTracker(() => ({
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
     { fields: {} }),
   allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
+  allowRemoteDesktop: Meteor.settings.public.remoteDesktop.enabled,
 }))(injectIntl(ActionsBarContainer));

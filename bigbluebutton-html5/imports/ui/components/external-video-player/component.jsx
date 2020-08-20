@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import ReactPlayer from 'react-player';
-import VncDisplay from 'react-vnc-display';
 import { sendMessage, onMessage, removeAllListeners } from './service';
 import logger from '/imports/startup/client/logger';
 
@@ -22,10 +21,6 @@ const THROTTLE_INTERVAL_SECONDS = 0.5;
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
 
 ReactPlayer.addCustomPlayer(ArcPlayer);
-
-function passwordFunc(rfb) {
-    rfb.sendPassword("Elgin2857");
-}
 
 class VideoPlayer extends Component {
   constructor(props) {
@@ -433,12 +428,17 @@ class VideoPlayer extends Component {
           )
           : ''
         }
-        <VncDisplay
-          url="wss://osito.freesoft.org:6101/"
-          forceAuthScheme={2}
-          onPasswordRequired={passwordFunc}
-          resize="scale"
-          shared
+        <ReactPlayer
+          className={styles.videoPlayer}
+          url={videoUrl}
+          config={this.opts}
+          muted={mutedByEchoTest}
+          playing={playing}
+          playbackRate={playbackRate}
+          onReady={this.handleOnReady}
+          onPlay={this.handleOnPlay}
+          onPause={this.handleOnPause}
+          ref={(ref) => { this.player = ref; }}
         />
       </div>
     );
