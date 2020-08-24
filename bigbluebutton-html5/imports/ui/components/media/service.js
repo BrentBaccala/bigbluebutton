@@ -63,7 +63,7 @@ const toggleSwapLayout = () => {
   swapLayout.tracker.changed();
 };
 
-export const shouldEnableSwapLayout = () => !shouldShowScreenshare() && !shouldShowExternalVideo();
+export const shouldEnableSwapLayout = () => !shouldShowScreenshare() && !shouldShowExternalVideo() && !shouldShowRemoteDesktop();
 
 export const getSwapLayout = () => {
   swapLayout.tracker.depend();
