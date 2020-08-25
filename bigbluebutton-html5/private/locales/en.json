@@ -288,6 +288,7 @@
     "app.actionsBar.actionsDropdown.restorePresentationLabel": "Restore presentation",
     "app.actionsBar.actionsDropdown.restorePresentationDesc": "Button to restore presentation after it has been closed",
     "app.screenshare.screenShareLabel" : "Screen share",
+    "app.remoteDesktop.remoteDesktopLabel" : "Remote Desktop",
     "app.submenu.application.applicationSectionTitle": "Application",
     "app.submenu.application.animationsLabel": "Animations",
     "app.submenu.application.audioAlertLabel": "Audio Alerts for Chat",
