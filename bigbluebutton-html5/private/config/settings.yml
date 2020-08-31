@@ -84,6 +84,7 @@ public:
     enabled: true
   remoteDesktop:
     enabled: true
+    startLocked: true
   networkMonitoring:
     enableNetworkMonitoring: false
     packetLostThreshold: 10
