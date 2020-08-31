@@ -6,6 +6,7 @@ import ActionsDropdown from './actions-dropdown/component';
 import QuickPollDropdown from './quick-poll-dropdown/component';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
+import LockRemoteDesktopContainer from '../remote-desktop/lock-button/container';
 import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import PresentationOptionsContainer from './presentation-options/component';
 
@@ -100,6 +101,11 @@ class ActionsBar extends PureComponent {
             screenshareDataSavingSetting,
           }}
           />
+          {isSharingDesktop
+            ? (
+              <LockRemoteDesktopContainer />
+            )
+            : null}
         </div>
         <div className={styles.right}>
           {isLayoutSwapped
