@@ -85,7 +85,7 @@
     "yaml": "^1.6.0"
   },
   "resolutions": {
-    "novnc-node": "~/src/noVNC-node"
+    "novnc-node": "BrentBaccala/noVNC-node"
   },
   "devDependencies": {
     "chai": "~4.2.0",
