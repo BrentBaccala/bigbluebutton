@@ -19,6 +19,7 @@ object Dependencies {
     val logback = "1.2.3"
     val quicklens = "1.4.11"
     val spray = "1.3.4"
+    val jjwt = "0.11.2"
 
     // Apache Commons
     val lang = "3.9"
@@ -46,6 +47,7 @@ object Dependencies {
     val logback = "ch.qos.logback" % "logback-classic" % Versions.logback
     val commonsCodec = "commons-codec" % "commons-codec" % Versions.codec
     val sprayJson = "io.spray" % "spray-json_2.12" % Versions.spray
+    val jjwt = "io.jsonwebtoken" % "jjwt-api" % Versions.jjwt
 
     val apacheLang = "org.apache.commons" % "commons-lang3" % Versions.lang
 
@@ -79,6 +81,8 @@ object Dependencies {
     Compile.logback,
     Compile.commonsCodec,
     Compile.sprayJson,
+    "io.jsonwebtoken" % "jjwt-impl" % Versions.jjwt,
+    "io.jsonwebtoken" % "jjwt-jackson" % Versions.jjwt,
     Compile.apacheLang,
     Compile.bbbCommons) ++ testing
 }

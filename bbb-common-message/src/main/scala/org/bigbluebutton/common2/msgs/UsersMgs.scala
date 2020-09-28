@@ -401,3 +401,14 @@ case class UserInactivityInspectMsgBody(meetingId: String, responseDelay: Long)
 object UserActivitySignCmdMsg { val NAME = "UserActivitySignCmdMsg" }
 case class UserActivitySignCmdMsg(header: BbbClientMsgHeader, body: UserActivitySignCmdMsgBody) extends StandardMsg
 case class UserActivitySignCmdMsgBody(userId: String)
+
+/**
+ * Sent from client to get a signed version of its identity.
+ */
+object GetSignedIdentityReqMsg { val NAME = "GetSignedIdentityReqMsg" }
+case class GetSignedIdentityReqMsg(header: BbbClientMsgHeader, body: GetSignedIdentityReqMsgBody) extends StandardMsg
+case class GetSignedIdentityReqMsgBody()
+
+object GetSignedIdentityRespMsg { val NAME = "GetSignedIdentityRespMsg" }
+case class GetSignedIdentityRespMsg(header: BbbClientMsgHeader, body: GetSignedIdentityRespMsgBody) extends StandardMsg
+case class GetSignedIdentityRespMsgBody(jwt: String)
