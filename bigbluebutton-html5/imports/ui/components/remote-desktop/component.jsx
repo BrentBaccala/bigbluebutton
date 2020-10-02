@@ -6,7 +6,7 @@ import FullscreenService from '../fullscreen-button/service';
 import FullscreenButtonContainer from '../fullscreen-button/container';
 import { defineMessages, injectIntl } from 'react-intl';
 import VncDisplay from 'react-vnc-display';
-import Auth from '/imports/ui/services/auth';
+import { makeCall } from '/imports/ui/services/api';
 
 import { styles } from './styles';
 
@@ -28,9 +28,21 @@ class RemoteDesktop extends Component {
 
   constructor(props) {
     super(props);
+
+    var { remoteDesktopUrl } = props;
+
+    /* If the remote desktop URL includes the string "{jwt}", delay
+     * opening the connection until we've obtained a JSON Web Token
+     * and inserted it into the URL.
+     */
+    if (remoteDesktopUrl && remoteDesktopUrl.includes('{jwt}')) {
+      remoteDesktopUrl = '';
+    }
+
     this.state = {
       isFullscreen: false,
       resized: false,
+      remoteDesktopUrl: remoteDesktopUrl,
     };
 
     this.player = null;
@@ -41,10 +53,21 @@ class RemoteDesktop extends Component {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     window.addEventListener('resize', this.resizeListener);
     this.playerParent.addEventListener('fullscreenchange', this.onFullscreenChange);
 
+    /* If the remote desktop URL contains the string '{jwt}',
+     * asynchronously request a JSON Web Token to authenticate this
+     * user.  Once the remote procedure call returns, replace the
+     * '{jwt}' string with the JWT, and set this new URL in the state,
+     * which will trigger a re-render of this component.
+     */
+
+    if (this.props.remoteDesktopUrl.includes('{jwt}')) {
+      const jwt = await makeCall('getSignedIdentity');
+      this.setState({remoteDesktopUrl: this.props.remoteDesktopUrl.replace(/{jwt}/g, jwt)});
+    }
   }
 
   componentWillUnmount() {
@@ -155,15 +178,11 @@ class RemoteDesktop extends Component {
   }
 
   render() {
-    var { remoteDesktopUrl } = this.props;
+    var { remoteDesktopUrl } = this.state;
 
     if (remoteDesktopUrl) {
       const url = new URL(remoteDesktopUrl);
       this.vncPassword = url.searchParams.get('password');
-
-      for (var id of ['meetingID', 'userID', 'fullname', 'confname', 'externUserID']) {
-          remoteDesktopUrl = remoteDesktopUrl.replace('{' + id + '}', encodeURIComponent(Auth[id]));
-      }
     } else {
       this.vncPassword = ''
     }
@@ -175,6 +194,7 @@ class RemoteDesktop extends Component {
         ref={(ref) => { this.playerParent = ref; }}
       >
         {this.renderFullscreenButton()}
+        {remoteDesktopUrl != '' &&
         <VncDisplay
           className={styles.remoteDesktop}
           url={remoteDesktopUrl}
