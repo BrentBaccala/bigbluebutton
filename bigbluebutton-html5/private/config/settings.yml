@@ -97,6 +97,9 @@ public:
       - warning
   externalVideoPlayer:
     enabled: true
+  remoteDesktop:
+    enabled: true
+    startLocked: true
   networkMonitoring:
     enableNetworkMonitoring: false
     packetLostThreshold: 10

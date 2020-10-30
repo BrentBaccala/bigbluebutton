@@ -8,6 +8,7 @@ import handleEmojiStatus from './handlers/emojiStatus';
 import handleUserEjected from './handlers/userEjected';
 import handleChangeRole from './handlers/changeRole';
 import handleUserInactivityInspect from './handlers/userInactivityInspect';
+import handleGetSignedIdentity from './handlers/getSignedIdentity';
 
 RedisPubSub.on('PresenterAssignedEvtMsg', handlePresenterAssigned);
 RedisPubSub.on('UserJoinedMeetingEvtMsg', handleUserJoined);
@@ -18,3 +19,4 @@ RedisPubSub.on('UserEmojiChangedEvtMsg', handleEmojiStatus);
 RedisPubSub.on('UserEjectedFromMeetingEvtMsg', handleUserEjected);
 RedisPubSub.on('UserRoleChangedEvtMsg', handleChangeRole);
 RedisPubSub.on('UserInactivityInspectMsg', handleUserInactivityInspect);
+RedisPubSub.on('GetSignedIdentityRespMsg', handleGetSignedIdentity);
