@@ -1,6 +1,7 @@
 import Presentations from '/imports/api/presentations';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
+import { getRemoteDesktopUrl } from '/imports/ui/components/remote-desktop/service';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Settings from '/imports/ui/services/settings';
@@ -37,6 +38,11 @@ function shouldShowExternalVideo() {
   return enableExternalVideo && getVideoUrl();
 }
 
+function shouldShowRemoteDesktop() {
+  const { enabled: enableRemoteDesktop } = Meteor.settings.public.remoteDesktop;
+  return enableRemoteDesktop && getRemoteDesktopUrl();
+}
+
 function shouldShowOverlay() {
   return getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
 }
@@ -57,7 +63,7 @@ const toggleSwapLayout = () => {
   swapLayout.tracker.changed();
 };
 
-export const shouldEnableSwapLayout = () => !shouldShowScreenshare() && !shouldShowExternalVideo();
+export const shouldEnableSwapLayout = () => !shouldShowScreenshare() && !shouldShowExternalVideo() && !shouldShowRemoteDesktop();
 
 export const getSwapLayout = () => {
   swapLayout.tracker.depend();
@@ -69,6 +75,7 @@ export default {
   shouldShowWhiteboard,
   shouldShowScreenshare,
   shouldShowExternalVideo,
+  shouldShowRemoteDesktop,
   shouldShowOverlay,
   isUserPresenter,
   isVideoBroadcasting,

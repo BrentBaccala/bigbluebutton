@@ -5,6 +5,7 @@ import DesktopShare from './desktop-share/component';
 import ActionsDropdown from './actions-dropdown/container';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
+import LockRemoteDesktopContainer from '../remote-desktop/lock-button/container';
 import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import PresentationOptionsContainer from './presentation-options/component';
 import Button from '/imports/ui/components/button/component';
@@ -55,14 +56,17 @@ class ActionsBar extends PureComponent {
       currentSlidHasContent,
       parseCurrentSlideContent,
       isSharingVideo,
+      isSharingDesktop,
       screenShareEndAlert,
       stopExternalVideoShare,
+      stopRemoteDesktop,
       screenshareDataSavingSetting,
       isCaptionsAvailable,
       isMeteorConnected,
       isPollingEnabled,
       isThereCurrentPresentation,
       allowExternalVideo,
+      allowRemoteDesktop,
     } = this.props;
 
     const actionBarClasses = {};
@@ -85,10 +89,13 @@ class ActionsBar extends PureComponent {
             amIModerator,
             isPollingEnabled,
             allowExternalVideo,
+            allowRemoteDesktop,
             handleTakePresenter,
             intl,
             isSharingVideo,
+            isSharingDesktop,
             stopExternalVideoShare,
+            stopRemoteDesktop,
             isMeteorConnected,
           }}
           />
@@ -129,6 +136,11 @@ class ActionsBar extends PureComponent {
             circle
             size="lg"
           />
+          {isSharingDesktop
+            ? (
+              <LockRemoteDesktopContainer />
+            )
+            : null}
         </div>
         <div className={styles.right}>
           {isLayoutSwapped
