@@ -9,3 +9,9 @@ Package: bbb-html5
 Architecture: amd64
 Depends: bbb-webrtc-sfu,yq,bbb-etherpad,bbb-web
 Description: The HTML5 components for BigBlueButton
+
+Package: bbb-apps-akka
+Architecture: all
+Depends: java8-runtime-headless, bash
+Description: BigBlueButton Apps (Akka)
+ BigBlueButton Core Apps in Akka.
