@@ -1,0 +1,17 @@
+Source: bigbluebutton
+Priority: extra
+Section: default
+Maintainer: Brent Baccala <cosine@freesoft.org>
+Standards-Version: 4.0.0
+Homepage: http://bigbluebutton.org/
+
+Package: bbb-html5
+Architecture: amd64
+Depends: bbb-webrtc-sfu,yq,bbb-etherpad,bbb-web
+Description: The HTML5 components for BigBlueButton
+
+Package: bbb-apps-akka
+Architecture: all
+Depends: java8-runtime-headless, bash
+Description: BigBlueButton Apps (Akka)
+ BigBlueButton Core Apps in Akka.

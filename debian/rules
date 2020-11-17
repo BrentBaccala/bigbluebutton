@@ -1,0 +1,20 @@
+#!/usr/bin/make -f
+
+export DH_VERBOSE = 1
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	cd bigbluebutton-html5; meteor build --directory ../debian/tmp/bigbluebutton-html5
+	cd debian/tmp/bigbluebutton-html5/bundle/programs/server; npm install
+
+	cd bbb-common-message; ./deploy.sh
+	cd akka-bbb-apps; sbt clean stage
+
+# This is here to prevent removal of debian/tmp during the install step.
+override_dh_prep:
+
+# The node module 'fibers' contains executables for various different architectures that
+# break auto-detecting shared library dependencies.
+override_dh_shlibdeps:
