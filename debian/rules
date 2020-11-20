@@ -12,6 +12,12 @@ override_dh_auto_build:
 	cd bbb-common-message; ./deploy.sh
 	cd akka-bbb-apps; sbt clean stage
 
+	cd bbb-common-web; ./deploy.sh
+	cd bigbluebutton-web; ./build.sh; grails dev assemble
+	cd bigbluebutton-web/pres-checker; gradle clean; gradle jar; gradle resolveDeps
+	mkdir -p debian/tmp/bbb-web/usr/share/bbb-web
+	unzip bigbluebutton-web/build/libs/*.war -d debian/tmp/bbb-web/usr/share/bbb-web
+
 # This is here to prevent removal of debian/tmp during the install step.
 override_dh_prep:
 
