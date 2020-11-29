@@ -54,7 +54,7 @@ class RemoteDesktop extends Component {
   }
 
   async componentDidMount() {
-    window.addEventListener('resize', this.resizeListener);
+    window.addEventListener('layoutSizesSets', this.resizeListener);
     this.playerParent.addEventListener('fullscreenchange', this.onFullscreenChange);
 
     /* If the remote desktop URL contains the string '{jwt}',
@@ -71,7 +71,7 @@ class RemoteDesktop extends Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.resizeListener);
+    window.removeEventListener('layoutSizesSets', this.resizeListener);
     this.playerParent.removeEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
