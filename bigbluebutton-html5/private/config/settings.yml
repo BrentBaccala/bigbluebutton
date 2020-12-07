@@ -27,6 +27,7 @@ public:
     enableTalkingIndicator: true
     mirrorOwnWebcam: false
     viewersInWebcam: 8
+    showParticipants: true
     ipv4FallbackDomain: ""
     allowLogout: true
     allowFullscreen: true

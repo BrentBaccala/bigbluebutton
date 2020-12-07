@@ -22,6 +22,8 @@ import LayoutManager from '/imports/ui/components/layout/layout-manager';
 import { withLayoutContext } from '/imports/ui/components/layout/context';
 import VideoService from '/imports/ui/components/video-provider/service';
 
+const APP_CONFIG = Meteor.settings.public.app;
+
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -80,7 +82,14 @@ class Base extends Component {
     if (animations) HTML.classList.add('animationsEnabled');
     if (!animations) HTML.classList.add('animationsDisabled');
 
-    if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
+    /* "APP_CONFIG.showParticipants !== false" because the old default
+     * was true, which is the behavior we desire if showParticipants
+     * is undefined.
+     */
+
+    if (getFromUserSettings('bbb_show_participants_on_login',
+			    APP_CONFIG.showParticipants !== false)
+	&& !deviceInfo.type().isPhone) {
       Session.set('openPanel', 'userlist');
       if (CHAT_ENABLED) {
         Session.set('openPanel', 'chat');
