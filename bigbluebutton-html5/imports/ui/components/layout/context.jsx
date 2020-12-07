@@ -6,7 +6,7 @@ const { webcamsDefaultPlacement } = Meteor.settings.public.layout;
 export const LayoutContext = createContext();
 
 const initialState = {
-  autoArrangeLayout: true,
+  autoArrangeLayout: !webcamsDefaultPlacement || webcamsDefaultPlacement == 'top',
   webcamsAreaResizing: false,
   numUsersVideo: null,
   windowSize: {
