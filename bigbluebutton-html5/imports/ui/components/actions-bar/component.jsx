@@ -57,6 +57,7 @@ class ActionsBar extends PureComponent {
       parseCurrentSlideContent,
       isSharingVideo,
       isSharingDesktop,
+      canIOperateDesktop,
       screenShareEndAlert,
       stopExternalVideoShare,
       stopRemoteDesktop,
@@ -136,7 +137,7 @@ class ActionsBar extends PureComponent {
             circle
             size="lg"
           />
-          {isSharingDesktop
+          {canIOperateDesktop
             ? (
               <LockRemoteDesktopContainer />
             )

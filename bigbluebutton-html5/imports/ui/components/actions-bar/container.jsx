@@ -44,6 +44,7 @@ export default withTracker(() => ({
   parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
   isSharingVideo: Service.isSharingVideo(),
   isSharingDesktop: Service.isSharingDesktop(),
+  canIOperateDesktop: Service.canIOperateDesktop(),
   screenShareEndAlert,
   screenshareDataSavingSetting: dataSavingSetting(),
   isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
