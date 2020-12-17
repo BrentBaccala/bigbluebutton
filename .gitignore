@@ -34,3 +34,11 @@ clients/flash/**/.gradle
 **/.idea/*
 *.iml
 *~
+debian/*.debhelper
+debian/bbb-apps-akka/
+debian/bbb-html5/
+debian/bbb-web/
+debian/*.substvars
+debian/files
+debian/tmp/
+debian/debhelper-build-stamp
