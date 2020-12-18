@@ -6,6 +6,7 @@ export DH_VERBOSE = 1
 	dh $@
 
 override_dh_auto_build:
+	cd bigbluebutton-html5; npm install
 	cd bigbluebutton-html5; meteor build --directory ../debian/tmp/bigbluebutton-html5
 	cd debian/tmp/bigbluebutton-html5/bundle/programs/server; npm install
 
