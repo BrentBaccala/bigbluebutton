@@ -21,6 +21,8 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import LayoutManager from '/imports/ui/components/layout/layout-manager';
 import { withLayoutContext } from '/imports/ui/components/layout/context';
 import VideoService from '/imports/ui/components/video-provider/service';
+import DebugWindow from '/imports/ui/components/debug-window/component'
+import {Meteor} from "meteor/meteor";
 
 const APP_CONFIG = Meteor.settings.public.app;
 
@@ -237,7 +239,8 @@ class Base extends Component {
 
     return (
       <Fragment>
-        <LayoutManager />
+        {meetingExist && Auth.loggedIn && <DebugWindow />}
+        {meetingExist && Auth.loggedIn && <LayoutManager />}
         {
           (!meetingExisted && !meetingExist && Auth.loggedIn)
             ? <LoadingScreen />
@@ -369,7 +372,8 @@ const BaseContainer = withTracker(() => {
         if (newDocument.validated && newDocument.name && newDocument.userId !== localUserId) {
           if (userJoinAudioAlerts) {
             AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-              + Meteor.settings.public.app.basename}`
+              + Meteor.settings.public.app.basename
+              + Meteor.settings.public.app.instanceId}`
               + '/resources/sounds/userJoin.mp3');
           }
 

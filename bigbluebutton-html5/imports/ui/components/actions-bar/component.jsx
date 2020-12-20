@@ -8,38 +8,9 @@ import JoinVideoOptionsContainer from '../video-provider/video-button/container'
 import LockRemoteDesktopContainer from '../remote-desktop/lock-button/container';
 import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import PresentationOptionsContainer from './presentation-options/component';
-import Button from '/imports/ui/components/button/component';
-import Storage from '/imports/ui/services/storage/session';
 import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
-import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 
 class ActionsBar extends PureComponent {
-  constructor(props) {
-    super(props);
-
-    this.autoArrangeToggle = this.autoArrangeToggle.bind(this);
-  }
-
-  componentDidUpdate(prevProps) {
-    const { layoutContextState } = this.props;
-    const { layoutContextState: prevLayoutContextState } = prevProps;
-    const { autoArrangeLayout } = layoutContextState;
-    const { autoArrangeLayout: prevAutoArrangeLayout } = prevLayoutContextState;
-    if (autoArrangeLayout !== prevAutoArrangeLayout) this.forceUpdate();
-  }
-
-  autoArrangeToggle() {
-    const { layoutContextDispatch } = this.props;
-    const autoArrangeLayout = Storage.getItem('autoArrangeLayout');
-    layoutContextDispatch(
-      {
-        type: 'setAutoArrangeLayout',
-        value: !autoArrangeLayout,
-      },
-    );
-    window.dispatchEvent(new Event('autoArrangeChanged'));
-  }
-
   render() {
     const {
       amIPresenter,
@@ -53,8 +24,6 @@ class ActionsBar extends PureComponent {
       toggleSwapLayout,
       handleTakePresenter,
       intl,
-      currentSlidHasContent,
-      parseCurrentSlideContent,
       isSharingVideo,
       isSharingDesktop,
       canIOperateDesktop,
@@ -71,7 +40,6 @@ class ActionsBar extends PureComponent {
     } = this.props;
 
     const actionBarClasses = {};
-    const autoArrangeLayout = Storage.getItem('autoArrangeLayout');
 
     actionBarClasses[styles.centerWithActions] = amIPresenter;
     actionBarClasses[styles.center] = true;
@@ -159,4 +127,4 @@ class ActionsBar extends PureComponent {
   }
 }
 
-export default withLayoutConsumer(ActionsBar);
+export default ActionsBar;

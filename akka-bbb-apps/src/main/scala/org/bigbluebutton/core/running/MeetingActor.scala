@@ -279,9 +279,9 @@ class MeetingActor(
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
-      case m: ClientToServerLatencyTracerMsg          => handleClientToServerLatencyTracerMsg(m)
+      case m: ClientToServerLatencyTracerMsg => handleClientToServerLatencyTracerMsg(m)
       case m: CheckRunningAndRecordingVoiceConfEvtMsg => handleCheckRunningAndRecordingVoiceConfEvtMsg(m)
-      case _                                          => handleMessageThatAffectsInactivity(msg)
+      case _ => handleMessageThatAffectsInactivity(msg)
     }
   }
 
@@ -298,7 +298,7 @@ class MeetingActor(
       case m: UserBroadcastCamStartMsg            => handleUserBroadcastCamStartMsg(m)
       case m: UserBroadcastCamStopMsg             => handleUserBroadcastCamStopMsg(m)
       case m: UserJoinedVoiceConfEvtMsg           => handleUserJoinedVoiceConfEvtMsg(m)
-      case m: LogoutAndEndMeetingCmdMsg => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
+      case m: LogoutAndEndMeetingCmdMsg           => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
       case m: SetRecordingStatusCmdMsg =>
         state = usersApp.handleSetRecordingStatusCmdMsg(m, state)
         updateUserLastActivity(m.body.setBy)
@@ -471,6 +471,7 @@ class MeetingActor(
   }
 
   def processGetRunningMeetingStateReqMsg(): Unit = {
+
     // sync all meetings
     handleSyncGetMeetingInfoRespMsg(liveMeeting.props)
 
