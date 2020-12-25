@@ -1,3 +1,9 @@
+bigbluebutton (1:2.3.0-freesoft-2020-12-19) extra; urgency=low
+
+  * Release to match Big Blue Button's 2.3-alpha-3
+
+ -- Brent Baccala <cosine@freesoft.org>  Thu, 17 Dec 2020 18:07:00 -0500
+
 bigbluebutton (1:2.3.0-freesoft-2020-12-17) extra; urgency=low
 
   * Initial public release.

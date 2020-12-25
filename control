@@ -8,7 +8,7 @@ Build-Depends: dh-exec
 
 Package: bbb-html5
 Architecture: amd64
-Depends: bbb-webrtc-sfu,yq,bbb-etherpad,bbb-web
+Depends: bbb-webrtc-sfu,bc,yq,bbb-etherpad,bbb-web
 Description: The HTML5 components for BigBlueButton
 
 Package: bbb-apps-akka
