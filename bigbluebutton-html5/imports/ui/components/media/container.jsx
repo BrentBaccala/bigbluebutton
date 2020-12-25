@@ -154,7 +154,7 @@ export default withLayoutConsumer(withModalMounter(withTracker(() => {
     );
   }
 
-  if (MediaService.shouldShowRemoteDesktop()) {
+  if (MediaService.shouldShowRemoteDesktop() && !getSwapLayout()) {
     data.children = (
       <RemoteDesktopContainer
         isPresenter={MediaService.isUserPresenter()}

@@ -726,6 +726,7 @@
     "app.remoteDesktop.lockDesktop": "Lock remote desktop",
     "app.remoteDesktop.unlockDesktop": "Unlock remote desktop",
     "app.remoteDesktop.lockDesktopButtonDesc": "Lock remote desktop",
+    "app.remoteDesktop.hide": "Hide remote desktop",
     "app.network.connection.effective.slow": "We're noticing connectivity issues.",
     "app.network.connection.effective.slow.help": "More information",
     "app.externalVideo.noteLabel": "Note: Shared external videos will not appear in the recording. YouTube, Vimeo, Instructure Media, Twitch, Dailymotion and media file URLs (e.g. https://example.com/xy.mp4) are supported.",

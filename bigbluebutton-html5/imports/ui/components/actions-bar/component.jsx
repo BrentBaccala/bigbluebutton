@@ -8,6 +8,7 @@ import JoinVideoOptionsContainer from '../video-provider/video-button/container'
 import LockRemoteDesktopContainer from '../remote-desktop/lock-button/container';
 import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import PresentationOptionsContainer from './presentation-options/component';
+import MediaService, { getSwapLayout } from '/imports/ui/components/media/service';
 import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
 
 class ActionsBar extends PureComponent {
@@ -100,11 +101,11 @@ class ActionsBar extends PureComponent {
             : null}
         </div>
         <div className={styles.right}>
-          {isLayoutSwapped
+          {isLayoutSwapped || (MediaService.shouldShowRemoteDesktop() && getSwapLayout())
             ? (
               <PresentationOptionsContainer
                 toggleSwapLayout={toggleSwapLayout}
-                isThereCurrentPresentation={isThereCurrentPresentation}
+                isThereCurrentPresentation={MediaService.shouldShowRemoteDesktop() || isThereCurrentPresentation}
               />
             )
             : null
