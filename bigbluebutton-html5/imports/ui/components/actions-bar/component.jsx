@@ -93,18 +93,6 @@ class ActionsBar extends PureComponent {
             screenshareDataSavingSetting,
           }}
           />
-          <Button
-            className={cx(styles.btn, autoArrangeLayout || styles.btn)}
-            icon={autoArrangeLayout ? 'lock' : 'unlock'}
-            color={autoArrangeLayout ? 'primary' : 'default'}
-            ghost={!autoArrangeLayout}
-            onClick={this.autoArrangeToggle}
-            label={autoArrangeLayout ? 'Disable Auto Arrange' : 'Enable Auto Arrange'}
-            aria-label="Auto Arrange test"
-            hideLabel
-            circle
-            size="lg"
-          />
           {canIOperateDesktop
             ? (
               <LockRemoteDesktopContainer />
