@@ -400,16 +400,20 @@ if [ -f /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml ]; then
   sed -i 's/<!--<param name="enable-3pcc" value="true"\/>-->/<param name="enable-3pcc" value="proxy"\/>/g' /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
 fi
 
+# handshake with this package's preinstall script (which copied the old sip file to /tmp/sip.nginx)
+# to transfer settings from the old script to the new one
+#
+# external.xml listens unencrypted on 5066 and encrypted on 7443
+# internal.xml listens unencrypted on 5068 and encrypted on 7445
+
 if [ -f /tmp/sip.nginx ]; then
-  IP_SIP=$(cat /tmp/sip.nginx | grep -v '#' | sed -n '/proxy_pass/{s/.*\/\///;s/:.*//;p}')
-  IP_PORT=$(cat /tmp/sip.nginx | grep -v '#' | sed -n '/proxy_pass/{s/[^:]*.*[^:]*://;s/;.*//;p}')
-  if grep proxy_pass /tmp/sip.nginx | grep -q https; then
-    sed -i "s/proxy_pass http.*/proxy_pass https:\/\/$IP_SIP:$IP_PORT;/g" \
+  for IP_PORT in 5066 5068 7443 7445; do
+    IP_SIP=$(cat /tmp/sip.nginx | grep -v '#' | grep ":$IP_PORT" | sed -n '/proxy_pass/{s/.*\/\///;s/:.*//;p}')
+    sed -i "s/proxy_pass https:.*:$IP_PORT/proxy_pass https:\/\/$IP_SIP:$IP_PORT/g" \
             /etc/bigbluebutton/nginx/sip.nginx
-  else
-    sed -i "s/proxy_pass http.*/proxy_pass http:\/\/$IP_SIP:$IP_PORT;/g" \
+    sed -i "s/proxy_pass http:.*:$IP_PORT/proxy_pass http:\/\/$IP_SIP:$IP_PORT/g" \
             /etc/bigbluebutton/nginx/sip.nginx
-  fi
+  done
 fi
 
 if ! grep -q auth_request /etc/bigbluebutton/nginx/sip.nginx; then
