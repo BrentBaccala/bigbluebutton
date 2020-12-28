@@ -1,8 +1,7 @@
 bigbluebutton (1:2.3.0-freesoft-2020-12-26) extra; urgency=low
 
   * Added bbb-freeswitch-core to packaging scripts
-  * Modified freeswitch configuration to use two endpoints which distinguish
-	between internal and external clients
+  * Modified freeswitch configuration to use two endpoints which distinguish between internal and external clients
   * Modified sip proxy configuration to relay to appropriate freeswitch endpoint
   * Modified bbb-html5 install scripts to update the modified sip.nginx
 
