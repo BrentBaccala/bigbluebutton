@@ -32,6 +32,16 @@
       <!-- <node type="allow" cidr="192.168.0.0/24"/> -->
     </list>
 
+    <list name="wan_v4_without_cgnat" default="allow">
+      <node type="deny" cidr="0.0.0.0/8"/>
+      <node type="deny" cidr="10.0.0.0/8"/>
+      <node type="deny" cidr="172.16.0.0/12"/>
+      <node type="deny" cidr="192.168.0.0/16"/>
+      <node type="deny" cidr="169.254.0.0/16"/>
+      <node type="deny" cidr="100.64.0.0/10"/>
+      <node type="deny" cidr="::/0"/>
+    </list>
+
   </network-lists>
 </configuration>
 

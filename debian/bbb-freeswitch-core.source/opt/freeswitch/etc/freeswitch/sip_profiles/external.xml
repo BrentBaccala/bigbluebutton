@@ -41,9 +41,7 @@
 
 
     <!-- Added for Microsoft Edge browser -->
-    <param name="apply-candidate-acl" value="localnet.auto"/>
-    <param name="apply-candidate-acl" value="wan_v4.auto"/>
-    <param name="apply-candidate-acl" value="rfc1918.auto"/>
+    <param name="apply-candidate-acl" value="wan_v4_without_cgnat"/>
     <param name="apply-candidate-acl" value="any_v4.auto"/>
 
     <!-- used to share presence info across sofia profiles
