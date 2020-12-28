@@ -1,0 +1,9 @@
+*.debhelper
+bbb-apps-akka/
+bbb-html5/
+bbb-web/
+*.substvars
+files
+tmp/
+debhelper-build-stamp
+bbb-freeswitch-core/
