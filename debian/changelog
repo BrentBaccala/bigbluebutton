@@ -1,3 +1,19 @@
+bigbluebutton (1:2.3.0-freesoft-2020-12-26) extra; urgency=low
+
+  * Added bbb-freeswitch-core to packaging scripts
+  * Modified freeswitch configuration to use two endpoints which distinguish
+	between internal and external clients
+  * Modified sip proxy configuration to relay to appropriate freeswitch endpoint
+  * Modified bbb-html5 install scripts to update the modified sip.nginx
+
+ -- Brent Baccala <cosine@freesoft.org>  Sat, 26 Dec 2020 23:56:00 -0500
+
+bigbluebutton (1:2.3.0-freesoft-2020-12-24) extra; urgency=low
+
+  * Added "hide remote desktop" button
+
+ -- Brent Baccala <cosine@freesoft.org>  Thu, 24 Dec 2020 21:35:00 -0500
+
 bigbluebutton (1:2.3.0-freesoft-2020-12-19) extra; urgency=low
 
   * Release to match Big Blue Button's 2.3-alpha-3
