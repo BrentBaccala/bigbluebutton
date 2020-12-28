@@ -6,6 +6,10 @@ export DH_VERBOSE = 1
 	dh $@
 
 override_dh_auto_build:
+	mkdir -p debian/tmp/bbb-freeswitch-core
+	dpkg-deb -x /var/www/html/bionic-230-dev/pool/main/b/bbb-freeswitch-core/*.deb debian/tmp/bbb-freeswitch-core
+	rm -r debian/tmp/bbb-freeswitch-core/usr/share/doc
+
 	cd bigbluebutton-html5; npm install
 	cd bigbluebutton-html5; meteor build --directory ../debian/tmp/bigbluebutton-html5
 	cd debian/tmp/bigbluebutton-html5/bundle/programs/server; npm install
@@ -21,6 +25,9 @@ override_dh_auto_build:
 
 # This is here to prevent removal of debian/tmp during the install step.
 override_dh_prep:
+
+# This is here to prevent breakage of dh_usrlocal due to the presence of /usr/local/bin/fs_clibbb
+override_dh_usrlocal:
 
 # The node module 'fibers' contains executables for various different architectures that
 # break auto-detecting shared library dependencies.

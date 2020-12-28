@@ -21,3 +21,8 @@ Package: bbb-web
 Architecture: amd64
 Depends: zip,unzip,imagemagick,redis-server,xpdf-utils,bbb-libreoffice-docker,psmisc,fonts-crosextra-carlito,fonts-crosextra-caladea,fonts-noto
 Description: BigBlueButton API
+
+Package: bbb-freeswitch-core
+Architecture: amd64
+Depends: xmlstarlet,libfreetype6,libcurl4,libspeex1,libspeexdsp1,libopus0,libsndfile1,libopusenc0,libopusfile0,liblua5.2-0,libjbig0,libldns2,bbb-freeswitch-sounds
+Description: BigBlueButton build of FreeSWITCH
