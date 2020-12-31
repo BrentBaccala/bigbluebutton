@@ -1,3 +1,9 @@
+bigbluebutton (1:2.3.0-freesoft-2020-12-31-2) extra; urgency=low
+
+  * Fix bbb-apps-akka install scripts to save bbbWebAPI and sharedSecret across an apt upgrade
+
+ -- Brent Baccala <cosine@freesoft.org>  Thu, 31 Dec 2020 18:24:00 -0500
+
 bigbluebutton (1:2.3.0-freesoft-2020-12-31) extra; urgency=low
 
   * 2.3-alpha-4
