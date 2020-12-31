@@ -1,3 +1,9 @@
+bigbluebutton (1:2.3.0-freesoft-2020-12-31) extra; urgency=low
+
+  * 2.3-alpha-4
+
+ -- Brent Baccala <cosine@freesoft.org>  Thu, 31 Dec 2020 12:00:00 -0500
+
 bigbluebutton (1:2.3.0-freesoft-2020-12-26) extra; urgency=low
 
   * Added bbb-freeswitch-core to packaging scripts
