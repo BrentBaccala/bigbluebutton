@@ -4,7 +4,7 @@ Section: default
 Maintainer: Brent Baccala <cosine@freesoft.org>
 Standards-Version: 4.0.0
 Homepage: http://bigbluebutton.org/
-Build-Depends: dh-exec
+Build-Depends: dh-exec, libpng-dev
 
 Package: bbb-html5
 Architecture: amd64
