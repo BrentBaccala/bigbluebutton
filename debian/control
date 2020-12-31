@@ -18,7 +18,7 @@ Description: BigBlueButton Apps (Akka)
  BigBlueButton Core Apps in Akka.
 
 Package: bbb-web
-Architecture: amd64
+Architecture: all
 Depends: zip,unzip,imagemagick,redis-server,xpdf-utils,bbb-libreoffice-docker,psmisc,fonts-crosextra-carlito,fonts-crosextra-caladea,fonts-noto
 Description: BigBlueButton API
 

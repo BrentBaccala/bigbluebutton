@@ -5,7 +5,8 @@ export DH_VERBOSE = 1
 %:
 	dh $@
 
-override_dh_auto_build:
+override_dh_auto_build-arch:
+	# Download the upstream version of bbb-freeswitch-core and unpack it in debian/tmp
 	mkdir -p debian/tmp/bbb-freeswitch-core
 	wget --quiet -O- https://ubuntu.bigbluebutton.org/bionic-230-dev/$$(wget --quiet -O- https://ubuntu.bigbluebutton.org/bionic-230-dev/dists/bigbluebutton-bionic/main/binary-amd64/Packages | grep bbb-freeswitch-core | grep Filename: | cut -d ' ' -f 2) | dpkg-deb -x - debian/tmp/bbb-freeswitch-core
 	rm -r debian/tmp/bbb-freeswitch-core/usr/share/doc
@@ -14,6 +15,7 @@ override_dh_auto_build:
 	cd bigbluebutton-html5; meteor build --directory ../debian/tmp/bigbluebutton-html5
 	cd debian/tmp/bigbluebutton-html5/bundle/programs/server; npm install
 
+override_dh_auto_build-indep:
 	cd bbb-common-message; ./deploy.sh
 	cd akka-bbb-apps; sbt clean stage
 
