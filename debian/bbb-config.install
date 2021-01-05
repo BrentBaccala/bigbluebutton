@@ -1,0 +1,17 @@
+bigbluebutton-config/bin/bbb-conf				/usr/bin
+bigbluebutton-config/bin/bbb-record				/usr/bin
+bigbluebutton-config/bin/apply-lib.sh				/etc/bigbluebutton/bbb-conf
+bigbluebutton-config/cron.daily					/etc
+# why isn't bbb-restart-kms in cron.hourly? (mimicing upstream packaging)
+bigbluebutton-config/cron.hourly/bbb-resync-freeswitch		/etc/cron.hourly
+
+bigbluebutton-config/bigbluebutton-release			/etc/bigbluebutton
+bigbluebutton-config/slides/nopdfmark.ps			/etc/bigbluebutton
+
+# why do the blank slides go in here in two different places?
+bigbluebutton-config/slides/blank*				/usr/share/bigbluebutton/blank/
+
+bigbluebutton-config/web/*					/var/www/bigbluebutton-default/
+bigbluebutton-config/slides/blank*				/var/bigbluebutton/blank/
+
+debian/bbb-config.source/*					/

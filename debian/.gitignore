@@ -7,3 +7,4 @@ files
 tmp/
 debhelper-build-stamp
 bbb-freeswitch-core/
+bbb-config/
