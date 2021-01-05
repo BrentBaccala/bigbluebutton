@@ -1,3 +1,10 @@
+bigbluebutton (1:2.3.0-freesoft-2021-05) extra; urgency=low
+
+  * Add bbb-config package
+  * Fix bbb-conf script to handle multiple default routes
+
+ -- Brent Baccala <cosine@freesoft.org>  Tue, 05 Jan 2021 17:49:00 -0500
+
 bigbluebutton (1:2.3.0-freesoft-2020-12-31-2) extra; urgency=low
 
   * Fix bbb-apps-akka install scripts to save bbbWebAPI and sharedSecret across an apt upgrade
