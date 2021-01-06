@@ -1,3 +1,9 @@
+bigbluebutton (1:2.3.0-freesoft-2021-01-05-02) extra; urgency=low
+
+  * Improve bbb-html5 postinstall script to better handle some broken situations
+
+ -- Brent Baccala <cosine@freesoft.org>  Tue, 05 Jan 2021 17:49:00 -0500
+
 bigbluebutton (1:2.3.0-freesoft-2021-01-05) extra; urgency=low
 
   * Add bbb-config package
