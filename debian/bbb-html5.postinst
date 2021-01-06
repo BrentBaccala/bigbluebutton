@@ -348,7 +348,7 @@ fi
     yq w -i $TARGET public.note.enabled                "true"
     yq w -i $TARGET public.note.url                    "$PROTOCOL://$HOST/pad"
 
-    sed -i "s/proxy_pass .*/proxy_pass http:\/\/$IP:5066;/g" /etc/bigbluebutton/nginx/sip.nginx
+    sed -i "s/proxy_pass .*:5066;/proxy_pass http:\/\/$IP:5066;/g" /etc/bigbluebutton/nginx/sip.nginx
     sed -i "s/server_name  .*/server_name  $IP;/g" /etc/nginx/sites-available/bigbluebutton
   fi
 
@@ -408,7 +408,7 @@ fi
 
 if [ -f /tmp/sip.nginx ]; then
   for IP_PORT in 5066 5068 7443 7445; do
-    IP_SIP=$(cat /tmp/sip.nginx | grep -v '#' | grep ":$IP_PORT" | sed -n '/proxy_pass/{s/.*\/\///;s/:.*//;p}')
+    IP_SIP=$(cat /tmp/sip.nginx | grep -v '#' | grep ":$IP_PORT" | head -1 | sed -n '/proxy_pass/{s/.*\/\///;s/:.*//;p}')
     sed -i "s/proxy_pass https:.*:$IP_PORT/proxy_pass https:\/\/$IP_SIP:$IP_PORT/g" \
             /etc/bigbluebutton/nginx/sip.nginx
     sed -i "s/proxy_pass http:.*:$IP_PORT/proxy_pass http:\/\/$IP_SIP:$IP_PORT/g" \
