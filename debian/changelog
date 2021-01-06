@@ -1,4 +1,4 @@
-bigbluebutton (1:2.3.0-freesoft-2021-05) extra; urgency=low
+bigbluebutton (1:2.3.0-freesoft-2021-01-05) extra; urgency=low
 
   * Add bbb-config package
   * Fix bbb-conf script to handle multiple default routes
