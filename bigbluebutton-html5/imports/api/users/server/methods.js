@@ -9,6 +9,7 @@ import setUserEffectiveConnectionType from './methods/setUserEffectiveConnection
 import userActivitySign from './methods/userActivitySign';
 import userLeftMeeting from './methods/userLeftMeeting';
 import getSignedIdentity from './methods/getSignedIdentity';
+import setRandomUser from './methods/setRandomUser';
 
 Meteor.methods({
   setEmojiStatus,
@@ -21,4 +22,5 @@ Meteor.methods({
   userActivitySign,
   userLeftMeeting,
   getSignedIdentity,
+  setRandomUser,
 });
