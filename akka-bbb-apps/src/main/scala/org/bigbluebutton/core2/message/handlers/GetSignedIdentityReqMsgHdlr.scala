@@ -42,6 +42,10 @@ trait GetSignedIdentityReqMsgHdlr extends SystemConfiguration {
       // Our only JWT claim is the identity of the user
       val builder = Jwts.builder()
         .setSubject(requester.name)
+        .claim("bbb-meetingID", liveMeeting.props.meetingProp.extId)
+        .claim("bbb-userID", requester.extId)
+        .claim("bbb-role", requester.role)
+        .claim("bbb-guest", requester.guest)
         .signWith(signingKey)
 
       val compactJws = builder.compact()
