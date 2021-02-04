@@ -90,6 +90,7 @@ const intlMessages = defineMessages({
   stopRemoteDesktopLabel: {
     id: 'app.actionsBar.actionsDropdown.stopShareRemoteDesktop',
     description: 'Stop sharing remote desktop button',
+  },
   selectRandUserLabel: {
     id: 'app.actionsBar.actionsDropdown.selectRandUserLabel',
     description: 'Label for selecting a random user',
@@ -215,6 +216,9 @@ class ActionsDropdown extends PureComponent {
             description="Remote Desktop"
             key="remote-desktop"
             onClick={isSharingDesktop ? stopRemoteDesktop : this.handleRemoteDesktopClick}
+          />
+        )
+        : null),
       (amIPresenter
         ? (
           <DropdownListItem
