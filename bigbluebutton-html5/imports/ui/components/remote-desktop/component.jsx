@@ -53,6 +53,17 @@ class RemoteDesktop extends Component {
     window.remoteDesktop = this;
   }
 
+  transferClipboardText = (ev) => {
+    if (window.allowClipboard) {
+      navigator.clipboard.readText().then((text) => {
+        if (text != this.clipboardText) {
+          this.player.rfb.clipboardPasteFrom(text);
+          this.clipboardText = text;
+        }
+      });
+    }
+  }
+
   async componentDidMount() {
     window.addEventListener('layoutSizesSets', this.handleResize);
     this.playerParent.addEventListener('fullscreenchange', this.onFullscreenChange);
@@ -68,6 +79,9 @@ class RemoteDesktop extends Component {
       const jwt = await makeCall('getSignedIdentity');
       this.setState({remoteDesktopUrl: this.props.remoteDesktopUrl.replace(/{jwt}/g, jwt)});
     }
+
+    document.addEventListener('cut', this.transferClipboardText);
+    document.addEventListener('copy', this.transferClipboardText);
   }
 
   componentWillUnmount() {
@@ -150,6 +164,7 @@ class RemoteDesktop extends Component {
         data-test="remoteDesktop"
         style={{width: '100%', height: '100%', display: 'flex'}}
         ref={(ref) => { this.playerParent = ref; }}
+        onMouseEnter={() => this.transferClipboardText()}
       >
         <DesktopCloseButton toggleSwapLayout={MediaService.toggleSwapLayout}/>
         {this.renderFullscreenButton()}
@@ -169,6 +184,7 @@ class RemoteDesktop extends Component {
           onSecurityFailure={this.onSecurityFailure}
           onCredentialsRequired={this.onCredentialsRequired}
           onDisconnect={this.onDisconnect}
+          onClipboard={(event) => window.allowClipboard && navigator.clipboard.writeText(event.detail.text)}
           viewOnly={!remoteDesktopCanOperate || viewOnly}
           shared
           scaleViewport
