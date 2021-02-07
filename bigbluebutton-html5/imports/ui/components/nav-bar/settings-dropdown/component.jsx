@@ -268,6 +268,7 @@ class SettingsDropdown extends PureComponent {
         onClick={() => mountModal(<ShortcutHelpComponent />)}
       />),
       (<DropdownListItem
+        key="enable-clipboard"
         icon="copy"
         label={intl.formatMessage(intlMessages.clipboardLabel)}
         description={intl.formatMessage(intlMessages.clipboardDesc)}
