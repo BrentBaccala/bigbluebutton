@@ -129,6 +129,8 @@ public class XMLResponseConferenceListParser extends DefaultHandler {
         }else if(inFlags) {
             if (qName.equalsIgnoreCase("can_speak")) {
                 tempFlags.setCanSpeak(tempVal);
+            }else if (qName.equalsIgnoreCase("can_hear")) {
+                tempFlags.setCanHear(tempVal);
             }else if (qName.equalsIgnoreCase("talking")) {
                 tempFlags.setTalking(tempVal);
             }

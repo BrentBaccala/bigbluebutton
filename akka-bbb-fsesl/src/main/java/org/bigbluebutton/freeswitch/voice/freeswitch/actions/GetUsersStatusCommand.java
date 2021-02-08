@@ -102,7 +102,7 @@ public class GetUsersStatusCommand extends FreeswitchCommand {
               ConfMember confMember = new ConfMember(voiceUserId,
                       member.getId().toString(),
                       callerId, callerIdName,
-                      member.getMuted(),
+                      member.getMuted(), member.getDeafed(),
                       member.getSpeaking(),
                       "none");
               confMembers.add(confMember);

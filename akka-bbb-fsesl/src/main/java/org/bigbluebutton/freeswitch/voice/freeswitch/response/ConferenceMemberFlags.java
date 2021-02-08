@@ -26,6 +26,7 @@ package org.bigbluebutton.freeswitch.voice.freeswitch.response;
 public class ConferenceMemberFlags {
     //private boolean canHear = false;
     private boolean canSpeak = false;
+    private boolean canHear = false;
     private boolean talking = false;
     //private boolean hasVideo = false;
     //private boolean hasFloor = false;
@@ -43,8 +44,19 @@ public class ConferenceMemberFlags {
         return true;
     }
 
+    boolean getIsDeafed() {
+        if(canHear == true) {
+            return false;
+        }
+        return true;
+    }
+
     void setCanSpeak(String tempVal) {
         canSpeak = tempVal.equals("true") ? true : false;
+    }
+
+    void setCanHear(String tempVal) {
+        canHear = tempVal.equals("true") ? true : false;
     }
 
     void setTalking(String tempVal) {

@@ -24,6 +24,7 @@ public class VoiceUserJoinedEvent extends VoiceConferenceEvent {
 	private final String callerIdNum;
 	private final String callerIdName;
 	private final Boolean muted;
+	private final Boolean deafed;
 	private final Boolean speaking;
 	private final Boolean locked = false;
 	private final String userId;
@@ -31,13 +32,15 @@ public class VoiceUserJoinedEvent extends VoiceConferenceEvent {
 	
 	public VoiceUserJoinedEvent(String userId, String voiceUserId, String room, 
 								String callerIdNum, String callerIdName,
-								Boolean muted, Boolean speaking, String callingWith) {
+								Boolean muted, Boolean deafed,
+								Boolean speaking, String callingWith) {
 		super(room);
 		this.userId = userId;
 		this.voiceUserId = voiceUserId;
 		this.callerIdName = callerIdName;
 		this.callerIdNum = callerIdNum;
 		this.muted = muted;
+		this.deafed = deafed;
 		this.speaking = speaking;
 		this.callingWith = callingWith;
 	}
@@ -60,6 +63,10 @@ public class VoiceUserJoinedEvent extends VoiceConferenceEvent {
 
 	public Boolean getMuted() {
 		return muted;
+	}
+
+	public Boolean getDeafed() {
+		return deafed;
 	}
 
 	public Boolean getSpeaking() {

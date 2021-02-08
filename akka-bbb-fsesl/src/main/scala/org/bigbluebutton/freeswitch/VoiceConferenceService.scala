@@ -88,6 +88,7 @@ class VoiceConferenceService(healthz: HealthzService,
         cm.callerIdName,
         cm.callerIdNum,
         cm.muted,
+        cm.deafed,
         cm.speaking,
         cm.callingWith,
         "freeswitch"
@@ -118,13 +119,14 @@ class VoiceConferenceService(healthz: HealthzService,
       callerIdName: String,
       callerIdNum:  String,
       muted:        java.lang.Boolean,
+      deafed:       java.lang.Boolean,
       talking:      java.lang.Boolean,
       callingWith:  String
   ) {
 
     val header = BbbCoreVoiceConfHeader(UserJoinedVoiceConfEvtMsg.NAME, voiceConfId)
     val body = UserJoinedVoiceConfEvtMsgBody(voiceConfId, voiceUserId, userId, callerIdName, callerIdNum,
-      muted.booleanValue(), talking.booleanValue(), callingWith)
+      muted.booleanValue(), deafed.booleanValue(), talking.booleanValue(), callingWith)
     val envelope = BbbCoreEnvelope(UserJoinedVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
 
     val msg = new UserJoinedVoiceConfEvtMsg(header, body)

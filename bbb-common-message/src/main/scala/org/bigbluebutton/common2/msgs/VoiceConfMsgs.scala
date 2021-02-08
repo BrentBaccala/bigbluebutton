@@ -299,7 +299,8 @@ case class UserStatusVoiceConfEvtMsg(
 case class UserStatusVoiceConfEvtMsgBody(voiceConf: String, confUsers: Vector[ConfVoiceUser],
                                          confRecordings: Vector[ConfVoiceRecording])
 case class ConfVoiceUser(voiceUserId: String, intId: String,
-                         callerIdName: String, callerIdNum: String, muted: Boolean,
+                         callerIdName: String, callerIdNum: String,
+                         muted: Boolean, deafed: Boolean,
                          talking: Boolean, callingWith: String,
                          calledInto: String // freeswitch, kms
                          )
@@ -314,7 +315,7 @@ case class UserJoinedVoiceConfEvtMsg(
     body:   UserJoinedVoiceConfEvtMsgBody
 ) extends VoiceStandardMsg
 case class UserJoinedVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String, intId: String,
-                                         callerIdName: String, callerIdNum: String, muted: Boolean,
+                                         callerIdName: String, callerIdNum: String, muted: Boolean, deafed: Boolean,
                                          talking: Boolean, callingWith: String)
 
 /**

@@ -58,6 +58,10 @@ public class ConferenceMember {
         return flags.getIsMuted();
     }
 
+    public boolean getDeafed() {
+        return flags.getIsDeafed();
+    }
+
     public boolean getSpeaking() {
         return flags.getIsSpeaking();
     }

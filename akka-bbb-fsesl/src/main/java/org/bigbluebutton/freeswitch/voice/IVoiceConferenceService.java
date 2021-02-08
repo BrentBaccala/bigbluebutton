@@ -21,6 +21,7 @@ public interface IVoiceConferenceService {
                            String callerIdName,
                            String callerIdNum,
                            Boolean muted,
+                           Boolean deafed,
                            Boolean speaking,
                            String avatarURL);
 

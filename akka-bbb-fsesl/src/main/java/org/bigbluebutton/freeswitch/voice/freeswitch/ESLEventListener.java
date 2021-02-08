@@ -66,6 +66,7 @@ public class ESLEventListener implements IEslEventListener {
         String callerId = this.getCallerIdFromEvent(event);
         String callerIdName = this.getCallerIdNameFromEvent(event);
         boolean muted = headers.get("Speak").equals("true") ? false : true; //Was inverted which was causing a State issue
+        boolean deafed = headers.get("Hear").equals("true") ? false : true; //Was inverted which was causing a State issue
         boolean speaking = headers.get("Talking").equals("true") ? true : false;
 
         String voiceUserId = callerIdName;
@@ -122,6 +123,7 @@ public class ESLEventListener implements IEslEventListener {
                     ",callerId=" + callerId +
                     ",callerIdName=" + callerIdName +
                     ",muted=" + muted +
+                    ",deafed=" + deafed +
                     ",talking=" + speaking
                     );
 
@@ -131,6 +133,7 @@ public class ESLEventListener implements IEslEventListener {
                     callerId,
                     callerIdName,
                     muted,
+                    deafed,
                     speaking,
                     "none");
             conferenceEventListener.handleConferenceEvent(pj);
