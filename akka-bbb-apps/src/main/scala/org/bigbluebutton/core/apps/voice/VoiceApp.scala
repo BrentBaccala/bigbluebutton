@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.LockSettingsUtil
-import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, ConfVoiceUser, MessageTypes, Routing, UserJoinedVoiceConfToClientEvtMsg, UserJoinedVoiceConfToClientEvtMsgBody, UserLeftVoiceConfToClientEvtMsg, UserLeftVoiceConfToClientEvtMsgBody, UserMutedVoiceEvtMsg, UserMutedVoiceEvtMsgBody }
+import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, ConfVoiceUser, MessageTypes, Routing, UserJoinedVoiceConfToClientEvtMsg, UserJoinedVoiceConfToClientEvtMsgBody, UserLeftVoiceConfToClientEvtMsg, UserLeftVoiceConfToClientEvtMsgBody, UserMutedVoiceEvtMsg, UserMutedVoiceEvtMsgBody, UserDeafedVoiceEvtMsg, UserDeafedVoiceEvtMsgBody }
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.bus.InternalEventBus
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
@@ -113,6 +113,55 @@ object VoiceApp {
     }
   }
 
+  def broadcastUserDeafedVoiceEvtMsg(
+      meetingId: String,
+      vu:        VoiceUserState,
+      voiceConf: String,
+      outGW:     OutMsgRouter
+  ): Unit = {
+    val routing = Routing.addMsgToClientRouting(
+      MessageTypes.BROADCAST_TO_MEETING,
+      meetingId,
+      vu.intId
+    )
+    val envelope = BbbCoreEnvelope(UserDeafedVoiceEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(
+      UserDeafedVoiceEvtMsg.NAME,
+      meetingId,
+      vu.intId
+    )
+
+    val body = UserDeafedVoiceEvtMsgBody(
+      voiceConf = voiceConf,
+      intId = vu.intId,
+      voiceUserId = vu.intId,
+      vu.deafed
+    )
+
+    val event = UserDeafedVoiceEvtMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+    outGW.send(msgEvent)
+  }
+
+  def handleUserDeafedInVoiceConfEvtMsg(
+      liveMeeting: LiveMeeting,
+      outGW:       OutMsgRouter,
+      voiceUserId: String,
+      deafed:      Boolean
+  ): Unit = {
+    for {
+      deafedUser <- VoiceUsers.userDeafed(liveMeeting.voiceUsers, voiceUserId, deafed)
+    } yield {
+      broadcastUserDeafedVoiceEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        deafedUser,
+        liveMeeting.props.voiceProp.voiceConf,
+        outGW
+      )
+
+    }
+  }
+
   def processUserStatusVoiceConfEvtMsg(
       liveMeeting: LiveMeeting,
       outGW:       OutMsgRouter,
@@ -132,7 +181,16 @@ object VoiceApp {
                 cvu.voiceUserId,
                 cvu.muted
               )
-            } else {
+            }
+            if (vu.deafed != cvu.deafed) {
+              handleUserDeafedInVoiceConfEvtMsg(
+                liveMeeting,
+                outGW,
+                cvu.voiceUserId,
+                cvu.deafed
+              )
+            }
+            if ((vu.muted == cvu.muted) && (vu.deafed == cvu.deafed)) {
               // Update the user status to indicate they are still in the voice conference.
               VoiceUsers.setLastStatusUpdate(liveMeeting.voiceUsers, vu)
             }
@@ -148,6 +206,7 @@ object VoiceApp {
               cvu.callerIdName,
               cvu.callerIdNum,
               cvu.muted,
+              cvu.deafed,
               cvu.talking,
               cvu.calledInto
             )
@@ -196,6 +255,7 @@ object VoiceApp {
       callerIdName: String,
       callerIdNum:  String,
       muted:        Boolean,
+      deafed:       Boolean,
       talking:      Boolean,
       callingInto:  String
   ): Unit = {
@@ -223,6 +283,7 @@ object VoiceApp {
         voiceUserState.callerName,
         voiceUserState.callerNum,
         voiceUserState.muted,
+        voiceUserState.deafed,
         voiceUserState.talking,
         voiceUserState.callingWith,
         voiceUserState.listenOnly
@@ -250,6 +311,7 @@ object VoiceApp {
       callerIdName,
       callerIdNum,
       muted,
+      deafed,
       talking,
       listenOnly = isListenOnly,
       callingInto,

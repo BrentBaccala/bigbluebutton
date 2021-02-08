@@ -86,6 +86,7 @@ export default function addUser(meetingId, userData) {
       callerName: user.name,
       callerNum: '',
       muted: false,
+      deafed: false,
       talking: false,
       callingWith: '',
       listenOnly: false,

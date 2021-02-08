@@ -35,6 +35,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         msg.body.callerIdName,
         msg.body.callerIdNum,
         msg.body.muted,
+        msg.body.deafed,
         msg.body.talking,
         "freeswitch"
       )

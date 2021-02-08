@@ -12,6 +12,7 @@ export default function addVoiceUser(meetingId, voiceUser) {
     callerName: String,
     callerNum: String,
     muted: Boolean,
+    deafed: Boolean,
     talking: Boolean,
     callingWith: String,
     listenOnly: Boolean,

@@ -55,6 +55,17 @@ object VoiceUsers {
     }
   }
 
+  def userDeafed(users: VoiceUsers, voiceUserId: String, deafed: Boolean): Option[VoiceUserState] = {
+    for {
+      u <- findWithVoiceUserId(users, voiceUserId)
+    } yield {
+      val vu = u.modify(_.deafed).setTo(deafed)
+        .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
+      users.save(vu)
+      vu
+    }
+  }
+
   def userTalking(users: VoiceUsers, voiceUserId: String, talking: Boolean): Option[VoiceUserState] = {
     for {
       u <- findWithVoiceUserId(users, voiceUserId)
@@ -149,6 +160,7 @@ case class VoiceUserState(
     callerName:         String,
     callerNum:          String,
     muted:              Boolean,
+    deafed:             Boolean,
     talking:            Boolean,
     listenOnly:         Boolean,
     calledInto:         String,

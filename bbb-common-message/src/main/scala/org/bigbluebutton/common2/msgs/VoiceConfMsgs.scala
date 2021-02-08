@@ -324,7 +324,7 @@ case class UserJoinedVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String,
 object UserJoinedVoiceConfToClientEvtMsg { val NAME = "UserJoinedVoiceConfToClientEvtMsg" }
 case class UserJoinedVoiceConfToClientEvtMsg(header: BbbClientMsgHeader, body: UserJoinedVoiceConfToClientEvtMsgBody) extends BbbCoreMsg
 case class UserJoinedVoiceConfToClientEvtMsgBody(voiceConf: String, intId: String, voiceUserId: String, callerName: String,
-                                                 callerNum: String, muted: Boolean,
+                                                 callerNum: String, muted: Boolean, deafed: Boolean,
                                                  talking: Boolean, callingWith: String, listenOnly: Boolean)
 
 /**
@@ -370,6 +370,23 @@ case class UserMutedInVoiceConfEvtMsg(
     body:   UserMutedInVoiceConfEvtMsgBody
 ) extends VoiceStandardMsg
 case class UserMutedInVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String, muted: Boolean)
+
+/**
+ * Sent to client that user has been deafed in the voice conference.
+ */
+object UserDeafedVoiceEvtMsg { val NAME = "UserDeafedVoiceEvtMsg" }
+case class UserDeafedVoiceEvtMsg(header: BbbClientMsgHeader, body: UserDeafedVoiceEvtMsgBody) extends BbbCoreMsg
+case class UserDeafedVoiceEvtMsgBody(voiceConf: String, intId: String, voiceUserId: String, deafed: Boolean)
+
+/**
+ * Received from FS that user has been deafed in voice conference.
+ */
+object UserDeafedInVoiceConfEvtMsg { val NAME = "UserDeafedInVoiceConfEvtMsg" }
+case class UserDeafedInVoiceConfEvtMsg(
+    header: BbbCoreVoiceConfHeader,
+    body:   UserDeafedInVoiceConfEvtMsgBody
+) extends VoiceStandardMsg
+case class UserDeafedInVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String, deafed: Boolean)
 
 /**
  * Sent to client that user is talking in voice conference.
