@@ -68,13 +68,11 @@ const UserAvatar = ({
     }}
   >
 
-    <div className={cx({
+    {/* deaf/undeaf indicator appears at lower left of user avatar */}
+    <div className={cx(styles.lowerleft, {
       [styles.undeafed]: !deafed && !noVoice,
       [styles.deafed]: deafed && !noVoice,
-      [styles.deafnoVoice]: noVoice,
-    })}>
-    {'\u00a0\ue90c\u00a0'}
-    </div>
+    })}/>
 
     <div className={cx({
       [styles.talking]: (talking && !muted && avatar.length === 0),
