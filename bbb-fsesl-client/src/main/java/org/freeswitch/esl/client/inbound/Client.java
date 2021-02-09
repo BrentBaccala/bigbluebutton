@@ -512,6 +512,12 @@ public class Client
                                     } else if (eventFunc.equals("conf_api_sub_unmute") || eventFunc.equals("conference_api_sub_unmute")) {
                                         listener.conferenceEventUnMute(uniqueId, confName, confSize, event);
                                         return;
+                                    } else if (eventFunc.equals("conf_api_sub_deaf") || eventFunc.equals("conference_api_sub_deaf")) {
+                                        listener.conferenceEventDeaf(uniqueId, confName, confSize, event);
+                                        return;
+                                    } else if (eventFunc.equals("conf_api_sub_undeaf") || eventFunc.equals("conference_api_sub_undeaf")) {
+                                        listener.conferenceEventUnDeaf(uniqueId, confName, confSize, event);
+                                        return;
                                     } else if (eventFunc.equals("conference_record_thread_run")) {
                                         System.out.println("##### Client conference_record_thread_run");
                                         listener.conferenceEventRecord(uniqueId, confName, confSize, event);

@@ -40,6 +40,10 @@ public interface IVoiceConferenceService {
                             String voiceUserId,
                             Boolean muted);
 
+  void userDeafedInVoiceConf(String voiceConfId,
+                             String voiceUserId,
+                             Boolean deafed);
+
   void userTalkingInVoiceConf(String voiceConfId,
                               String voiceUserId,
                               Boolean talking);

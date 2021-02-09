@@ -60,6 +60,18 @@ public class EslEventListener implements IEslEventListener {
         log.info ("Conference [{}] UNMUTE [{}]", confName, sb.toString());
     }
 
+    public void conferenceEventDeaf(String uniqueId, String confName, int confSize, EslEvent event) {
+        StringBuilder sb = new StringBuilder("");
+        sb.append(uniqueId);
+        log.info ("Conference [{}] DEAF [{}]", confName, sb.toString());
+    }
+
+    public void conferenceEventUnDeaf(String uniqueId, String confName, int confSize, EslEvent event) {
+        StringBuilder sb = new StringBuilder("");
+        sb.append(uniqueId);
+        log.info ("Conference [{}] UNDEAF [{}]", confName, sb.toString());
+    }
+
     public void conferenceEventAction(String uniqueId, String confName, int confSize, String action, EslEvent event) {
         StringBuilder sb = new StringBuilder("");
         sb.append(uniqueId);

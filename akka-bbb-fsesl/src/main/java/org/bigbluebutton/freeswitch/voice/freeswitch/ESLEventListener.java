@@ -181,6 +181,20 @@ public class ESLEventListener implements IEslEventListener {
     }
 
     @Override
+    public void conferenceEventDeaf(String uniqueId, String confName, int confSize, EslEvent event) {
+        Integer memberId = this.getMemberIdFromEvent(event);
+        VoiceUserDeafedEvent pm = new VoiceUserDeafedEvent(memberId.toString(), confName, true);
+        conferenceEventListener.handleConferenceEvent(pm);
+    }
+
+    @Override
+    public void conferenceEventUnDeaf(String uniqueId, String confName, int confSize, EslEvent event) {
+        Integer memberId = this.getMemberIdFromEvent(event);
+        VoiceUserDeafedEvent pm = new VoiceUserDeafedEvent(memberId.toString(), confName, false);
+        conferenceEventListener.handleConferenceEvent(pm);
+    }
+
+    @Override
     public void conferenceEventAction(String uniqueId, String confName, int confSize, String action, EslEvent event) {
         if (action == null) {
             return;

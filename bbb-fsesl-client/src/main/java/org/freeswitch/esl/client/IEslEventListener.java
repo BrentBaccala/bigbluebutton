@@ -84,6 +84,24 @@ public interface IEslEventListener
      * @param uniqueId
      * @param confName
      * @param confSize
+     * @param event as an {@link EslEvent}
+     */
+    void conferenceEventDeaf(String uniqueId, String confName, int confSize, EslEvent event);
+
+    /**
+     *
+     * @param uniqueId
+     * @param confName
+     * @param confSize
+     * @param event as an {@link EslEvent}
+     */
+    void conferenceEventUnDeaf(String uniqueId, String confName, int confSize, EslEvent event);
+
+    /**
+     *
+     * @param uniqueId
+     * @param confName
+     * @param confSize
      * @param action
      * @param event as an {@link EslEvent}
      */

@@ -180,6 +180,24 @@ class VoiceConferenceService(healthz: HealthzService,
 
   }
 
+  def userDeafedInVoiceConf(
+      voiceConfId: String,
+      voiceUserId: String,
+      deafed:      java.lang.Boolean
+  ) {
+
+    val header = BbbCoreVoiceConfHeader(UserDeafedInVoiceConfEvtMsg.NAME, voiceConfId)
+    val body = UserDeafedInVoiceConfEvtMsgBody(voiceConfId, voiceUserId, deafed.booleanValue())
+    val envelope = BbbCoreEnvelope(UserDeafedInVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
+
+    val msg = new UserDeafedInVoiceConfEvtMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, msg)
+
+    val json = JsonUtil.toJson(msgEvent)
+    sender.publish(fromVoiceConfRedisChannel, json)
+
+  }
+
   def userTalkingInVoiceConf(
       voiceConfId: String,
       voiceUserId: String,

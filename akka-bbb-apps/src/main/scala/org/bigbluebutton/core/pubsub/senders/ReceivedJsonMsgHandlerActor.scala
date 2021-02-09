@@ -139,6 +139,8 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[UserLeftVoiceConfEvtMsg](envelope, jsonNode)
       case UserMutedInVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[UserMutedInVoiceConfEvtMsg](envelope, jsonNode)
+      case UserDeafedInVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[UserDeafedInVoiceConfEvtMsg](envelope, jsonNode)
       case UserTalkingInVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[UserTalkingInVoiceConfEvtMsg](envelope, jsonNode)
       case MuteUserCmdMsg.NAME =>

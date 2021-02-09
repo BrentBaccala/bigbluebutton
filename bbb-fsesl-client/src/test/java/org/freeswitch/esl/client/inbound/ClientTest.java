@@ -66,6 +66,14 @@ public class ClientTest
                 log.info( "Event received [{}]", event );
             }
 
+            public void conferenceEventDeaf(String uniqueId, String confName, int confSize, EslEvent event) {
+                log.info( "Event received [{}]", event );
+            }
+
+            public void conferenceEventUnDeaf(String uniqueId, String confName, int confSize, EslEvent event) {
+                log.info( "Event received [{}]", event );
+            }
+
             public void conferenceEventAction(String uniqueId, String confName, int confSize, String action, EslEvent event) {
                 log.info( "Event received [{}]", event );
             }

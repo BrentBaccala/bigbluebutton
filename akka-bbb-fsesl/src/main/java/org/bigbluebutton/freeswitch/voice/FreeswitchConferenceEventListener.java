@@ -67,6 +67,9 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
         } else if (event instanceof VoiceUserMutedEvent) {
           VoiceUserMutedEvent evt = (VoiceUserMutedEvent) event;
           vcs.userMutedInVoiceConf(evt.getRoom(), evt.getUserId(), evt.isMuted());
+        } else if (event instanceof VoiceUserDeafedEvent) {
+          VoiceUserDeafedEvent evt = (VoiceUserDeafedEvent) event;
+          vcs.userDeafedInVoiceConf(evt.getRoom(), evt.getUserId(), evt.isDeafed());
         } else if (event instanceof VoiceUserTalkingEvent) {
           VoiceUserTalkingEvent evt = (VoiceUserTalkingEvent) event;
           vcs.userTalkingInVoiceConf(evt.getRoom(), evt.getUserId(), evt.isTalking());

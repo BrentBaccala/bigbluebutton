@@ -360,6 +360,7 @@ class MeetingActor(
       // Voice
       case m: UserLeftVoiceConfEvtMsg         => handleUserLeftVoiceConfEvtMsg(m)
       case m: UserMutedInVoiceConfEvtMsg      => handleUserMutedInVoiceConfEvtMsg(m)
+      case m: UserDeafedInVoiceConfEvtMsg     => handleUserDeafedInVoiceConfEvtMsg(m)
       case m: UserTalkingInVoiceConfEvtMsg =>
         updateVoiceUserLastActivity(m.body.voiceUserId)
         handleUserTalkingInVoiceConfEvtMsg(m)
