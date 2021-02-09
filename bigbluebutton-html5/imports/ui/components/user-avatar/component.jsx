@@ -69,8 +69,9 @@ const UserAvatar = ({
   >
 
     <div className={cx({
-      [styles.undeafed]: !deafed,
-      [styles.deafed]: deafed,
+      [styles.undeafed]: !deafed && !noVoice,
+      [styles.deafed]: deafed && !noVoice,
+      [styles.deafnoVoice]: noVoice,
     })}>
     {'\u00a0\ue90c\u00a0'}
     </div>
