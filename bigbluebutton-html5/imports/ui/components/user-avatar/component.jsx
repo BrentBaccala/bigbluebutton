@@ -10,6 +10,7 @@ const propTypes = {
   presenter: PropTypes.bool,
   talking: PropTypes.bool,
   muted: PropTypes.bool,
+  deafed: PropTypes.bool,
   listenOnly: PropTypes.bool,
   voice: PropTypes.bool,
   noVoice: PropTypes.bool,
@@ -24,6 +25,7 @@ const defaultProps = {
   presenter: false,
   talking: false,
   muted: false,
+  deafed: false,
   listenOnly: false,
   voice: false,
   noVoice: false,
@@ -39,6 +41,7 @@ const UserAvatar = ({
   presenter,
   talking,
   muted,
+  deafed,
   listenOnly,
   color,
   voice,
@@ -64,6 +67,13 @@ const UserAvatar = ({
       color, // We need the same color on both for the border
     }}
   >
+
+    <div className={cx({
+      [styles.undeafed]: !deafed,
+      [styles.deafed]: deafed,
+    })}>
+    {'\u00a0\ue90c\u00a0'}
+    </div>
 
     <div className={cx({
       [styles.talking]: (talking && !muted && avatar.length === 0),

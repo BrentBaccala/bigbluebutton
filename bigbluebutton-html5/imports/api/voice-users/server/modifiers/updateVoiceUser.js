@@ -13,6 +13,7 @@ export default function updateVoiceUser(meetingId, voiceUser) {
     voiceUserId: String,
     talking: Match.Maybe(Boolean),
     muted: Match.Maybe(Boolean),
+    deafed: Match.Maybe(Boolean),
     voiceConf: String,
     joined: Match.Maybe(Boolean),
   });

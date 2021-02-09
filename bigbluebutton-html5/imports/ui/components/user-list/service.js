@@ -327,6 +327,7 @@ const curatedVoiceUser = (intId) => {
   return {
     isVoiceUser: voiceUser ? voiceUser.joined : false,
     isMuted: voiceUser ? voiceUser.muted && !voiceUser.listenOnly : false,
+    isDeafed: voiceUser ? voiceUser.deafed : false,
     isTalking: voiceUser ? voiceUser.talking && !voiceUser.muted : false,
     isListenOnly: voiceUser ? voiceUser.listenOnly : false,
   };

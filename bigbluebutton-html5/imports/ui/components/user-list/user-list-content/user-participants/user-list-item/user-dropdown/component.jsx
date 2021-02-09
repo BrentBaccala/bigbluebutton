@@ -534,6 +534,7 @@ class UserDropdown extends PureComponent {
         presenter={user.presenter}
         talking={voiceUser.isTalking}
         muted={voiceUser.isMuted}
+        deafed={voiceUser.isDeafed}
         listenOnly={voiceUser.isListenOnly}
         voice={voiceUser.isVoiceUser}
         noVoice={!voiceUser.isVoiceUser}
