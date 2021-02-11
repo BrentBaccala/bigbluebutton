@@ -155,9 +155,8 @@
 }
 
 .lowerleft {
+  &:after {
     position: absolute;
-    width: 16px;
-    height: 16px;
     padding-top: .5rem;
     padding-right: 0;
     padding-left: 0;
@@ -175,22 +174,23 @@
     vertical-align: middle;
     letter-spacing: -.65rem;
     z-index: 1;
+  }
 }
 
 .undeafed {
-    font-family: 'bbb-icons';
-    font-size: .65rem;
-    background-color: var(--user-indicator-voice-bg);
     &:after {
+      font-family: 'bbb-icons';
+      font-size: .65rem;
+      background-color: var(--user-indicator-voice-bg);
       content: "\00a0\e90c\00a0";
     }
 }
 
 .deafed {
-    font-family: 'bbb-icons';
-    font-size: .65rem;
-    background-color: var(--user-indicator-muted-bg);
     &:after {
+      font-family: 'bbb-icons';
+      font-size: .65rem;
+      background-color: var(--user-indicator-muted-bg);
       content: "\00a0\e90c\00a0";
     }
 }
@@ -203,6 +203,8 @@
 
 .listenOnly,
 .muted,
+.deafed,
+.undeafed,
 .voice,
 .noVoice {
   @include indicatorStyles();

@@ -68,10 +68,15 @@ const UserAvatar = ({
     }}
   >
 
-    {/* deaf/undeaf indicator appears at lower left of user avatar */}
+    {/* deaf/undeaf indicator appears at lower left of user avatar
+      * if either voice or noVoice is true (user list avatars), and
+      * doesn't appear at all if both voice and noVoice are false
+      * (all other avatars, such as in the chat box)
+      */}
     <div className={cx(styles.lowerleft, {
-      [styles.undeafed]: !deafed && !noVoice,
-      [styles.deafed]: deafed && !noVoice,
+      [styles.undeafed]: !deafed && voice,
+      [styles.deafed]: deafed && voice,
+      [styles.noVoice]: noVoice,
     })}/>
 
     <div className={cx({
