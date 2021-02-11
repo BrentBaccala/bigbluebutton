@@ -28,6 +28,7 @@ export default function handleGetVoiceUsers({ body }, meetingId) {
         voiceUserId: user.voiceUserId,
         talking: user.talking,
         muted: user.muted,
+        deafed: user.deafed,
         voiceConf: meeting.voiceProp.voiceConf,
         joined: true,
       }));
@@ -39,6 +40,7 @@ export default function handleGetVoiceUsers({ body }, meetingId) {
         callerName: user.callerName,
         callerNum: user.callerNum,
         muted: user.muted,
+        deafed: user.deafed,
         talking: user.talking,
         callingWith: user.callingWith,
         listenOnly: user.listenOnly,
