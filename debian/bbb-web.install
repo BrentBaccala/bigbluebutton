@@ -1,6 +1,0 @@
-#! /usr/bin/dh-exec
-debian/bbb-web.source/*			/
-bbb-web/usr				/
-bigbluebutton-web/run-prod.sh		/usr/share/bbb-web/
-bigbluebutton-web/pres-checker/lib/*	/usr/share/prescheck/lib/
-bigbluebutton-web/pres-checker/run.sh	=> /usr/share/prescheck/prescheck.sh

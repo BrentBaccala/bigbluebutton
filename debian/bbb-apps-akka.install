@@ -1,2 +1,0 @@
-akka-bbb-apps/target/universal/stage/*		/usr/share/bbb-apps-akka
-debian/bbb-apps-akka.source/*			/
