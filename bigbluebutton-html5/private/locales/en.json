@@ -1,7 +1,6 @@
 {
     "app.home.greeting": "Your presentation will begin shortly ...",
     "app.chat.submitLabel": "Send message",
-    "app.chat.loading": "loading: {0}%",
     "app.chat.errorMaxMessageLength": "The message is {0} characters(s) too long",
     "app.chat.disconnected": "You are disconnected, messages can't be sent",
     "app.chat.locked": "Chat is locked, messages can't be sent",
@@ -341,6 +340,7 @@
     "app.submenu.notification.pushAlertLabel": "Popup Alerts",
     "app.submenu.notification.messagesLabel": "Chat Message",
     "app.submenu.notification.userJoinLabel": "User Join",
+    "app.submenu.notification.guestWaitingLabel": "Guest Waiting Approval",
     "app.submenu.audio.micSourceLabel": "Microphone source",
     "app.submenu.audio.speakerSourceLabel": "Speaker source",
     "app.submenu.audio.streamVolumeLabel": "Your audio stream volume",
