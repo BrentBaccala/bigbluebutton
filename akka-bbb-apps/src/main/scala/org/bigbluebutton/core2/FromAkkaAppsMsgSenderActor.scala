@@ -146,6 +146,11 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       case UpdateExternalVideoEvtMsg.NAME =>
         msgSender.send("from-akka-apps-frontend-redis-channel", json)
 
+      // requests for signed identity tokens come from the frontends,
+      // and replies go back to them
+      case GetSignedIdentityRespMsg.NAME =>
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
       case _ =>
         msgSender.send(fromAkkaAppsRedisChannel, json)
     }
