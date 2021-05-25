@@ -16,6 +16,17 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildGuestLobbyMessageChangedEvtMsg(meetingId: String, userId: String, message: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(GuestLobbyMessageChangedEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(GuestLobbyMessageChangedEvtMsg.NAME, meetingId, userId)
+
+    val body = GuestLobbyMessageChangedEvtMsgBody(message)
+    val event = GuestLobbyMessageChangedEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildGuestApprovedEvtMsg(meetingId: String, userId: String, status: String, approvedBy: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
     val envelope = BbbCoreEnvelope(GuestApprovedEvtMsg.NAME, routing)
@@ -74,11 +85,13 @@ object MsgBuilder {
   }
 
   def buildValidateAuthTokenRespMsg(meetingId: String, userId: String, authToken: String,
-                                    valid: Boolean, waitForApproval: Boolean, registeredOn: Long, authTokenValidatedOn: Long): BbbCommonEnvCoreMsg = {
+                                    valid: Boolean, waitForApproval: Boolean, registeredOn: Long, authTokenValidatedOn: Long,
+                                    reasonCode: String, reason: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
     val envelope = BbbCoreEnvelope(ValidateAuthTokenRespMsg.NAME, routing)
     val header = BbbClientMsgHeader(ValidateAuthTokenRespMsg.NAME, meetingId, userId)
-    val body = ValidateAuthTokenRespMsgBody(userId, authToken, valid, waitForApproval, registeredOn, authTokenValidatedOn)
+    val body = ValidateAuthTokenRespMsgBody(userId, authToken, valid, waitForApproval, registeredOn, authTokenValidatedOn,
+      reasonCode, reason)
     val event = ValidateAuthTokenRespMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
@@ -258,10 +271,10 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildCheckAlivePingSysMsg(system: String, timestamp: Long): BbbCommonEnvCoreMsg = {
+  def buildCheckAlivePingSysMsg(system: String, bbbWebTimestamp: Long, akkaAppsTimestamp: Long): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(CheckAlivePongSysMsg.NAME, routing)
-    val body = CheckAlivePongSysMsgBody(system, timestamp)
+    val body = CheckAlivePongSysMsgBody(system, bbbWebTimestamp, akkaAppsTimestamp)
     val header = BbbCoreBaseHeader(CheckAlivePongSysMsg.NAME)
     val event = CheckAlivePongSysMsg(header, body)
 
@@ -478,6 +491,16 @@ object MsgBuilder {
 
     val body = GetGlobalAudioPermissionRespMsgBody(meetingId, voiceConf, userId, sfuSessionId, allowed)
     val event = GetGlobalAudioPermissionRespMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildMeetingTimeRemainingUpdateEvtMsg(meetingId: String, timeLeftInSec: Long): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
+    val envelope = BbbCoreEnvelope(MeetingTimeRemainingUpdateEvtMsg.NAME, routing)
+    val body = MeetingTimeRemainingUpdateEvtMsgBody(timeLeftInSec)
+    val header = BbbClientMsgHeader(MeetingTimeRemainingUpdateEvtMsg.NAME, meetingId, "not-used")
+    val event = MeetingTimeRemainingUpdateEvtMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }

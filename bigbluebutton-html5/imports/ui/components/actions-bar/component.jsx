@@ -1,25 +1,23 @@
 import React, { PureComponent } from 'react';
 import cx from 'classnames';
+import Button from '/imports/ui/components/button/component';
+import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager/component';
+import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
+import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles.scss';
-import DesktopShare from './desktop-share/component';
 import ActionsDropdown from './actions-dropdown/container';
+import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import LockRemoteDesktopContainer from '../remote-desktop/lock-button/container';
-import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import PresentationOptionsContainer from './presentation-options/component';
 import MediaService, { getSwapLayout } from '/imports/ui/components/media/service';
-import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
 
 class ActionsBar extends PureComponent {
   render() {
     const {
       amIPresenter,
-      handleShareScreen,
-      handleUnshareScreen,
-      isVideoBroadcasting,
       amIModerator,
-      screenSharingCheck,
       enableVideo,
       isLayoutSwapped,
       toggleSwapLayout,
@@ -28,23 +26,20 @@ class ActionsBar extends PureComponent {
       isSharingVideo,
       isSharingDesktop,
       canIOperateDesktop,
-      screenShareEndAlert,
       stopExternalVideoShare,
       stopRemoteDesktop,
-      screenshareDataSavingSetting,
       isCaptionsAvailable,
       isMeteorConnected,
       isPollingEnabled,
+      isSelectRandomUserEnabled,
+      isPresentationDisabled,
       isThereCurrentPresentation,
       allowExternalVideo,
       allowRemoteDesktop,
+      setEmojiStatus,
+      currentUser,
+      shortcuts,
     } = this.props;
-
-    const actionBarClasses = {};
-
-    actionBarClasses[styles.centerWithActions] = amIPresenter;
-    actionBarClasses[styles.center] = true;
-    actionBarClasses[styles.mobileLayoutSwapped] = isLayoutSwapped && amIPresenter;
 
     return (
       <div
@@ -58,6 +53,7 @@ class ActionsBar extends PureComponent {
             amIPresenter,
             amIModerator,
             isPollingEnabled,
+            isSelectRandomUserEnabled,
             allowExternalVideo,
             allowRemoteDesktop,
             handleTakePresenter,
@@ -73,25 +69,18 @@ class ActionsBar extends PureComponent {
             ? (
               <CaptionsButtonContainer {...{ intl }} />
             )
-            : null
-          }
+            : null}
         </div>
-        <div className={cx(actionBarClasses)}>
+        <div className={styles.center}>
           <AudioControlsContainer />
           {enableVideo
             ? (
               <JoinVideoOptionsContainer />
             )
             : null}
-          <DesktopShare {...{
-            handleShareScreen,
-            handleUnshareScreen,
-            isVideoBroadcasting,
+          <ScreenshareButtonContainer {...{
             amIPresenter,
-            screenSharingCheck,
-            screenShareEndAlert,
             isMeteorConnected,
-            screenshareDataSavingSetting,
           }}
           />
           {canIOperateDesktop
@@ -101,19 +90,42 @@ class ActionsBar extends PureComponent {
             : null}
         </div>
         <div className={styles.right}>
-          {isLayoutSwapped || (MediaService.shouldShowRemoteDesktop() && getSwapLayout())
+          {(isLayoutSwapped && !isPresentationDisabled) || (MediaService.shouldShowRemoteDesktop() && getSwapLayout())
             ? (
               <PresentationOptionsContainer
                 toggleSwapLayout={toggleSwapLayout}
                 isThereCurrentPresentation={MediaService.shouldShowRemoteDesktop() || isThereCurrentPresentation}
               />
             )
-            : null
-          }
+            : null}
+          <Button
+            icon="hand"
+            label={intl.formatMessage({
+              id: `app.actionsBar.emojiMenu.${
+                currentUser.emoji === 'raiseHand'
+                  ? 'lowerHandLabel'
+                  : 'raiseHandLabel'
+              }`,
+            })}
+            accessKey={shortcuts.raisehand}
+            color={currentUser.emoji === 'raiseHand' ? 'primary' : 'default'}
+            data-test={currentUser.emoji === 'raiseHand' ? 'lowerHandLabel' : 'raiseHandLabel'}
+            ghost={currentUser.emoji !== 'raiseHand'}
+            className={cx(currentUser.emoji === 'raiseHand' || styles.btn)}
+            hideLabel
+            circle
+            size="lg"
+            onClick={() => {
+              setEmojiStatus(
+                currentUser.userId,
+                currentUser.emoji === 'raiseHand' ? 'none' : 'raiseHand',
+              );
+            }}
+          />
         </div>
       </div>
     );
   }
 }
 
-export default ActionsBar;
+export default withShortcutHelper(ActionsBar, ['raiseHand']);

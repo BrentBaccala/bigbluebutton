@@ -41,8 +41,12 @@ object Boot extends App with SystemConfiguration {
 
   val msgSender = new MessageSender(redisPublisher)
 
+  val healthzService = HealthzService(system)
+
+  val apiService = new ApiService(healthzService)
+
   val redisRecorderActor = system.actorOf(
-    RedisRecorderActor.props(system, redisConfig),
+    RedisRecorderActor.props(system, redisConfig, healthzService),
     "redisRecorderActor"
   )
 
@@ -53,14 +57,14 @@ object Boot extends App with SystemConfiguration {
 
   val fromAkkaAppsMsgSenderActorRef = system.actorOf(FromAkkaAppsMsgSenderActor.props(msgSender))
 
-  val analyticsActorRef = system.actorOf(AnalyticsActor.props())
+  val analyticsActorRef = system.actorOf(AnalyticsActor.props(analyticsIncludeChat))
   outBus2.subscribe(fromAkkaAppsMsgSenderActorRef, outBbbMsgMsgChannel)
   outBus2.subscribe(redisRecorderActor, recordServiceMessageChannel)
 
   outBus2.subscribe(analyticsActorRef, outBbbMsgMsgChannel)
   bbbMsgBus.subscribe(analyticsActorRef, analyticsChannel)
 
-  val bbbActor = system.actorOf(BigBlueButtonActor.props(system, eventBus, bbbMsgBus, outGW), "bigbluebutton-actor")
+  val bbbActor = system.actorOf(BigBlueButtonActor.props(system, eventBus, bbbMsgBus, outGW, healthzService), "bigbluebutton-actor")
   eventBus.subscribe(bbbActor, meetingManagerChannel)
 
   val redisMessageHandlerActor = system.actorOf(ReceivedJsonMsgHandlerActor.props(bbbMsgBus, incomingJsonMessageBus))
@@ -79,10 +83,6 @@ object Boot extends App with SystemConfiguration {
     ),
     "redis-subscriber"
   )
-
-  val healthz = HealthzService(system)
-
-  val apiService = new ApiService(healthz)
 
   val bindingFuture = Http().bindAndHandle(apiService.routes, httpHost, httpPort)
 }

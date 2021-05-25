@@ -125,6 +125,16 @@ class ActionsDropdown extends PureComponent {
     }
   }
 
+  handleExternalVideoClick() {
+    const { mountModal } = this.props;
+    mountModal(<ExternalVideoModal />);
+  }
+
+  handleRemoteDesktopClick() {
+    const { mountModal } = this.props;
+    mountModal(<RemoteDesktopModal />);
+  }
+
   getAvailableActions() {
     const {
       intl,
@@ -135,6 +145,7 @@ class ActionsDropdown extends PureComponent {
       isSharingVideo,
       isSharingDesktop,
       isPollingEnabled,
+      isSelectRandomUserEnabled,
       stopExternalVideoShare,
       stopRemoteDesktop,
       mountModal,
@@ -168,6 +179,7 @@ class ActionsDropdown extends PureComponent {
               }
               Session.set('openPanel', 'poll');
               Session.set('forcePollOpen', true);
+              window.dispatchEvent(new Event('panelChanged'));
             }}
           />
         )
@@ -219,7 +231,7 @@ class ActionsDropdown extends PureComponent {
           />
         )
         : null),
-      (amIPresenter
+      (amIPresenter && isSelectRandomUserEnabled
         ? (
           <DropdownListItem
             icon="user"
@@ -246,37 +258,30 @@ class ActionsDropdown extends PureComponent {
     // about the first one because it's the default.
     const { podId } = podIds[0];
 
-    const presentationItemElements = presentations.map((p) => {
-      const itemStyles = {};
-      itemStyles[styles.presentationItem] = true;
-      itemStyles[styles.isCurrent] = p.current;
+    const presentationItemElements = presentations
+      .sort((a, b) => (a.name.localeCompare(b.name)))
+      .map((p) => {
+        const itemStyles = {};
+        itemStyles[styles.presentationItem] = true;
+        itemStyles[styles.isCurrent] = p.current;
 
-      return (<DropdownListItem
-        className={cx(itemStyles)}
-        icon="file"
-        iconRight={p.current ? 'check' : null}
-        label={p.name}
-        description="uploaded presentation file"
-        key={`uploaded-presentation-${p.id}`}
-        onClick={() => {
-          setPresentation(p.id, podId);
-        }}
-      />
-      );
-    });
+        return (
+          <DropdownListItem
+            className={cx(itemStyles)}
+            icon="file"
+            iconRight={p.current ? 'check' : null}
+            label={p.name}
+            description="uploaded presentation file"
+            key={`uploaded-presentation-${p.id}`}
+            onClick={() => {
+              setPresentation(p.id, podId);
+            }}
+          />
+        );
+      });
 
     presentationItemElements.push(<DropdownListSeparator key={_.uniqueId('list-separator-')} />);
     return presentationItemElements;
-  }
-
-  handleRemoteDesktopClick() {
-    const { mountModal } = this.props;
-    mountModal(<RemoteDesktopModal />);
-  }
-
-  handleExternalVideoClick() {
-    const { mountModal } = this.props;
-    mountModal(<ExternalVideoModal />);
   }
 
   render() {
@@ -286,6 +291,7 @@ class ActionsDropdown extends PureComponent {
       amIModerator,
       shortcuts: OPEN_ACTIONS_AK,
       isMeteorConnected,
+      isDropdownOpen,
     } = this.props;
 
     const availableActions = this.getAvailableActions();
@@ -303,6 +309,7 @@ class ActionsDropdown extends PureComponent {
       <Dropdown className={styles.dropdown} ref={(ref) => { this._dropdown = ref; }}>
         <DropdownTrigger tabIndex={0} accessKey={OPEN_ACTIONS_AK}>
           <Button
+            className={isDropdownOpen ? styles.hideDropdownButton : ''}
             hideLabel
             aria-label={intl.formatMessage(intlMessages.actionsLabel)}
             label={intl.formatMessage(intlMessages.actionsLabel)}
@@ -314,7 +321,7 @@ class ActionsDropdown extends PureComponent {
           />
         </DropdownTrigger>
         <DropdownContent placement="top left">
-          <DropdownList>
+          <DropdownList className={styles.scrollableList}>
             {children}
           </DropdownList>
         </DropdownContent>

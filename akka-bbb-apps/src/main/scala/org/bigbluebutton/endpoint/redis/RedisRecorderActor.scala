@@ -10,28 +10,40 @@ import akka.actor.Actor
 import akka.actor.ActorLogging
 import akka.actor.ActorSystem
 import akka.actor.Props
+import org.bigbluebutton.service.HealthzService
+
+import scala.concurrent.duration._
+import scala.concurrent._
+import ExecutionContext.Implicits.global
+
+case object CheckRecordingDBStatus
 
 object RedisRecorderActor {
   def props(
-      system:      ActorSystem,
-      redisConfig: RedisConfig
+      system:         ActorSystem,
+      redisConfig:    RedisConfig,
+      healthzService: HealthzService
   ): Props =
     Props(
       classOf[RedisRecorderActor],
       system,
-      redisConfig
+      redisConfig,
+      healthzService
     )
 }
 
 class RedisRecorderActor(
-    system:      ActorSystem,
-    redisConfig: RedisConfig
+    system:         ActorSystem,
+    redisConfig:    RedisConfig,
+    healthzService: HealthzService
 )
   extends RedisStorageProvider(
     system,
     "BbbAppsAkkaRecorder",
     redisConfig
   ) with Actor with ActorLogging {
+
+  system.scheduler.schedule(1.minutes, 1.minutes, self, CheckRecordingDBStatus)
 
   private def record(session: String, message: java.util.Map[java.lang.String, java.lang.String]): Unit = {
     redis.recordAndExpire(session, message)
@@ -41,7 +53,7 @@ class RedisRecorderActor(
     //=============================
     // 2x messages
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
-
+    case CheckRecordingDBStatus   => checkRecordingDBStatus()
     case _                        => // do nothing
   }
 
@@ -87,6 +99,9 @@ class RedisRecorderActor(
 
       // Caption
       case m: EditCaptionHistoryEvtMsg              => handleEditCaptionHistoryEvtMsg(m)
+
+      // Pad
+      case m: AddPadEvtMsg                          => handleAddPadEvtMsg(m)
 
       // Screenshare
       case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
@@ -434,6 +449,14 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
+  private def handleAddPadEvtMsg(msg: AddPadEvtMsg) {
+    val ev = new AddPadRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPadId(msg.body.padId)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
   private def handleScreenshareRtmpBroadcastStartedEvtMsg(msg: ScreenshareRtmpBroadcastStartedEvtMsg) {
     val ev = new DeskshareStartRtmpRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
@@ -560,4 +583,12 @@ class RedisRecorderActor(
 
     record(meetingId, ev.toMap.asJava)
   }
+
+  private def checkRecordingDBStatus(): Unit = {
+    if (redis.checkConnectionStatusBasic)
+      healthzService.sendRecordingDBStatusMessage(System.currentTimeMillis())
+    else
+      log.error("recording database is not available.")
+  }
+
 }

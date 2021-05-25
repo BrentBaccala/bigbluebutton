@@ -68,6 +68,7 @@ public class Meeting {
 	private String defaultAvatarURL;
 	private String defaultConfigToken;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
+	private String guestLobbyMessage = "";
 	private Boolean authenticatedGuest = false;
 	private boolean userHasJoined = false;
 	private Map<String, String> pads;
@@ -83,6 +84,7 @@ public class Meeting {
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
 	private Boolean allowModsToUnmuteUsers = false;
+	private Boolean meetingKeepEvents;
 
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
@@ -376,6 +378,14 @@ public class Meeting {
     	return guestPolicy;
 	}
 
+	public void setGuestLobbyMessage(String message) {
+		guestLobbyMessage = message;
+	}
+
+	public String getGuestLobbyMessage() {
+		return guestLobbyMessage;
+	}
+
 	public void setAuthenticatedGuest(Boolean authGuest) {
 		authenticatedGuest = authGuest;
 	}
@@ -493,6 +503,14 @@ public class Meeting {
 	public Boolean getMuteOnStart() {
     	return muteOnStart;
 	}
+
+  public void setMeetingKeepEvents(Boolean mke) {
+    meetingKeepEvents = mke;
+  }
+
+  public Boolean getMeetingKeepEvents() {
+    return meetingKeepEvents;
+  }
 
 	public void setAllowModsToUnmuteUsers(Boolean value) {
 		allowModsToUnmuteUsers = value;
