@@ -26,7 +26,16 @@ case "$1" in
       if xmlstarlet sel -t -v '//param[@name="wss-binding"]/@value' $SOURCE > /dev/null 2>&1; then
         WSS_BINDING=$(xmlstarlet sel -t -v '//param[@name="wss-binding"]/@value' $SOURCE)
         xmlstarlet edit --inplace --update '//param[@name="wss-binding"]/@value' --value "$WSS_BINDING" $TARGET
-      fi 
+      fi
+      # ext-rtp-ip and ext-sip-ip will be changed by bbb-install for NAT installations
+      if xmlstarlet sel -t -v '//param[@name="ext-rtp-ip"]/@value' $SOURCE > /dev/null 2>&1; then
+        WS_BINDING=$(xmlstarlet sel -t -v '//param[@name="ext-rtp-ip"]/@value' $SOURCE)
+        xmlstarlet edit --inplace --update '//param[@name="ext-rtp-ip"]/@value' --value "$WS_BINDING" $TARGET
+      fi
+      if xmlstarlet sel -t -v '//param[@name="ext-sip-ip"]/@value' $SOURCE > /dev/null 2>&1; then
+        WS_BINDING=$(xmlstarlet sel -t -v '//param[@name="ext-sip-ip"]/@value' $SOURCE)
+        xmlstarlet edit --inplace --update '//param[@name="ext-sip-ip"]/@value' --value "$WS_BINDING" $TARGET
+      fi
       mv -f $SOURCE "${SOURCE}_"
     fi 
 
