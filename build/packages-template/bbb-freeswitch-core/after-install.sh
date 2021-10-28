@@ -29,12 +29,12 @@ case "$1" in
       fi
       # ext-rtp-ip and ext-sip-ip will be changed by bbb-install for NAT installations
       if xmlstarlet sel -t -v '//param[@name="ext-rtp-ip"]/@value' $SOURCE > /dev/null 2>&1; then
-        WS_BINDING=$(xmlstarlet sel -t -v '//param[@name="ext-rtp-ip"]/@value' $SOURCE)
-        xmlstarlet edit --inplace --update '//param[@name="ext-rtp-ip"]/@value' --value "$WS_BINDING" $TARGET
+        EXT_RTP_IP=$(xmlstarlet sel -t -v '//param[@name="ext-rtp-ip"]/@value' $SOURCE)
+        xmlstarlet edit --inplace --update '//param[@name="ext-rtp-ip"]/@value' --value "$EXT_RTP_IP" $TARGET
       fi
       if xmlstarlet sel -t -v '//param[@name="ext-sip-ip"]/@value' $SOURCE > /dev/null 2>&1; then
-        WS_BINDING=$(xmlstarlet sel -t -v '//param[@name="ext-sip-ip"]/@value' $SOURCE)
-        xmlstarlet edit --inplace --update '//param[@name="ext-sip-ip"]/@value' --value "$WS_BINDING" $TARGET
+        EXT_SIP_IP=$(xmlstarlet sel -t -v '//param[@name="ext-sip-ip"]/@value' $SOURCE)
+        xmlstarlet edit --inplace --update '//param[@name="ext-sip-ip"]/@value' --value "$EXT_SIP_IP" $TARGET
       fi
       mv -f $SOURCE "${SOURCE}_"
     fi 
