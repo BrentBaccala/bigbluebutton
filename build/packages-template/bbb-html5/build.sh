@@ -25,6 +25,7 @@ cp $DISTRO/bbb-html5.nginx staging/etc/bigbluebutton/nginx
 
 mkdir -p staging/etc/nginx/conf.d
 cp $DISTRO/bbb-html5-loadbalancer.conf staging/etc/nginx/conf.d
+cp $DISTRO/private_address.conf staging/etc/nginx/conf.d
 
 
 mkdir -p staging/etc/systemd/system
