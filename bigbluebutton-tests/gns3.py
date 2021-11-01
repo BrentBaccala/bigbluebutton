@@ -6,6 +6,19 @@
 # release, the virtual memory size, the virtual disk size, and the
 # number of CPUs.
 #
+# USAGE
+#
+# 1. Authentication to GNS3 server
+#
+#    Provide one of the GNS3_CREDENTIAL_FILES in propfile format;
+#    minimal entries are host/port/user/password in the Server block:
+#
+#    [Server]
+#    host = localhost
+#    port = 3080
+#    user = admin
+#    password = password
+#
 # Can be passed a '-d' option to delete an existing "ubuntu" VM.
 #
 # We use an Ubuntu cloud image that comes with the cloud-init package
@@ -44,7 +57,7 @@ import subprocess
 
 import configparser
 
-PROP_FILE = os.path.expanduser("~/.config/GNS3/2.2/gns3_server.conf")
+GNS3_CREDENTIAL_FILES = ["~/gns3_server.conf", "~/.config/GNS3/2.2/gns3_server.conf"]
 
 cloud_images = {
     20: 'ubuntu-20.04-server-cloudimg-amd64.img',
@@ -83,9 +96,17 @@ cloud_image = cloud_images[args.release]
 # Obtain the credentials needed to authenticate ourself to the GNS3 server
 
 config = configparser.ConfigParser()
-config.read(PROP_FILE)
+for propfilename in GNS3_CREDENTIAL_FILES:
+    propfilename = os.path.expanduser(propfilename)
+    if os.path.exists(propfilename):
+        config.read(propfilename)
+        break
+try:
+    gns3_server = config['Server']['host'] + ":" + config['Server']['port']
+except:
+    print('No GNS3 server/host/port configuration found')
+    exit(1)
 
-gns3_server = config['Server']['host'] + ":" + config['Server']['port']
 auth = HTTPBasicAuth(config['Server']['user'], config['Server']['password'])
 
 # Find the GNS3 project called project_name
