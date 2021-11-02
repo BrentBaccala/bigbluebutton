@@ -305,7 +305,9 @@ for keyfilename in SSH_AUTHORIZED_KEYS_FILES:
                 if l.startswith('ssh-'):
                     ssh_authorized_keys.append(l)
 
-home_once_script = f"""#!/bin/sh
+screen_script = f"""#!/bin/bash
+
+cd /home/ubuntu
 
 # gns3.py's once_script is a Python fstring, so we can embed Python variable names,
 # and use this to get a callback notificaiton faster than phone_home, which won't
@@ -313,17 +315,45 @@ home_once_script = f"""#!/bin/sh
 
 wget --post-data 'Hi' {notification_url}
 
-cd /home/ubuntu
+# I don't do this with cloud-init because it waits for the packages to be installed before
+# running per-once scripts or even phone_home notifying.
+
+sudo apt update
+sudo apt -y install git-core ant ant-contrib openjdk-8-jdk-headless zip unzip
+
 git clone https://github.com/bigbluebutton/bigbluebutton.git
 
+curl -s "https://get.sdkman.io" | bash
+
+source "/home/ubuntu/.sdkman/bin/sdkman-init.sh"
+sdk install gradle 5.5.1
+sdk install grails 3.3.9
+sdk install sbt 1.2.8
+sdk install maven 3.5.0
+
+exec bash
+"""
+
+home_once_script = f"""#!/bin/bash
+
+# gns3.py's once_script is a Python fstring, so we can embed Python variable names,
+# and use this to get a callback notificaiton faster than phone_home, which won't
+# run until this once_script terminates.
+
+wget --post-data 'Running /home_once.sh' {notification_url}
+
+screen -dm bash -c /screen.sh
 """
 
 once_script = f"""#!/bin/sh
 
 cd /home/ubuntu
-screen -dm bash -c "/home/ubuntu/once.sh; exec bash"
+su ubuntu -c /home_once.sh
 
 """
+
+# Putting files in /home/ubuntu cause that directory's permissions to change to root.root,
+# probably because it's being created too early in the boot process.  Avoid this.
 
 user_data = {'ssh_authorized_keys': ssh_authorized_keys,
              'phone_home': {'url': notification_url},
@@ -332,9 +362,13 @@ user_data = {'ssh_authorized_keys': ssh_authorized_keys,
                                'permissions': '0755',
                                'content': once_script
                                },
-                              {'path': '/home/ubuntu/once.sh',
+                              {'path': '/home_once.sh',
                                'permissions': '0755',
                                'content': home_once_script
+                               },
+                              {'path': '/screen.sh',
+                               'permissions': '0755',
+                               'content': screen_script
                                }],
 }
 
