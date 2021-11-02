@@ -312,18 +312,12 @@ echo Once script running
 touch /once-script-ran
 """
 
-once2_script = """#!/bin/sh
-
-echo Once2 script running
-touch /once2-script-ran
-"""
-
 user_data = {'ssh_authorized_keys': ssh_authorized_keys,
              'phone_home': {'url': notification_url},
              'runcmd' : runcmds,
-             'write_files' : [{'path': '/var/lib/cloud/scripts/per-once/once2.sh',
+             'write_files' : [{'path': '/var/lib/cloud/scripts/per-once/once.sh',
                                'permissions': '0755',
-                               'content': once2_script
+                               'content': once_script
                                }],
 }
 
@@ -335,17 +329,12 @@ user_data_file = tempfile.NamedTemporaryFile(delete = False)
 user_data_file.write(("#cloud-config\n" + yaml.dump(user_data)).encode('utf-8'))
 user_data_file.close()
 
-once_script_file = tempfile.NamedTemporaryFile(delete = False)
-once_script_file.write(once_script.encode('utf-8'))
-once_script_file.close()
-
 import subprocess
 
 genisoimage_command = ["genisoimage", "-input-charset", "utf-8", "-o", "-", "-l",
                        "-relaxed-filenames", "-V", "cidata", "-graft-points",
                        "meta-data={}".format(meta_data_file.name),
-                       "user-data={}".format(user_data_file.name),
-                       "scripts/per-once/script={}".format(once_script_file.name)]
+                       "user-data={}".format(user_data_file.name)]
 
 genisoimage_proc = subprocess.Popen(genisoimage_command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
 
