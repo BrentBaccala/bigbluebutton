@@ -6,6 +6,10 @@
 # release, the virtual memory size, the virtual disk size, and the
 # number of CPUs.
 #
+# RUNTIME DEPENDENCIES
+#
+# genisoimage must be installed
+#
 # USAGE
 #
 # 1. Authentication to GNS3 server
@@ -58,6 +62,7 @@ import subprocess
 import configparser
 
 GNS3_CREDENTIAL_FILES = ["~/gns3_server.conf", "~/.config/GNS3/2.2/gns3_server.conf"]
+SSH_AUTHORIZED_KEYS_FILES = ['~/.ssh/id_rsa.pub']
 
 cloud_images = {
     20: 'ubuntu-20.04-server-cloudimg-amd64.img',
@@ -281,14 +286,45 @@ threading.Thread(target=httpd.serve_forever).start()
 # to the GNS3 project.  We write the config to a temporary file,
 # convert it to ISO image, then post the ISO image to GNS3.
 
+runcmds = ['touch /runcmd-ran', 'echo runcmd ran' ]
+# runcmds = ['git clone https://github.com/bigbluebutton/bigbluebutton.git']
+
 print("Building cloud-init configuration...")
 
 meta_data = {'instance-id' : 'ubuntu',
              'local-hostname' : args.name
 }
 
-user_data = {'ssh_authorized_keys': [],
+# Obtain any credentials to authenticate ourself to the VM
+
+ssh_authorized_keys = []
+for keyfilename in SSH_AUTHORIZED_KEYS_FILES:
+    keyfilename = os.path.expanduser(keyfilename)
+    if os.path.exists(keyfilename):
+        with open(keyfilename) as f:
+            for l in f.read().split('\n'):
+                if l.startswith('ssh-'):
+                    ssh_authorized_keys.append(l)
+
+once_script = """#!/bin/sh
+
+echo Once script running
+touch /once-script-ran
+"""
+
+once2_script = """#!/bin/sh
+
+echo Once2 script running
+touch /once2-script-ran
+"""
+
+user_data = {'ssh_authorized_keys': ssh_authorized_keys,
              'phone_home': {'url': notification_url},
+             'runcmd' : runcmds,
+             'write_files' : [{'path': '/var/lib/cloud/scripts/per-once/once2.sh',
+                               'permissions': '0755',
+                               'content': once2_script
+                               }],
 }
 
 meta_data_file = tempfile.NamedTemporaryFile(delete = False)
@@ -299,16 +335,26 @@ user_data_file = tempfile.NamedTemporaryFile(delete = False)
 user_data_file.write(("#cloud-config\n" + yaml.dump(user_data)).encode('utf-8'))
 user_data_file.close()
 
+once_script_file = tempfile.NamedTemporaryFile(delete = False)
+once_script_file.write(once_script.encode('utf-8'))
+once_script_file.close()
+
 import subprocess
 
 genisoimage_command = ["genisoimage", "-input-charset", "utf-8", "-o", "-", "-l",
                        "-relaxed-filenames", "-V", "cidata", "-graft-points",
                        "meta-data={}".format(meta_data_file.name),
-                       "user-data={}".format(user_data_file.name)]
+                       "user-data={}".format(user_data_file.name),
+                       "scripts/per-once/script={}".format(once_script_file.name)]
 
 genisoimage_proc = subprocess.Popen(genisoimage_command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
 
 isoimage = genisoimage_proc.stdout.read()
+
+debug_isoimage = True
+if debug_isoimage:
+    with open('isoimage-debug.iso', 'wb') as f:
+        f.write(isoimage)
 
 os.remove(meta_data_file.name)
 os.remove(user_data_file.name)
