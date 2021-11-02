@@ -147,6 +147,15 @@ if project_status != 'opened':
     result = requests.post(url, auth=auth, data=json.dumps({}))
     result.raise_for_status()
 
+# Find the available project files (doesn't seem to work)
+
+#url = "http://{}/v2/projects/{}/files".format(gns3_server, project_id)
+#url = "http://{}/v2/qemu/images".format(gns3_server)
+
+#result = requests.get(url, auth=auth)
+#result.raise_for_status()
+#print(result.json())
+
 # Get the existing nodes and links in the project.
 #
 # We'll need this information to find a free port on a switch
