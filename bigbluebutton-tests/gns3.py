@@ -50,6 +50,7 @@ import os
 import time
 import tempfile
 import pprint
+import urllib.parse
 
 import socket
 import threading
@@ -242,6 +243,7 @@ script_ip = get_ip()
 # variable is used to signal our main thread when they report.
 
 instances_reported = set()
+instance_content = {}
 instance_report_cv = threading.Condition()
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -256,6 +258,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         with instance_report_cv:
             if not self.client_address[0] in instances_reported:
                 instances_reported.add(self.client_address[0])
+                instance_content[self.client_address[0]] = urllib.parse.parse_qs(content)
                 instance_report_cv.notify()
 
         self.send_response(200)
@@ -307,13 +310,11 @@ for keyfilename in SSH_AUTHORIZED_KEYS_FILES:
 
 screen_script = f"""#!/bin/bash
 
-cd /home/ubuntu
+# gns3.py's screen_script is a Python fstring, so we can embed Python variable names,
+# and use this to get a callback notification faster than phone_home, which won't
+# run until these scripts terminate, which right now is probably never (i.e,
 
-# gns3.py's once_script is a Python fstring, so we can embed Python variable names,
-# and use this to get a callback notificaiton faster than phone_home, which won't
-# run until this once_script terminates.
-
-wget --post-data 'Running /screen.sh' {notification_url}
+# wget --post-data 'Running /screen.sh' {notification_url}
 
 # I don't do this with cloud-init because it waits for the packages to be installed before
 # running per-once scripts or even phone_home notifying.
@@ -371,21 +372,12 @@ exec bash
 """
 
 home_once_script = f"""#!/bin/bash
-
-# gns3.py's once_script is a Python fstring, so we can embed Python variable names,
-# and use this to get a callback notificaiton faster than phone_home, which won't
-# run until this once_script terminates.
-
-wget --post-data 'Running /home_once.sh' {notification_url}
-
 screen -dm bash -c /screen.sh
 """
 
 once_script = f"""#!/bin/sh
-
 cd /home/ubuntu
 su ubuntu -c /home_once.sh
-
 """
 
 # Putting files in /home/ubuntu cause that directory's permissions to change to root.root,
@@ -529,5 +521,13 @@ with instance_report_cv:
         instance_report_cv.wait()
 
 # print(instances_reported)
+# print(instance_content)
 
 httpd.shutdown()
+
+# If you want to now auto-connect to the instance and watch its screen.sh script running
+
+ipaddr=list(instances_reported)[0]
+print(f'a cut-and-paste suggestion:   ssh -t ubuntu@{ipaddr} screen -rd')
+
+# You'll still need to ssh in with '-X', not to a screen session, to run Puppeteer tests
