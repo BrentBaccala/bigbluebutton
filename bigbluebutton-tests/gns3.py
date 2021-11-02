@@ -286,8 +286,7 @@ threading.Thread(target=httpd.serve_forever).start()
 # to the GNS3 project.  We write the config to a temporary file,
 # convert it to ISO image, then post the ISO image to GNS3.
 
-runcmds = ['touch /runcmd-ran', 'echo runcmd ran' ]
-# runcmds = ['git clone https://github.com/bigbluebutton/bigbluebutton.git']
+runcmds = [ ]
 
 print("Building cloud-init configuration...")
 
@@ -306,10 +305,24 @@ for keyfilename in SSH_AUTHORIZED_KEYS_FILES:
                 if l.startswith('ssh-'):
                     ssh_authorized_keys.append(l)
 
-once_script = """#!/bin/sh
+home_once_script = f"""#!/bin/sh
 
-echo Once script running
-touch /once-script-ran
+# gns3.py's once_script is a Python fstring, so we can embed Python variable names,
+# and use this to get a callback notificaiton faster than phone_home, which won't
+# run until this once_script terminates.
+
+wget --post-data 'Hi' {notification_url}
+
+cd /home/ubuntu
+git clone https://github.com/bigbluebutton/bigbluebutton.git
+
+"""
+
+once_script = f"""#!/bin/sh
+
+cd /home/ubuntu
+screen -dm bash -c "/home/ubuntu/once.sh; exec bash"
+
 """
 
 user_data = {'ssh_authorized_keys': ssh_authorized_keys,
@@ -318,6 +331,10 @@ user_data = {'ssh_authorized_keys': ssh_authorized_keys,
              'write_files' : [{'path': '/var/lib/cloud/scripts/per-once/once.sh',
                                'permissions': '0755',
                                'content': once_script
+                               },
+                              {'path': '/home/ubuntu/once.sh',
+                               'permissions': '0755',
+                               'content': home_once_script
                                }],
 }
 
