@@ -6,28 +6,13 @@
 # running per-once scripts or even phone_home notifying.
 
 sudo apt update
-sudo apt -y install git-core ant ant-contrib openjdk-8-jdk-headless zip unzip
 
 # This will install the GNOME desktop so that it automatically logs in the user 'ubuntu'
 
 sudo DEBIAN_FRONTEND=noninteractive apt -y install ubuntu-desktop
 sudo sed -i -e 's/#  Automatic/Automatic/' -e '/Automatic/s/user1/ubuntu/' /etc/gdm3/custom.conf
 
-# Can't figure how to get the screensaver to turn off, so instead
-# assign 'ubuntu' as the password on 'ubuntu' so you can get pass the lock screen.
-#
-# I think the default ssl settings prohibit password login without an RSA key
-#
-# echo ubuntu | openssl passwd -1 -stdin
-sudo usermod --password '$1$u6AO/yJW$ZWCgsSpVS4fLdWYklQPhS1' ubuntu
-
-# Disable screen saver and lock (doesn't work)
-gsettings set org.gnome.desktop.screensaver lock-enabled false
-gsettings set org.gnome.desktop.session idle-delay 0
-sudo su gdm gsettings set org.gnome.desktop.screensaver lock-enabled false
-sudo su gdm gsettings set org.gnome.desktop.session idle-delay 0
-
-# Configure dconf not to give us popups advertising upgrades
+# Configure dconf to disable screen lock
 sudo mkdir -p /etc/dconf/profile/
 sudo tee /etc/dconf/profile/user <<EOF
 user-db:user
@@ -36,29 +21,24 @@ EOF
 
 sudo mkdir -p /etc/dconf/db/local.d/
 sudo tee /etc/dconf/db/local.d/10cloud <<EOF
-[com/ubuntu/update-notifier]
-no-show-notifications=true
-
-[apps/update-manager]
-check-new-release-ignore='focal'
-
 [org/gnome/desktop/session]
 idle-delay=uint32 0
 EOF
 
 sudo dconf update
 
+# Don't run initial user setup dialog; don't GUI prompt for updates
 sudo apt -y remove update-manager gnome-initial-setup
-
-# Don't run the initial user setup dialog
-# mkdir -p /home/ubuntu/.config
-# touch /home/ubuntu/.config/gnome-initial-setup-done
 
 sudo systemctl restart gdm3
 
 uptime
 
 exec bash
+
+# Install Big Blue Button testing client
+
+sudo apt -y install git-core ant ant-contrib openjdk-8-jdk-headless zip unzip
 
 # We don't need the whole git history, like this command would do:
 #    git clone https://github.com/bigbluebutton/bigbluebutton.git
