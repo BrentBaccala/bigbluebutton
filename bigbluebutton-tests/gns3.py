@@ -370,7 +370,7 @@ genisoimage_proc = subprocess.Popen(genisoimage_command, stdout=subprocess.PIPE,
 
 isoimage = genisoimage_proc.stdout.read()
 
-debug_isoimage = True
+debug_isoimage = False
 if debug_isoimage:
     with open('isoimage-debug.iso', 'wb') as f:
         f.write(isoimage)
