@@ -392,7 +392,9 @@ su ubuntu -c /home_once.sh
 # Putting files in /home/ubuntu cause that directory's permissions to change to root.root,
 # probably because it's being created too early in the boot process.  Avoid this.
 
-user_data = {'ssh_authorized_keys': ssh_authorized_keys,
+user_data = {'hostname': args.name,
+             'apt': {'http_proxy': 'http://osito.freesoft.org:3128'},
+             'ssh_authorized_keys': ssh_authorized_keys,
              'phone_home': {'url': notification_url},
              'runcmd' : runcmds,
              'write_files' : [{'path': '/var/lib/cloud/scripts/per-once/once.sh',
