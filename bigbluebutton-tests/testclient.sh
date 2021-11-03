@@ -1,16 +1,54 @@
 #!/bin/bash
+#
+# This is a per-once script, i.e, it doesn't run after the first time the VM boots.
 
-# gns3.py's screen_script is a Python fstring, so we can embed Python variable names,
-# and use this to get a callback notification faster than phone_home, which won't
-# run until these scripts terminate, which right now is probably never (i.e,
-
-# wget --post-data 'Running /screen.sh' {notification_url}
-
-# I don't do this with cloud-init because it waits for the packages to be installed before
+# I don't do this apt stuff with cloud-init because it waits for the packages to be installed before
 # running per-once scripts or even phone_home notifying.
 
 sudo apt update
 sudo apt -y install git-core ant ant-contrib openjdk-8-jdk-headless zip unzip
+
+# This will install the GNOME desktop so that it automatically logs in the user 'ubuntu'
+
+sudo DEBIAN_FRONTEND=noninteractive apt -y install ubuntu-desktop
+sudo sed -i -e 's/#  Automatic/Automatic/' -e '/Automatic/s/user1/ubuntu/' /etc/gdm3/custom.conf
+
+# Disable screen saver and lock
+gsettings set org.gnome.desktop.screensaver lock-enabled false
+gsettings set org.gnome.desktop.session idle-delay 0
+
+# Configure dconf not to give us popups advertising upgrades
+sudo mkdir -p /etc/dconf/profile/
+sudo tee /etc/dconf/profile/user <<EOF
+user-db:user
+system-db:local
+EOF
+
+sudo mkdir -p /etc/dconf/db/local.d/
+sudo tee /etc/dconf/db/local.d/10cloud <<EOF
+[com/ubuntu/update-notifier]
+no-show-notifications=true
+
+[apps/update-manager]
+check-new-release-ignore='focal'
+
+[org/gnome/desktop/session]
+idle-delay=uint32 0
+EOF
+
+# sudo dconf update
+
+sudo apt -y remove update-manager gnome-initial-setup
+
+# Don't run the initial user setup dialog
+# mkdir -p /home/ubuntu/.config
+# touch /home/ubuntu/.config/gnome-initial-setup-done
+
+sudo systemctl restart gdm3
+
+uptime
+
+exec bash
 
 # We don't need the whole git history, like this command would do:
 #    git clone https://github.com/bigbluebutton/bigbluebutton.git
