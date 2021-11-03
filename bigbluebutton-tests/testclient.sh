@@ -13,9 +13,19 @@ sudo apt -y install git-core ant ant-contrib openjdk-8-jdk-headless zip unzip
 sudo DEBIAN_FRONTEND=noninteractive apt -y install ubuntu-desktop
 sudo sed -i -e 's/#  Automatic/Automatic/' -e '/Automatic/s/user1/ubuntu/' /etc/gdm3/custom.conf
 
-# Disable screen saver and lock
+# Can't figure how to get the screensaver to turn off, so instead
+# assign 'ubuntu' as the password on 'ubuntu' so you can get pass the lock screen.
+#
+# I think the default ssl settings prohibit password login without an RSA key
+#
+# echo ubuntu | openssl passwd -1 -stdin
+sudo usermod --password '$1$u6AO/yJW$ZWCgsSpVS4fLdWYklQPhS1' ubuntu
+
+# Disable screen saver and lock (doesn't work)
 gsettings set org.gnome.desktop.screensaver lock-enabled false
 gsettings set org.gnome.desktop.session idle-delay 0
+sudo su gdm gsettings set org.gnome.desktop.screensaver lock-enabled false
+sudo su gdm gsettings set org.gnome.desktop.session idle-delay 0
 
 # Configure dconf not to give us popups advertising upgrades
 sudo mkdir -p /etc/dconf/profile/
@@ -36,7 +46,7 @@ check-new-release-ignore='focal'
 idle-delay=uint32 0
 EOF
 
-# sudo dconf update
+sudo dconf update
 
 sudo apt -y remove update-manager gnome-initial-setup
 
@@ -60,6 +70,14 @@ git remote add origin https://github.com/bigbluebutton/bigbluebutton.git
 git fetch --depth 1 origin develop
 git checkout -t origin/develop
 
+# curl should respect this, but plenty of stuff insists on secure
+# downloads that can't be cached
+export http_proxy=http://osito.freesoft.org:3128/
+export HTTP_PROXY=http://osito.freesoft.org:3128/
+# export https_proxy=http://osito.freesoft.org:3128/
+# export HTTPS_PROXY=http://osito.freesoft.org:3128/
+# export WAREHOUSE_METEOR_URLBASE=http://warehouse.meteor.com
+
 curl -s "https://get.sdkman.io" | bash
 
 source "/home/ubuntu/.sdkman/bin/sdkman-init.sh"
@@ -69,6 +87,9 @@ sdk install sbt 1.2.8
 sdk install maven 3.5.0
 
 curl https://install.meteor.com/ | sh
+
+# use http for meteor downloads so they can be cached
+meteor npm config set registry http://registry.npmjs.org/
 
 cd /home/ubuntu/bigbluebutton/bigbluebutton-html5
 meteor update --allow-superuser --release 1.10.2
