@@ -329,6 +329,16 @@ cd /home/ubuntu
 su ubuntu -c /home_once.sh
 """
 
+# Shouldn't have to do this to get the network running on every reboot.
+#
+# This looks like a bug somewhere in Ubuntu/netplan/cloud-init.
+boot_script = f"""#!/bin/sh
+ip link set ens3 up
+dhclient ens3
+
+DISPLAY=:0 su --login --preserve-environment ubuntu -c gnome-terminal &
+"""
+
 # Putting files in /home/ubuntu cause that directory's permissions to change to root.root,
 # probably because it's being created too early in the boot process.  Avoid this.
 
@@ -340,6 +350,10 @@ user_data = {'hostname': args.name,
              'write_files' : [{'path': '/var/lib/cloud/scripts/per-once/once.sh',
                                'permissions': '0755',
                                'content': once_script
+                               },
+                              {'path': '/var/lib/cloud/scripts/per-boot/boot.sh',
+                               'permissions': '0755',
+                               'content': boot_script
                                },
                               {'path': '/home_once.sh',
                                'permissions': '0755',
