@@ -185,7 +185,7 @@ links = result.json()
 # GNS3 sometimes appends a number to the node name, so we identify our
 # node as any node whose name begins with args.name.
 
-ubuntus = [n['node_id'] for n in nodes if n['name'].startswith(args.name)]
+ubuntus = [n['node_id'] for n in nodes if n['name'] == args.name]
 
 if len(ubuntus) > 0:
     print("{} already exists as node {}".format(args.name, ubuntus[0]))
