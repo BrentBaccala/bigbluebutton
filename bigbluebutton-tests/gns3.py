@@ -298,8 +298,6 @@ threading.Thread(target=httpd.serve_forever).start()
 # to the GNS3 project.  We write the config to a temporary file,
 # convert it to ISO image, then post the ISO image to GNS3.
 
-runcmds = [ ]
-
 print("Building cloud-init configuration...")
 
 meta_data = {'instance-id' : 'ubuntu',
@@ -317,7 +315,7 @@ for keyfilename in SSH_AUTHORIZED_KEYS_FILES:
                 if l.startswith('ssh-'):
                     ssh_authorized_keys.append(l)
 
-with open('testclient.sh') as f:
+with open('opendesktop.sh') as f:
     screen_script = f.read()
 
 home_once_script = f"""#!/bin/bash
@@ -336,7 +334,9 @@ boot_script = f"""#!/bin/sh
 ip link set ens3 up
 dhclient ens3
 
-DISPLAY=:0 su --login --preserve-environment ubuntu -c gnome-terminal &
+if which gnome-terminal; then
+    DISPLAY=:0 su --login --preserve-environment ubuntu -c gnome-terminal &
+fi
 """
 
 # Putting files in /home/ubuntu cause that directory's permissions to change to root.root,
@@ -346,7 +346,6 @@ user_data = {'hostname': args.name,
              'apt': {'http_proxy': 'http://osito.freesoft.org:3128'},
              'ssh_authorized_keys': ssh_authorized_keys,
              'phone_home': {'url': notification_url},
-             'runcmd' : runcmds,
              'write_files' : [{'path': '/var/lib/cloud/scripts/per-once/once.sh',
                                'permissions': '0755',
                                'content': once_script
@@ -394,7 +393,10 @@ os.remove(user_data_file.name)
 
 print("Uploading cloud-init configuration...")
 
-file_url = "http://{}/v2/projects/{}/files/config.iso".format(gns3_server, project_id)
+# files in the GNS3 directory take precedence over these project files,
+# so we need to make these file names unique
+cdrom_image = project_id + '_' + args.name + '.iso'
+file_url = "http://{}/v2/projects/{}/files/{}".format(gns3_server, project_id, cdrom_image)
 result = requests.post(file_url, auth=auth, data=isoimage)
 result.raise_for_status()
 
@@ -412,7 +414,7 @@ ubuntu_node = {
             "adapters": 1,
             "adapter_type" : "virtio-net-pci",
             "hda_disk_image": cloud_image,
-            "cdrom_image" : "config.iso",
+            "cdrom_image" : cdrom_image,
             "qemu_path": "/usr/bin/qemu-system-x86_64",
             "cpus": args.cpus,
             "ram": args.memory
