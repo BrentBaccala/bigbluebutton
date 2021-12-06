@@ -42,7 +42,9 @@ sudo cp keys/ca.crt /local/certs/ca.crt
 
 cd
 
+# set hostname of server
 sudo sed -i '1s/localhost/localhost test.freesoft.org/' /etc/hosts
+echo test.freesoft.org | sudo tee /etc/hostname
 
 # or bionic-230-dev
 # suggested -w: firewall
