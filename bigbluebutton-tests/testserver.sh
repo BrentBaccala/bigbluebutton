@@ -1,15 +1,17 @@
 #!/bin/bash
 #
-# Install Big Blue Button testing server
+# Install a Big Blue Button testing server on a VM
 
 # I put an http proxy in cloud-init, but it doesn't save that configuration between
 # boots.  They only way to get cloud-init to set the proxy is to provide a CD-ROM image.
 # Just running cloud-init with "policy: enabled" isn't enough.
 
-echo 'Acquire::http::Proxy "http://osito.freesoft.org:3128/";' | sudo tee /etc/apt/apt.conf.d/proxy.conf
+echo 'Acquire::http::Proxy "http://osito.freesoft.org:3128/";' | sudo tee /etc/apt/apt.conf.d/proxy.conf > /dev/null
 
-# if this is running, our apt operations may error out unable to get a lock
+# if these are running, our apt operations may error out unable to get a lock
 sudo systemctl stop unattended-upgrades.service
+echo Waiting for apt-daily.service and apt-daily-upgrade.service
+sudo systemd-run --property="After=apt-daily.service apt-daily-upgrade.service" --wait /bin/true
 
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt -y upgrade
@@ -44,12 +46,12 @@ cd
 
 # set hostname of server
 sudo sed -i '1s/localhost/localhost test.freesoft.org/' /etc/hosts
-echo test.freesoft.org | sudo tee /etc/hostname
+echo test.freesoft.org | sudo tee /etc/hostname > /dev/null
 
 # or bionic-230-dev
 # suggested -w: firewall
 # suggested -a: api demos
-wget -qO- https://ubuntu.bigbluebutton.org/bbb-install.sh | sudo bash -s -- -v bionic-23 -s test.freesoft.org -d
+wget -qO- https://ubuntu.bigbluebutton.org/bbb-install.sh | sudo bash -s -- -v bionic-23 -s test.freesoft.org -d -a
 
 # nginx won't start without this change
 sudo sed -i '/server_names_hash_bucket_size/s/^\(\s*\)# /\1/' /etc/nginx/nginx.conf
@@ -57,10 +59,17 @@ sudo sed -i '/server_names_hash_bucket_size/s/^\(\s*\)# /\1/' /etc/nginx/nginx.c
 #wget -qO- https://ubuntu.bigbluebutton.org/bbb-install.sh | sudo bash -s -- -v bionic-23 -s test.freesoft.org -d
 sudo systemctl start nginx
 
-# try to get these browsers to accept the self-signed CA
+# In addition to the system root CA store in /usr/local/share/ca-certificates (used by curl and others),
+# we need to update root CA stores for two common browsers that don't use the system store.
 
 # this works for firefox
 sudo apt install libnss3-tools
 firefox --headless --new-tab "javascript:top.window.close()"
-cat ca/keys/ca.crt | certutil -A -t C -d sql:$(echo .mozilla/firefox/*.default-release/) -n test
+certutil -d sql:$(echo .mozilla/firefox/*.default-release/) -A -t C -n fort -i ca/keys/ca.crt
 # certutil -L -d sql:$(echo .mozilla/firefox/*.default-release/)
+
+# this works for chromium/chrome
+sudo DEBIAN_FRONTEND=noninteractive apt -y install chromium-browser
+mkdir --parents /home/ubuntu/.pki/nssdb
+certutil -d sql:/home/ubuntu/.pki/nssdb -N --empty-password
+certutil -d sql:/home/ubuntu/.pki/nssdb -A -t 'C,,' -n fort -i ca/keys/ca.crt

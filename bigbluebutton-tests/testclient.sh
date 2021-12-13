@@ -1,18 +1,32 @@
 #!/bin/bash
 #
 # Install Big Blue Button testing client
+#
+# Currently, this script only works on a testing server; i.e, you have to run testserver.sh
+# first, then testclient.sh on the same VM.  Once the test*.sh scripts can transfer CA
+# certificates and BBB shared secrets between two VMs, then we'll be able to split
+# the testclient.sh and testserver.sh onto separate VMs.
 
-# which version of the repository should we use as the client
-BRANCH=v2.4-rc-1
+# which version of the repository should we use for the client test cases
+#BRANCH=v2.4-rc-1
+BRANCH=develop
 
 # I put an http proxy in cloud-init, but it doesn't save that configuration between
 # boots.  They only way to get cloud-init to set the proxy is to provide a CD-ROM image.
 # Just running cloud-init with "policy: enabled" isn't enough.
 
-echo 'Acquire::http::Proxy "http://osito.freesoft.org:3128/";' | sudo tee /etc/apt/apt.conf.d/proxy.conf
+echo 'Acquire::http::Proxy "http://osito.freesoft.org:3128/";' | sudo tee /etc/apt/apt.conf.d/proxy.conf > /dev/null
 
+# if these are running, our apt operations may error out unable to get a lock
+sudo systemctl stop unattended-upgrades.service
 echo Waiting for apt-daily.service and apt-daily-upgrade.service
 sudo systemd-run --property="After=apt-daily.service apt-daily-upgrade.service" --wait /bin/true
+
+sudo apt update
+sudo DEBIAN_FRONTEND=noninteractive apt -y upgrade
+
+# the ubuntu.py script left some cruft owned by root
+sudo chown -R ubuntu.ubuntu /home/ubuntu
 
 sudo apt -y install git-core ant ant-contrib openjdk-8-jdk-headless zip unzip
 
@@ -84,3 +98,12 @@ sed -i -e 's/#.*//' .env
 
 #mkdir -p ~/.local/bin
 #ln -s /home/ubuntu/.meteor/packages/meteor-tool/.2.5.0.9pm7h0.w0mo++os.linux.x86_64+web.browser+web.browser.legacy+web.cordova/mt-os.linux.x86_64/dev_bundle/bin/* ~/.local/bin
+
+
+echo export PATH=\$PATH:$HOME/bigbluebutton/bigbluebutton-tests/puppeteer/node_modules/.bin | tee -a $HOME/.bashrc
+
+# testserver.sh install its CA cert here; we need this for playwright
+echo export NODE_EXTRA_CA_CERTS=/local/certs/ca.crt | tee -a $HOME/.bashrc
+
+# this is an alternative to the last export that also works
+echo export NODE_OPTIONS=--use-openssl-ca | tee -a $HOME/.bashrc
