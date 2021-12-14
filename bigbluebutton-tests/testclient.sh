@@ -92,6 +92,13 @@ sed -i -e '/BROWSERLESS_URL/d' .env
 sed -i -e '/BROWSERLESS_TOKEN/d' .env
 sed -i -e 's/#.*//' .env
 
+cd /home/ubuntu/bigbluebutton/bigbluebutton-tests/playwright
+cp .env-template .env
+sed -i "/BBB_URL/s/=.*/=\"https://test.freesoft.org/bigbluebutton/api\"/" .env
+sed -i "/BBB_SECRET/s/=.*/=\"$SECRET\"/" .env
+npm install
+
+
 # find /home/ubuntu/.meteor/packages -name jest
 # could export like this, but the export doesn't carry over to other logins
 # export PATH=$PATH:/home/ubuntu/.meteor/packages/meteor-tool/.2.5.0.9pm7h0.w0mo++os.linux.x86_64+web.browser+web.browser.legacy+web.cordova/mt-os.linux.x86_64/dev_bundle/bin
