@@ -60,9 +60,6 @@ sdk install maven 3.5.0
 
 curl https://install.meteor.com/ | sh
 
-# use http for meteor downloads so they can be cached
-# meteor npm config set registry http://registry.npmjs.org/
-
 cd /home/ubuntu/bigbluebutton/bigbluebutton-html5
 meteor update --allow-superuser --release 1.10.2
 
@@ -71,17 +68,7 @@ meteor npm install
 meteor npm install jest
 export PATH=$PATH:$PWD/node_modules/.bin
 
-cd
-
-# Install this if you want to test with the Chromium distributed with Ubuntu.
-sudo DEBIAN_FRONTEND=noninteractive apt -y install chromium-browser
-
-# We need this to either test with Chrome directly, or pick up the shared libraries needed by Puppeteer's built-in Chromium
-wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-sudo dpkg -i google-chrome-stable_current_amd64.deb
-sudo DEBIAN_FRONTEND=noninteractive apt -y install -f
-
-# setup .env file
+# setup puppeteer .env file
 cd /home/ubuntu/bigbluebutton/bigbluebutton-tests/puppeteer
 cp .env-template .env
 sed -i -e '/BBB_SERVER_URL/s|""|"https://test.freesoft.org/"|' .env
@@ -92,10 +79,11 @@ sed -i -e '/BROWSERLESS_URL/d' .env
 sed -i -e '/BROWSERLESS_TOKEN/d' .env
 sed -i -e 's/#.*//' .env
 
+# setup playwright .env file
 cd /home/ubuntu/bigbluebutton/bigbluebutton-tests/playwright
-cp .env-template .env
-sed -i "/BBB_URL/s/=.*/=\"https://test.freesoft.org/bigbluebutton/api\"/" .env
-sed -i "/BBB_SECRET/s/=.*/=\"$SECRET\"/" .env
+cp .env.template .env
+sed -i "/BBB_URL/s|=.*|=\"https://test.freesoft.org/bigbluebutton/api\"|" .env
+sed -i "/BBB_SECRET/s|=.*|=$SECRET|" .env
 npm install
 
 

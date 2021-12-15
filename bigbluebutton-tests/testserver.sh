@@ -58,18 +58,3 @@ sudo sed -i '/server_names_hash_bucket_size/s/^\(\s*\)# /\1/' /etc/nginx/nginx.c
 
 #wget -qO- https://ubuntu.bigbluebutton.org/bbb-install.sh | sudo bash -s -- -v bionic-23 -s test.freesoft.org -d
 sudo systemctl start nginx
-
-# In addition to the system root CA store in /usr/local/share/ca-certificates (used by curl and others),
-# we need to update root CA stores for two common browsers that don't use the system store.
-
-# this works for firefox
-sudo apt install libnss3-tools
-firefox --headless --new-tab "javascript:top.window.close()"
-certutil -d sql:$(echo .mozilla/firefox/*.default-release/) -A -t C -n fort -i ca/keys/ca.crt
-# certutil -L -d sql:$(echo .mozilla/firefox/*.default-release/)
-
-# this works for chromium/chrome
-sudo DEBIAN_FRONTEND=noninteractive apt -y install chromium-browser
-mkdir --parents /home/ubuntu/.pki/nssdb
-certutil -d sql:/home/ubuntu/.pki/nssdb -N --empty-password
-certutil -d sql:/home/ubuntu/.pki/nssdb -A -t 'C,,' -n fort -i ca/keys/ca.crt
