@@ -13,7 +13,7 @@ if [ "$DOCKER_CHECK"  = "0" ]; then
 	apt update;
 	apt install apt-transport-https ca-certificates curl software-properties-common
 	curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-	add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+	add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
 	apt update
 	apt install docker-ce -y
 	systemctl enable docker
@@ -48,6 +48,8 @@ FILE_SUDOERS_CHECK=`[ -f /etc/sudoers.d/zzz-bbb-docker-libreoffice ] && echo 1 |
 if [ "$FILE_SUDOERS_CHECK" = "0" ]; then
 	echo "Sudoers file doesn't exists, installing"
 	cp assets/zzz-bbb-docker-libreoffice /etc/sudoers.d/zzz-bbb-docker-libreoffice
+	chmod 0440 /etc/sudoers.d/zzz-bbb-docker-libreoffice
+	chown root:root /etc/sudoers.d/zzz-bbb-docker-libreoffice
 else
 	echo "Sudoers file already exists"
 fi;

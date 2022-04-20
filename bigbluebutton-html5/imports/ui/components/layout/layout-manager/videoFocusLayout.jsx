@@ -109,7 +109,7 @@ const VideoFocusLayout = (props) => {
         value: _.defaultsDeep(
           {
             sidebarNavigation: {
-              isOpen: input.sidebarNavigation.isOpen || false,
+              isOpen: input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
             },
             sidebarContent: {
               isOpen: sidebarContentPanel !== PANELS.NONE,
@@ -190,17 +190,20 @@ const VideoFocusLayout = (props) => {
 
     const cameraDockBounds = {};
 
+    const mobileCameraHeight = mediaAreaBounds.height * 0.7 - bannerAreaHeight();
+    const cameraHeight = mediaAreaBounds.height - bannerAreaHeight();
+
     if (isMobile) {
-      cameraDockBounds.minHeight = mediaAreaBounds.height * 0.7;
-      cameraDockBounds.height = mediaAreaBounds.height * 0.7;
-      cameraDockBounds.maxHeight = mediaAreaBounds.height * 0.7;
+      cameraDockBounds.minHeight = mobileCameraHeight;
+      cameraDockBounds.height = mobileCameraHeight;
+      cameraDockBounds.maxHeight = mobileCameraHeight;
     } else {
-      cameraDockBounds.minHeight = mediaAreaBounds.height;
-      cameraDockBounds.height = mediaAreaBounds.height;
-      cameraDockBounds.maxHeight = mediaAreaBounds.height;
+      cameraDockBounds.minHeight = cameraHeight;
+      cameraDockBounds.height = cameraHeight;
+      cameraDockBounds.maxHeight = cameraHeight;
     }
 
-    cameraDockBounds.top = navBarHeight;
+    cameraDockBounds.top = navBarHeight + bannerAreaHeight();
     cameraDockBounds.left = !isRTL ? mediaAreaBounds.left : null;
     cameraDockBounds.right = isRTL ? sidebarSize : null;
     cameraDockBounds.minWidth = mediaAreaBounds.width;
@@ -222,7 +225,7 @@ const VideoFocusLayout = (props) => {
     const { element: fullscreenElement } = fullscreen;
     const sidebarSize = sidebarNavWidth + sidebarContentWidth;
 
-    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
+    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare' || fullscreenElement === 'ExternalVideo') {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
       mediaBounds.top = 0;
@@ -237,13 +240,18 @@ const VideoFocusLayout = (props) => {
       mediaBounds.left = mediaAreaBounds.left;
       mediaBounds.top = mediaAreaBounds.top + cameraDockBounds.height;
       mediaBounds.width = mediaAreaBounds.width;
-    } else if (cameraDockInput.numCameras > 0) {
-      mediaBounds.height = windowHeight() - sidebarContentHeight;
+    } else if (cameraDockInput.numCameras > 0 && presentationInput.isOpen) {
+      mediaBounds.height = windowHeight() - sidebarContentHeight - bannerAreaHeight();
       mediaBounds.left = !isRTL ? sidebarNavWidth : 0;
       mediaBounds.right = isRTL ? sidebarNavWidth : 0;
-      mediaBounds.top = sidebarContentHeight;
+      mediaBounds.top = sidebarContentHeight + bannerAreaHeight();
       mediaBounds.width = sidebarContentWidth;
       mediaBounds.zIndex = 1;
+    } else if (!presentationInput.isOpen) {
+      mediaBounds.width = 0;
+      mediaBounds.height = 0;
+      mediaBounds.top = 0;
+      mediaBounds.left = 0;
     } else {
       mediaBounds.height = mediaAreaBounds.height;
       mediaBounds.width = mediaAreaBounds.width;

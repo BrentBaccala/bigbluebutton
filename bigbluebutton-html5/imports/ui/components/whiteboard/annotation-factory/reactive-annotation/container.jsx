@@ -5,7 +5,7 @@ import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui
 import ReactiveAnnotationService from './service';
 import ReactiveAnnotation from './component';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/ui/local-collections/users-collection/users';
+import Users from '/imports/api/users';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
@@ -29,7 +29,10 @@ const ReactiveAnnotationContainer = (props) => {
 
 export default withTracker((params) => {
   const { shapeId } = params;
-  const annotation = ReactiveAnnotationService.getAnnotationById(shapeId);
+  const unsentAnnotation = ReactiveAnnotationService.getUnsentAnnotationById(shapeId);
+  const isUnsentAnnotation = unsentAnnotation !== undefined;
+  const annotation = isUnsentAnnotation
+    ? unsentAnnotation : ReactiveAnnotationService.getAnnotationById(shapeId);
   const isViewer = Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID }, {
     fields: {
       role: 1,

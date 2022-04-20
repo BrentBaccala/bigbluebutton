@@ -22,15 +22,11 @@ const TalkingIndicatorContainer = (props) => {
   const { sidebarNavPanel } = sidebarNavigation;
   const layoutContextDispatch = layoutDispatch();
 
-  const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
-  const sidebarContentIsOpen = sidebarContent.isOpen;
   return (
     <TalkingIndicator
       {...{
         sidebarNavPanel,
-        sidebarNavigationIsOpen,
         sidebarContentPanel,
-        sidebarContentIsOpen,
         layoutContextDispatch,
         ...props,
       }}
@@ -47,7 +43,6 @@ export default withTracker(() => {
       talking: 1,
       color: 1,
       startTime: 1,
-      voiceUserId: 1,
       muted: 1,
       intId: 1,
     },
@@ -64,13 +59,12 @@ export default withTracker(() => {
 
     for (let i = 0; i < maxNumberVoiceUsersNotification; i += 1) {
       const {
-        callerName, talking, color, voiceUserId, muted, intId,
+        callerName, talking, color, muted, intId,
       } = usersTalking[i];
 
       talkers[`${intId}`] = {
         color,
         talking,
-        voiceUserId,
         muted,
         callerName,
       };
@@ -78,7 +72,7 @@ export default withTracker(() => {
   }
 
   const muteUser = debounce((id) => {
-    const user = VoiceUsers.findOne({ meetingId, voiceUserId: id }, {
+    const user = VoiceUsers.findOne({ meetingId, intId: id }, {
       fields: {
         muted: 1,
       },

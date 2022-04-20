@@ -52,12 +52,14 @@ public class ResponseBuilder {
         return new Date(timestamp).toString();
     }
 
-    public String buildMeetingVersion(String version, String returnCode) {
+    public String buildMeetingVersion(String apiVersion, String bbbVersion, String returnCode) {
         StringWriter xmlText = new StringWriter();
 
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("returnCode", returnCode);
-        data.put("version", version);
+        data.put("version", apiVersion);
+        data.put("apiVersion", apiVersion);
+        data.put("bbbVersion", bbbVersion);
 
         processData(getTemplate("api-version.ftlx"), data, xmlText);
 
@@ -213,6 +215,19 @@ public class ResponseBuilder {
         data.put("recordings", recordings);
 
         processData(getTemplate("get-recordings.ftlx"), data, xmlText);
+        return xmlText.toString();
+    }
+
+    public String buildInsertDocumentResponse(String message, String returnCode) {
+
+        StringWriter xmlText = new StringWriter();
+
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("returnCode", returnCode);
+        data.put("message", message);
+
+        processData(getTemplate("insert-document.ftlx"), data, xmlText);
+
         return xmlText.toString();
     }
 

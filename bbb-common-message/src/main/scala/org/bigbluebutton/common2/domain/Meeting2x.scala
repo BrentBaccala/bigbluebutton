@@ -8,14 +8,22 @@ case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
                          userActivitySignResponseDelayInMinutes: Int,
                          endWhenNoModerator:                     Boolean, endWhenNoModeratorDelayInMinutes: Int)
 
-case class MeetingProp(name: String, extId: String, intId: String, isBreakout: Boolean, learningDashboardEnabled: Boolean)
+case class MeetingProp(
+    name:                 String,
+    extId:                String,
+    intId:                String,
+    meetingCameraCap:     Int,
+    maxPinnedCameras:     Int,
+    isBreakout:           Boolean,
+    disabledFeatures:     Vector[String],
+    notifyRecordingIsOn:  Boolean,
+)
 
 case class BreakoutProps(
     parentId:           String,
     sequence:           Int,
     freeJoin:           Boolean,
     breakoutRooms:      Vector[String],
-    enabled:            Boolean,
     record:             Boolean,
     privateChatEnabled: Boolean
 )
@@ -28,7 +36,16 @@ case class WelcomeProp(welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMe
 
 case class VoiceProp(telVoice: String, voiceConf: String, dialNumber: String, muteOnStart: Boolean)
 
-case class UsersProp(maxUsers: Int, webcamsOnlyForModerator: Boolean, guestPolicy: String, meetingLayout: String, allowModsToUnmuteUsers: Boolean, authenticatedGuest: Boolean)
+case class UsersProp(
+    maxUsers:                Int,
+    webcamsOnlyForModerator: Boolean,
+    userCameraCap:           Int,
+    guestPolicy:             String,
+    meetingLayout:           String,
+    allowModsToUnmuteUsers:  Boolean,
+    allowModsToEjectCameras: Boolean,
+    authenticatedGuest:      Boolean
+)
 
 case class MetadataProp(metadata: collection.immutable.Map[String, String])
 
@@ -39,15 +56,22 @@ case class LockSettingsProps(
     disableMic:             Boolean,
     disablePrivateChat:     Boolean,
     disablePublicChat:      Boolean,
-    disableNote:            Boolean,
+    disableNotes:           Boolean,
     hideUserList:           Boolean,
     lockedLayout:           Boolean,
     lockOnJoin:             Boolean,
-    lockOnJoinConfigurable: Boolean
+    lockOnJoinConfigurable: Boolean,
+    hideViewersCursor:      Boolean
 )
 
 case class SystemProps(
     html5InstanceId: Int
+)
+
+case class GroupProps(
+    groupId:    String,
+    name:       String,
+    usersExtId: Vector[String]
 )
 
 case class DefaultProps(
@@ -60,9 +84,9 @@ case class DefaultProps(
     voiceProp:         VoiceProp,
     usersProp:         UsersProp,
     metadataProp:      MetadataProp,
-    screenshareProps:  ScreenshareProps,
     lockSettingsProps: LockSettingsProps,
-    systemProps:       SystemProps
+    systemProps:       SystemProps,
+    groups:            Vector[GroupProps]
 )
 
 case class StartEndTimeStatus(startTime: Long, endTime: Long)

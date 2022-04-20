@@ -8,6 +8,7 @@ import {
   getMappedFallbackStun
 } from '/imports/utils/fetchStunTurnServers';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
+import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const DEFAULT_LISTENONLY_MEDIA_SERVER = Meteor.settings.public.kurento.listenOnlyMediaServer;
@@ -56,6 +57,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
     };
     this.broker;
     this.reconnecting = false;
+    this.bridgeName = BRIDGE_NAME;
   }
 
   async changeOutputDevice(value) {
@@ -67,7 +69,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
       } catch (error) {
         logger.error({
           logCode: 'listenonly_changeoutputdevice_error',
-          extraInfo: { error, bridge: BRIDGE_NAME }
+          extraInfo: { error, bridge: this.bridgeName }
         }, 'Audio bridge failed to change output device');
         throw new Error(this.baseErrorCodes.MEDIA_ERROR);
       }
@@ -85,7 +87,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
   }
 
   handleTermination() {
-    return this.callback({ status: this.baseCallStates.ended, bridge: BRIDGE_NAME });
+    return this.callback({ status: this.baseCallStates.ended, bridge: this.bridgeName });
   }
 
   clearReconnectionTimeout() {
@@ -98,7 +100,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
 
   reconnect() {
     this.broker.stop();
-    this.callback({ status: this.baseCallStates.reconnecting, bridge: BRIDGE_NAME });
+    this.callback({ status: this.baseCallStates.reconnecting, bridge: this.bridgeName });
     this.reconnecting = true;
     // Set up a reconnectionTimeout in case the server is unresponsive
     // for some reason. If it gets triggered, end the session and stop
@@ -108,7 +110,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
         status: this.baseCallStates.failed,
         error: 1010,
         bridgeError: 'Reconnection timeout',
-        bridge: BRIDGE_NAME,
+        bridge: this.bridgeName,
       });
       this.broker.stop();
       this.clearReconnectionTimeout();
@@ -123,7 +125,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
         extraInfo: {
           errorMessage: error.errorMessage,
           reconnecting: this.reconnecting,
-          bridge: BRIDGE_NAME
+          bridge: this.bridgeName
         },
       }, 'Listen only reconnect failed');
     });
@@ -137,7 +139,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
       if (this.broker.started && !this.reconnecting) {
         logger.error({
           logCode: 'listenonly_error_try_to_reconnect',
-          extraInfo: { errorMessage, errorCode, errorCause, bridge: BRIDGE_NAME },
+          extraInfo: { errorMessage, errorCode, errorCause, bridge: this.bridgeName },
         }, 'Listen only failed, try to reconnect');
         this.reconnect();
         return resolve();
@@ -149,7 +151,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
           extraInfo: {
             errorMessage, errorCode, errorCause,
             reconnecting: this.reconnecting,
-            bridge: BRIDGE_NAME
+            bridge: this.bridgeName
           },
         }, 'Listen only failed');
         this.clearReconnectionTimeout();
@@ -158,7 +160,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
           status: this.baseCallStates.failed,
           error: errorCode,
           bridgeError: errorMessage,
-          bridge: BRIDGE_NAME,
+          bridge: this.bridgeName,
         });
         return reject(error);
       }
@@ -170,7 +172,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
       detail: { mediaElement }
     });
     window.dispatchEvent(tagFailedEvent);
-    this.callback({ status: this.baseCallStates.autoplayBlocked, bridge: BRIDGE_NAME });
+    this.callback({ status: this.baseCallStates.autoplayBlocked, bridge: this.bridgeName });
   }
 
   handleStart() {
@@ -178,14 +180,14 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
     const mediaElement = document.getElementById(MEDIA_TAG);
 
     return loadAndPlayMediaStream(stream, mediaElement, false).then(() => {
-      return this.callback({ status: this.baseCallStates.started, bridge: BRIDGE_NAME });
+      return this.callback({ status: this.baseCallStates.started, bridge: this.bridgeName });
     }).catch(error => {
       // NotAllowedError equals autoplay issues, fire autoplay handling event.
       // This will be handled in audio-manager.
       if (error.name === 'NotAllowedError') {
         logger.error({
           logCode: 'listenonly_error_autoplay',
-          extraInfo: { errorName: error.name, bridge: BRIDGE_NAME },
+          extraInfo: { errorName: error.name, bridge: this.bridgeName },
         }, 'Listen only media play failed due to autoplay error');
         this.dispatchAutoplayHandlingEvent(mediaElement);
       } else {
@@ -197,7 +199,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
           status: this.baseCallStates.failed,
           error: normalizedError.errorCode,
           bridgeError: normalizedError.errorMessage,
-          bridge: BRIDGE_NAME,
+          bridge: this.bridgeName,
         })
         throw normalizedError;
       }
@@ -267,6 +269,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
           offering: OFFERING,
           mediaServer: getMediaServerAdapter(),
           signalCandidates: SIGNAL_CANDIDATES,
+          forceRelay: shouldForceRelay(),
         };
 
         this.broker = new ListenOnlyBroker(

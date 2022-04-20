@@ -50,7 +50,8 @@ object MsgBuilder {
     val header = BbbCoreHeaderWithMeetingId(RegisterUserReqMsg.NAME, msg.meetingId)
     val body = RegisterUserReqMsgBody(meetingId = msg.meetingId, intUserId = msg.intUserId,
       name = msg.name, role = msg.role, extUserId = msg.extUserId, authToken = msg.authToken,
-      avatarURL = msg.avatarURL, guest = msg.guest, authed = msg.authed, guestStatus = msg.guestStatus)
+      avatarURL = msg.avatarURL, guest = msg.guest, authed = msg.authed, guestStatus = msg.guestStatus,
+      excludeFromDashboard = msg.excludeFromDashboard)
     val req = RegisterUserReqMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
@@ -156,8 +157,8 @@ object MsgBuilder {
     val header = BbbClientMsgHeader(PresentationConversionCompletedSysPubMsg.NAME, msg.meetingId, msg.authzToken)
 
     val pages = generatePresentationPages(msg.presId, msg.numPages.intValue(), msg.presBaseUrl)
-    val presentation = PresentationVO(msg.presId, msg.filename,
-      current = msg.current.booleanValue(), pages.values.toVector, msg.downloadable.booleanValue())
+    val presentation = PresentationVO(msg.presId, msg.temporaryPresentationId, msg.filename,
+      current = msg.current.booleanValue(), pages.values.toVector, msg.downloadable.booleanValue(), msg.removable.booleanValue())
 
     val body = PresentationConversionCompletedSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
       code = msg.key, presentation)
@@ -227,9 +228,11 @@ object MsgBuilder {
     val body = PresentationConversionRequestReceivedSysMsgBody(
       podId = msg.podId,
       presentationId = msg.presId,
+      temporaryPresentationId = msg.temporaryPresentationId,
       current = msg.current,
       presName = msg.filename,
       downloadable = msg.downloadable,
+      removable = msg.removable,
       authzToken = msg.authzToken
     )
     val req = PresentationConversionRequestReceivedSysMsg(header, body)
@@ -247,6 +250,7 @@ object MsgBuilder {
       current = msg.current,
       presName = msg.filename,
       downloadable = msg.downloadable,
+      removable = msg.removable,
       numPages = msg.numPages,
       authzToken = msg.authzToken
     )

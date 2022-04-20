@@ -1,19 +1,21 @@
 import React from 'react';
-import cx from 'classnames';
-import Button from '/imports/ui/components/button/component';
-import Toggle from '/imports/ui/components/switch/component';
-import LocalesDropdown from '/imports/ui/components/locales-dropdown/component';
+import Button from '/imports/ui/components/common/button/component';
+import Toggle from '/imports/ui/components/common/switch/component';
+import LocalesDropdown from '/imports/ui/components/common/locales-dropdown/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
-import { styles } from '../styles';
+import Styled from './styles';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { ACTIONS, LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
+import Settings from '/imports/ui/services/settings';
+import { isLayoutsEnabled } from '/imports/ui/services/features';
 
 const MIN_FONTSIZE = 0;
 const SHOW_AUDIO_FILTERS = (Meteor.settings.public.app
   .showAudioFilters === undefined)
   ? true
   : Meteor.settings.public.app.showAudioFilters;
+const { animations } = Settings.application;
 
 const intlMessages = defineMessages({
   applicationSectionTitle: {
@@ -27,6 +29,10 @@ const intlMessages = defineMessages({
   audioFilterLabel: {
     id: 'app.submenu.application.audioFilterLabel',
     description: 'audio filters label',
+  },
+  darkThemeLabel: {
+    id: 'app.submenu.application.darkThemeLabel',
+    description: 'dark mode label',
   },
   fontSizeControlLabel: {
     id: 'app.submenu.application.fontSizeControlLabel',
@@ -95,6 +101,14 @@ const intlMessages = defineMessages({
   videoFocusPushLayout: {
     id: 'app.layout.style.videoFocusPush',
     description: 'label for videoFocus layout style (push to all)',
+  },
+  smartPushLayout: {
+    id: 'app.layout.style.smartPush',
+    description: 'label for smart layout style (push to all)',
+  },
+  customPushLayout: {
+    id: 'app.layout.style.customPush',
+    description: 'label for custom layout style (push to all)',
   },
 });
 
@@ -251,16 +265,16 @@ class ApplicationMenu extends BaseMenu {
         .isAudioFilterEnabled(settings.microphoneConstraints);
 
       audioFilterOption = (
-        <div className={styles.row}>
-          <div className={styles.col} aria-hidden="true">
-            <div className={styles.formElement}>
-              <span className={styles.label}>
+        <Styled.Row>
+          <Styled.Col aria-hidden="true">
+            <Styled.FormElement>
+              <Styled.Label>
                 {intl.formatMessage(intlMessages.audioFilterLabel)}
-              </span>
-            </div>
-          </div>
-          <div className={styles.col}>
-            <div className={cx(styles.formElement, styles.pullContentRight)}>
+              </Styled.Label>
+            </Styled.FormElement>
+          </Styled.Col>
+          <Styled.Col>
+            <Styled.FormElementRight>
               {displaySettingsStatus(audioFilterStatus)}
               <Toggle
                 icons={false}
@@ -269,9 +283,9 @@ class ApplicationMenu extends BaseMenu {
                 ariaLabel={intl.formatMessage(intlMessages.audioFilterLabel)}
                 showToggleLabel={showToggleLabel}
               />
-            </div>
-          </div>
-        </div>
+            </Styled.FormElementRight>
+          </Styled.Col>
+        </Styled.Row>
       );
     }
 
@@ -286,17 +300,17 @@ class ApplicationMenu extends BaseMenu {
     const { settings } = this.state;
 
     return (
-      <div className={styles.row}>
-        <div className={styles.col} aria-hidden="true">
-          <div className={styles.formElement}>
+      <Styled.Row>
+        <Styled.Col aria-hidden="true">
+          <Styled.FormElement>
             {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-            <label className={styles.label}>
+            <Styled.Label>
               {intl.formatMessage(intlMessages.paginationEnabledLabel)}
-            </label>
-          </div>
-        </div>
-        <div className={styles.col}>
-          <div className={cx(styles.formElement, styles.pullContentRight)}>
+            </Styled.Label>
+          </Styled.FormElement>
+        </Styled.Col>
+        <Styled.Col>
+          <Styled.FormElementRight>
             {displaySettingsStatus(settings.paginationEnabled)}
             <Toggle
               icons={false}
@@ -305,9 +319,9 @@ class ApplicationMenu extends BaseMenu {
               ariaLabel={intl.formatMessage(intlMessages.paginationEnabledLabel)}
               showToggleLabel={showToggleLabel}
             />
-          </div>
-        </div>
-      </div>
+          </Styled.FormElementRight>
+        </Styled.Col>
+      </Styled.Row>
     );
   }
 
@@ -317,6 +331,8 @@ class ApplicationMenu extends BaseMenu {
 
     if (isModerator) {
       const pushLayouts = {
+        CUSTOM_PUSH: 'customPush',
+        SMART_PUSH: 'smartPush',
         PRESENTATION_FOCUS_PUSH: 'presentationFocusPush',
         VIDEO_FOCUS_PUSH: 'videoFocusPush',
       };
@@ -325,18 +341,17 @@ class ApplicationMenu extends BaseMenu {
 
     return (
       <>
-        <div className={styles.row}>
-          <div className={styles.col}>
-            <div className={styles.formElement}>
-              <label htmlFor="layoutList" className={styles.label}>
+        <Styled.Row>
+          <Styled.Col>
+            <Styled.FormElement>
+              <Styled.Label htmlFor="layoutList">
                 {intl.formatMessage(intlMessages.layoutOptionLabel)}
-              </label>
-            </div>
-          </div>
-          <div className={styles.col}>
-            <div className={cx(styles.formElement, styles.pullContentRight)}>
-              <select
-                className={styles.select}
+              </Styled.Label>
+            </Styled.FormElement>
+          </Styled.Col>
+          <Styled.Col>
+            <Styled.FormElementRight>
+              <Styled.Select
                 onChange={(e) => this.handleSelectChange('selectedLayout', e)}
                 id="layoutList"
                 value={settings.selectedLayout}
@@ -345,11 +360,43 @@ class ApplicationMenu extends BaseMenu {
                   Object.values(LAYOUT_TYPE)
                     .map((layout) => <option key={layout} value={layout}>{intl.formatMessage(intlMessages[`${layout}Layout`])}</option>)
                 }
-              </select>
-            </div>
-          </div>
-        </div>
+              </Styled.Select>
+            </Styled.FormElementRight>
+          </Styled.Col>
+        </Styled.Row>
       </>
+    );
+  }
+
+  renderDarkThemeToggle() {
+    const { intl, showToggleLabel, displaySettingsStatus } = this.props;
+    const { settings } = this.state;
+
+    const isDarkThemeEnabled = Meteor.settings.public.app.darkTheme.enabled;
+    if (!isDarkThemeEnabled) return null;
+
+    return (
+      <Styled.Row>
+        <Styled.Col aria-hidden="true">
+          <Styled.FormElement>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+            <Styled.Label>
+              {intl.formatMessage(intlMessages.darkThemeLabel)}
+            </Styled.Label>
+          </Styled.FormElement>
+        </Styled.Col>
+        <Styled.Col>
+          <Styled.FormElementRight>
+            {displaySettingsStatus(settings.darkTheme)}
+            <Toggle
+              icons={false}
+              defaultChecked={settings.darkTheme}
+              onChange={() => this.handleToggle('darkTheme')}
+              showToggleLabel={showToggleLabel}
+            />
+          </Styled.FormElementRight>
+        </Styled.Col>
+      </Styled.Row>
     );
   }
 
@@ -379,23 +426,22 @@ class ApplicationMenu extends BaseMenu {
     return (
       <div>
         <div>
-          <h3 className={styles.title}>
+          <Styled.Title>
             {intl.formatMessage(intlMessages.applicationSectionTitle)}
-          </h3>
+          </Styled.Title>
         </div>
-        <div className={styles.form}>
-
-          <div className={styles.row}>
-            <div className={styles.col} aria-hidden="true">
-              <div className={styles.formElement}>
+        <Styled.Form>
+          <Styled.Row>
+            <Styled.Col aria-hidden="true">
+              <Styled.FormElement>
                 {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                <label className={styles.label}>
+                <Styled.Label>
                   {intl.formatMessage(intlMessages.animationsLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
+                </Styled.Label>
+              </Styled.FormElement>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElementRight>
                 {displaySettingsStatus(settings.animations)}
                 <Toggle
                   icons={false}
@@ -404,69 +450,70 @@ class ApplicationMenu extends BaseMenu {
                   ariaLabel={intl.formatMessage(intlMessages.animationsLabel)}
                   showToggleLabel={showToggleLabel}
                 />
-              </div>
-            </div>
-          </div>
+              </Styled.FormElementRight>
+            </Styled.Col>
+          </Styled.Row>
 
           {this.renderAudioFilters()}
           {this.renderPaginationToggle()}
+          {this.renderDarkThemeToggle()}
 
-          <div className={styles.row}>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label
-                  className={styles.label}
+          <Styled.Row>
+            <Styled.Col>
+              <Styled.FormElement>
+                <Styled.Label
                   htmlFor="langSelector"
                   aria-label={intl.formatMessage(intlMessages.languageLabel)}
                 >
                   {intl.formatMessage(intlMessages.languageLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <span className={cx(styles.formElement, styles.pullContentRight)}>
+                </Styled.Label>
+              </Styled.FormElement>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElementRight>
                 {showSelect ? (
-                  <LocalesDropdown
-                    allLocales={allLocales}
-                    handleChange={(e) => this.handleSelectChange('locale', e)}
-                    value={settings.locale}
-                    elementId="langSelector"
-                    elementClass={styles.select}
-                    selectMessage={intl.formatMessage(intlMessages.languageOptionLabel)}
-                  />
+                  <Styled.LocalesDropdownSelect>
+                    <LocalesDropdown
+                      allLocales={allLocales}
+                      handleChange={(e) => this.handleSelectChange('locale', e)}
+                      value={settings.locale}
+                      elementId="langSelector"
+                      selectMessage={intl.formatMessage(intlMessages.languageOptionLabel)}
+                    />
+                  </Styled.LocalesDropdownSelect>
                 ) : (
-                  <div className={styles.spinnerOverlay}>
-                    <div className={styles.bounce1} />
-                    <div className={styles.bounce2} />
+                  <Styled.SpinnerOverlay animations={animations}>
+                    <Styled.Bounce1 animations={animations} />
+                    <Styled.Bounce2 animations={animations} />
                     <div />
-                  </div>
+                  </Styled.SpinnerOverlay>
                 )}
-              </span>
-            </div>
-          </div>
+              </Styled.FormElementRight>
+            </Styled.Col>
+          </Styled.Row>
 
-          <hr className={styles.separator} />
-          <div className={styles.row}>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
+          <Styled.Separator />
+          <Styled.Row>
+            <Styled.Col>
+              <Styled.FormElement>
                 {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                <label className={styles.label}>
+                <Styled.Label>
                   {intl.formatMessage(intlMessages.fontSizeControlLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div aria-hidden className={cx(styles.formElement, styles.pullContentCenter)}>
+                </Styled.Label>
+              </Styled.FormElement>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElementCenter aria-hidden>
                 {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                <label className={cx(styles.label, styles.bold)}>
+                <Styled.BoldLabel>
                   {`${pixelPercentage[settings.fontSize]}`}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
-                <div className={styles.pullContentRight}>
-                  <div className={styles.col}>
+                </Styled.BoldLabel>
+              </Styled.FormElementCenter>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElementRight>
+                <Styled.PullContentRight>
+                  <Styled.Col>
                     <Button
                       onClick={() => this.handleDecreaseFontSize()}
                       color="primary"
@@ -477,8 +524,8 @@ class ApplicationMenu extends BaseMenu {
                       aria-label={`${intl.formatMessage(intlMessages.decreaseFontBtnLabel)}, ${ariaValueLabel}`}
                       disabled={isSmallestFontSize}
                     />
-                  </div>
-                  <div className={styles.col}>
+                  </Styled.Col>
+                  <Styled.Col>
                     <Button
                       onClick={() => this.handleIncreaseFontSize()}
                       color="primary"
@@ -489,13 +536,13 @@ class ApplicationMenu extends BaseMenu {
                       aria-label={`${intl.formatMessage(intlMessages.increaseFontBtnLabel)}, ${ariaValueLabel}`}
                       disabled={isLargestFontSize}
                     />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {this.renderChangeLayout()}
-        </div>
+                  </Styled.Col>
+                </Styled.PullContentRight>
+              </Styled.FormElementRight>
+            </Styled.Col>
+          </Styled.Row>
+          { isLayoutsEnabled() ? this.renderChangeLayout() : null }
+        </Styled.Form>
       </div>
     );
   }

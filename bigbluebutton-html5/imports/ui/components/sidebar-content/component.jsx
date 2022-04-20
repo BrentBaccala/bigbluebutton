@@ -3,12 +3,14 @@ import PropTypes from 'prop-types';
 import Resizable from 're-resizable';
 import { ACTIONS, PANELS } from '../layout/enums';
 import ChatContainer from '/imports/ui/components/chat/container';
-import NoteContainer from '/imports/ui/components/note/container';
+import NotesContainer from '/imports/ui/components/notes/container';
 import PollContainer from '/imports/ui/components/poll/container';
-import CaptionsContainer from '/imports/ui/components/captions/pad/container';
+import CaptionsContainer from '/imports/ui/components/captions/container';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
 import WaitingUsersPanel from '/imports/ui/components/waiting-users/container';
-import { styles } from '/imports/ui/components/app/styles';
+import Styled from './styles';
+import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
+import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
 
 const propTypes = {
   top: PropTypes.number.isRequired,
@@ -82,6 +84,7 @@ const SidebarContent = (props) => {
   };
 
   const smallSidebar = width < (maxWidth / 2);
+  const pollDisplay = sidebarContentPanel === PANELS.POLL ? 'inherit' : 'none';
 
   return (
     <Resizable
@@ -120,18 +123,26 @@ const SidebarContent = (props) => {
         width,
         height,
       }}
+      handleStyles={{
+        left: { height: '100vh' },
+        right: { height: '100vh' },
+      }}
     >
-      {sidebarContentPanel === PANELS.CHAT && <ChatContainer />}
-      {sidebarContentPanel === PANELS.SHARED_NOTES && <NoteContainer />}
+      {sidebarContentPanel === PANELS.CHAT
+      && (
+      <ErrorBoundary
+        Fallback={FallbackView}
+      >
+        <ChatContainer />
+      </ErrorBoundary>
+      )}
+      {sidebarContentPanel === PANELS.SHARED_NOTES && <NotesContainer />}
       {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
-      {sidebarContentPanel === PANELS.POLL
-        && (
-          <div className={styles.poll} style={{ minWidth, top: '0' }} id="pollPanel">
-            <PollContainer smallSidebar={smallSidebar} />
-          </div>
-        )}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
       {sidebarContentPanel === PANELS.WAITING_USERS && <WaitingUsersPanel />}
+      <Styled.Poll style={{ minWidth, top: '0', display: pollDisplay }} id="pollPanel">
+        <PollContainer smallSidebar={smallSidebar} />
+      </Styled.Poll>
     </Resizable>
   );
 };

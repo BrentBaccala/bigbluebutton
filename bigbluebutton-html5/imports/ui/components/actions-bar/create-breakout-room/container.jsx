@@ -1,6 +1,7 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import ActionsBarService from '/imports/ui/components/actions-bar/service';
+import BreakoutRoomService from '/imports/ui/components/breakout-room/service';
 
 import CreateBreakoutRoomModal from './component';
 
@@ -17,11 +18,15 @@ const CreateBreakoutRoomContainer = (props) => {
 export default withTracker(() => ({
   createBreakoutRoom: ActionsBarService.createBreakoutRoom,
   getBreakouts: ActionsBarService.getBreakouts,
-  getUsersNotAssigned: ActionsBarService.getUsersNotAssigned,
+  getLastBreakouts: ActionsBarService.getLastBreakouts,
+  getBreakoutUserWasIn: BreakoutRoomService.getBreakoutUserWasIn,
+  getUsersNotJoined: ActionsBarService.getUsersNotJoined,
   sendInvitation: ActionsBarService.sendInvitation,
   breakoutJoinedUsers: ActionsBarService.breakoutJoinedUsers(),
   users: ActionsBarService.users(),
+  groups: ActionsBarService.groups(),
   isMe: ActionsBarService.isMe,
   meetingName: ActionsBarService.meetingName(),
   amIModerator: ActionsBarService.amIModerator(),
+  moveUser: ActionsBarService.moveUser,
 }))(CreateBreakoutRoomContainer);

@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import HoldButton from '/imports/ui/components/presentation/presentation-toolbar/zoom-tool/holdButton/component';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import { FlexRow, FlexColumn } from '/imports/ui/stylesheets/styled-components/placeholders';
 import {
   colorDanger,
@@ -12,18 +12,20 @@ import {
   colorWhite,
   colorPrimary,
   colorBlueLight,
+  colorBlueLightest,
+  colorGrayLightest,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeSmall, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeSmall, fontSizeBase, fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   borderRadius,
   borderSize,
   lgPaddingX,
+  lgPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 
 const BoxContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, minmax(4rem, 16rem));
-  grid-template-rows: repeat(auto-fill, minmax(4rem, 8rem));
+  grid-template-columns: repeat(3, 1fr);
   grid-gap: 1.6rem 1rem;
   box-sizing: border-box;
   padding-bottom: 1rem;
@@ -38,6 +40,13 @@ const Alert = styled.div`
       color: ${colorDanger};
     }
   `}
+
+  grid-row: span 3;
+
+  & > div {
+    height: 25.2rem;
+    max-height: 25.2rem;
+  }
 `;
 
 const FreeJoinLabel = styled.label`
@@ -60,9 +69,10 @@ const FreeJoinLabel = styled.label`
 const BreakoutNameInput = styled.input`
   width: 100%;
   text-align: left;
-  font-weight: normal;
-  padding: .25rem;
+  font-weight: 600;
+  padding: .25rem .25rem .25rem 0;
   margin: 0;
+  border: none;
   &::placeholder {
     color: ${colorGray};
     opacity: 1;
@@ -71,11 +81,11 @@ const BreakoutNameInput = styled.input`
 
 const BreakoutBox = styled(ScrollboxVertical)`
   width: 100%;
-  height: 80%;
-  min-height: 4rem;
+  min-height: 6rem;
   max-height: 8rem;
-  border: 1px solid ${colorGrayLighter};
-  border-radius: ${borderRadius}; 
+  border: 1px solid ${colorGrayLightest};
+  border-radius: ${borderRadius};
+  padding: ${lgPaddingY} 0;
 `;
 
 const SpanWarn = styled.span`
@@ -190,7 +200,11 @@ const HoldButtonWrapper = styled(HoldButton)`
   }
 `;
 
-const RandomlyAssignBtn = styled(Button)`
+const AssignBtnsContainer = styled.div`
+  margin-top: auto;
+`;
+
+const AssignBtns = styled(Button)`
   color: ${colorPrimary};
   font-size: ${fontSizeSmall};
   white-space: nowrap;
@@ -204,6 +218,7 @@ const RandomlyAssignBtn = styled(Button)`
 
 const CheckBoxesContainer = styled(FlexRow)`
   margin-top: 2rem;
+  margin-bottom: 0.25rem;
 `;
 
 const FreeJoinCheckbox = styled.input`
@@ -218,10 +233,19 @@ const RoomUserItem = styled.p`
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
-  border-bottom: solid .5px ${colorGrayLighter};
+  display: flex;
+  justify-content: space-between;
 
   [dir="rtl"] & {
     padding: .25rem .25rem .25rem 0;
+  }
+
+  span.close {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-right: 5px;
+    font-size: ${fontSizeSmaller};
   }
 
   ${({ selected }) => selected && `
@@ -232,6 +256,10 @@ const RoomUserItem = styled.p`
   ${({ disabled }) => disabled && `
     cursor: not-allowed;
     color: ${colorGrayLighter};
+  `}
+
+  ${({ highlight }) => highlight && `
+    background-color: ${colorBlueLightest};
   `}
 `;
 
@@ -302,7 +330,8 @@ export default {
   DurationArea,
   DurationInput,
   HoldButtonWrapper,
-  RandomlyAssignBtn,
+  AssignBtnsContainer,
+  AssignBtns,
   CheckBoxesContainer,
   FreeJoinCheckbox,
   RoomUserItem,

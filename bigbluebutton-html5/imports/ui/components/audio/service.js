@@ -1,8 +1,8 @@
-import Users from '/imports/ui/local-collections/users-collection/users';
+import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import { debounce, throttle } from 'lodash';
 import AudioManager from '/imports/ui/services/audio-manager';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Meetings from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
 import VoiceUsers from '/imports/api/voice-users';
 import logger from '/imports/startup/client/logger';
@@ -10,6 +10,11 @@ import Storage from '../../services/storage/session';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const TOGGLE_MUTE_THROTTLE_TIME = Meteor.settings.public.media.toggleMuteThrottleTime;
+const SHOW_VOLUME_METER = Meteor.settings.public.media.showVolumeMeter;
+const {
+  enabled: LOCAL_ECHO_TEST_ENABLED,
+  initialHearingState: LOCAL_ECHO_INIT_HEARING_STATE,
+} = Meteor.settings.public.media.localEchoTest;
 
 const MUTED_KEY = 'muted';
 
@@ -42,7 +47,7 @@ const audioEventHandler = (event) => {
 
 const init = (messages, intl) => {
   AudioManager.setAudioMessages(messages, intl);
-  if (AudioManager.initialized) return;
+  if (AudioManager.initialized) return Promise.resolve(false);
   const meetingId = Auth.meetingID;
   const userId = Auth.userID;
   const { sessionToken } = Auth;
@@ -63,7 +68,7 @@ const init = (messages, intl) => {
     microphoneLockEnforced,
   };
 
-  AudioManager.init(userData, audioEventHandler);
+  return AudioManager.init(userData, audioEventHandler);
 };
 
 const isVoiceUser = () => {
@@ -94,17 +99,18 @@ const toggleMuteMicrophone = throttle(() => {
   }
 }, TOGGLE_MUTE_THROTTLE_TIME);
 
-
 export default {
   init,
   exitAudio: () => AudioManager.exitAudio(),
+  forceExitAudio: () => AudioManager.forceExitAudio(),
   transferCall: () => AudioManager.transferCall(),
   joinListenOnly: () => AudioManager.joinListenOnly(),
   joinMicrophone: () => AudioManager.joinMicrophone(),
   joinEchoTest: () => AudioManager.joinEchoTest(),
   toggleMuteMicrophone: debounce(toggleMuteMicrophone, 500, { leading: true, trailing: false }),
-  changeInputDevice: inputDeviceId => AudioManager.changeInputDevice(inputDeviceId),
-  liveChangeInputDevice: inputDeviceId => AudioManager.liveChangeInputDevice(inputDeviceId),
+  changeInputDevice: (inputDeviceId) => AudioManager.changeInputDevice(inputDeviceId),
+  changeInputStream: (newInputStream) => { AudioManager.inputStream = newInputStream; },
+  liveChangeInputDevice: (inputDeviceId) => AudioManager.liveChangeInputDevice(inputDeviceId),
   changeOutputDevice: (outputDeviceId, isLive) => {
     if (AudioManager.outputDeviceId !== outputDeviceId) {
       AudioManager.changeOutputDevice(outputDeviceId, isLive);
@@ -127,14 +133,17 @@ export default {
   isVoiceUser,
   autoplayBlocked: () => AudioManager.autoplayBlocked,
   handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),
-  playAlertSound: url => AudioManager.playAlertSound(url),
+  playAlertSound: (url) => AudioManager.playAlertSound(url),
   updateAudioConstraints:
-    constraints => AudioManager.updateAudioConstraints(constraints),
+    (constraints) => AudioManager.updateAudioConstraints(constraints),
   recoverMicState,
   isReconnecting: () => AudioManager.isReconnecting,
-  setBreakoutAudioTransferStatus: status => AudioManager
+  setBreakoutAudioTransferStatus: (status) => AudioManager
     .setBreakoutAudioTransferStatus(status),
   getBreakoutAudioTransferStatus: () => AudioManager
     .getBreakoutAudioTransferStatus(),
   getStats: () => AudioManager.getStats(),
+  localEchoEnabled: LOCAL_ECHO_TEST_ENABLED,
+  localEchoInitHearingState: LOCAL_ECHO_INIT_HEARING_STATE,
+  showVolumeMeter: SHOW_VOLUME_METER,
 };

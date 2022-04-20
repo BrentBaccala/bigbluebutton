@@ -15,8 +15,11 @@ import VideoPreviewService from '../video-preview/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { BBBVideoStream } from '/imports/ui/services/webrtc-base/bbb-video-stream';
 import {
-  getSessionVirtualBackgroundInfoWithDefault
-} from '/imports/ui/services/virtual-background/service'
+  EFFECT_TYPES,
+  getSessionVirtualBackgroundInfo,
+} from '/imports/ui/services/virtual-background/service';
+import { notify } from '/imports/ui/services/notification';
+import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 
 // Default values and default empty object to be backwards compat with 2.2.
 // FIXME Remove hardcoded defaults 2.3.
@@ -26,7 +29,10 @@ const {
   baseTimeout: CAMERA_SHARE_FAILED_WAIT_TIME = 15000,
   maxTimeout: MAX_CAMERA_SHARE_FAILED_WAIT_TIME = 60000,
 } = Meteor.settings.public.kurento.cameraTimeouts || {};
-const CAMERA_QUALITY_THRESHOLDS_ENABLED = Meteor.settings.public.kurento.cameraQualityThresholds.enabled;
+const {
+  enabled: CAMERA_QUALITY_THRESHOLDS_ENABLED = true,
+  privilegedStreams: CAMERA_QUALITY_THR_PRIVILEGED = true,
+} = Meteor.settings.public.kurento.cameraQualityThresholds;
 const PING_INTERVAL = 15000;
 const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
 
@@ -126,7 +132,7 @@ class VideoProvider extends Component {
     this.wsQueue = [];
     this.restartTimeout = {};
     this.restartTimer = {};
-    this.webRtcPeers = VideoService.getWebRtcPeers();
+    this.webRtcPeers = {};
     this.outboundIceQueues = {};
     this.videoTags = {};
 
@@ -145,9 +151,10 @@ class VideoProvider extends Component {
 
   componentDidMount() {
     this._isMounted = true;
+    VideoService.updatePeerDictionaryReference(this.webRtcPeers);
+
     this.ws.onopen = this.onWsOpen;
     this.ws.onclose = this.onWsClose;
-
     window.addEventListener('online', this.openWs);
     window.addEventListener('offline', this.onWsClose);
 
@@ -169,6 +176,8 @@ class VideoProvider extends Component {
   }
 
   componentWillUnmount() {
+    VideoService.updatePeerDictionaryReference({});
+
     this.ws.onmessage = null;
     this.ws.onopen = null;
     this.ws.onclose = null;
@@ -248,14 +257,25 @@ class VideoProvider extends Component {
     this.setState({ socketOpen: true });
   }
 
-  updateThreshold(numberOfPublishers) {
+  findAllPrivilegedStreams () {
+    const { streams } = this.props;
+    // Privileged streams are: floor holders, pinned users
+    return streams.filter(stream => stream.floor || stream.pin);
+  }
+
+  updateQualityThresholds(numberOfPublishers) {
     const { threshold, profile } = VideoService.getThreshold(numberOfPublishers);
     if (profile) {
-      const publishers = Object.values(this.webRtcPeers)
+      const privilegedStreams = this.findAllPrivilegedStreams();
+      Object.values(this.webRtcPeers)
         .filter(peer => peer.isPublisher)
         .forEach((peer) => {
-          // 0 means no threshold in place. Reapply original one if needed
-          const profileToApply = (threshold === 0) ? peer.originalProfileId : profile;
+          // Conditions which make camera revert their original profile
+          // 1) Threshold 0 means original profile/inactive constraint
+          // 2) Privileged streams
+          const exempt = threshold === 0
+            || (CAMERA_QUALITY_THR_PRIVILEGED && privilegedStreams.some(vs => vs.stream === peer.stream))
+          const profileToApply = exempt ? peer.originalProfileId : profile;
           VideoService.applyCameraProfile(peer, profileToApply);
         });
     }
@@ -299,7 +319,7 @@ class VideoProvider extends Component {
     this.disconnectStreams(streamsToDisconnect);
 
     if (CAMERA_QUALITY_THRESHOLDS_ENABLED) {
-      this.updateThreshold(this.props.totalNumberOfStreams);
+      this.updateQualityThresholds(this.props.totalNumberOfStreams);
     }
   }
 
@@ -507,42 +527,49 @@ class VideoProvider extends Component {
         }
 
         const handlePubPeerCreation = (error) => {
-          const peer = this.webRtcPeers[stream];
-          peer.stream = stream;
-          peer.started = false;
-          peer.attached = false;
-          peer.didSDPAnswered = false;
-          peer.inboundIceQueue = [];
-          peer.isPublisher = true;
-          peer.originalProfileId = profileId;
-          peer.currentProfileId = profileId;
+          try {
+            const peer = this.webRtcPeers[stream];
+            peer.stream = stream;
+            peer.started = false;
+            peer.attached = false;
+            peer.didSDPAnswered = false;
+            peer.inboundIceQueue = [];
+            peer.isPublisher = true;
+            peer.originalProfileId = profileId;
+            peer.currentProfileId = profileId;
 
-          if (error) return reject(error);
+            if (error) return reject(error);
 
-          // Store the media stream if necessary. The scenario here is one where
-          // there is no preloaded stream stored.
-          if (bbbVideoStream == null) {
-            bbbVideoStream = new BBBVideoStream(peer.getLocalStream());
-            VideoPreviewService.storeStream(
-              MediaStreamUtils.extractVideoDeviceId(bbbVideoStream.mediaStream),
-              bbbVideoStream
-            );
+            // Store the media stream if necessary. The scenario here is one where
+            // there is no preloaded stream stored.
+            if (bbbVideoStream == null) {
+              bbbVideoStream = new BBBVideoStream(peer.getLocalStream());
+              VideoPreviewService.storeStream(
+                MediaStreamUtils.extractDeviceIdFromStream(
+                  bbbVideoStream.mediaStream,
+                  'video',
+                ),
+                bbbVideoStream
+              );
+            }
+
+            peer.bbbVideoStream = bbbVideoStream;
+            bbbVideoStream.on('streamSwapped', ({ newStream }) => {
+              if (newStream && newStream instanceof MediaStream) {
+                this.replacePCVideoTracks(stream, newStream);
+              }
+            });
+
+            peer.generateOffer((errorGenOffer, offerSdp) => {
+              if (errorGenOffer) {
+                return reject(errorGenOffer);
+              }
+
+              return resolve(offerSdp);
+            });
+          } catch (error) {
+            return reject(error);
           }
-
-          peer.bbbVideoStream = bbbVideoStream;
-          bbbVideoStream.on('streamSwapped', ({ newStream }) => {
-            if (newStream && newStream instanceof MediaStream) {
-              this.replacePCVideoTracks(stream, newStream);
-            }
-          });
-
-          peer.generateOffer((errorGenOffer, offerSdp) => {
-            if (errorGenOffer) {
-              return reject(errorGenOffer);
-            }
-
-            return resolve(offerSdp);
-          });
         }
 
         this.webRtcPeers[stream] = new window.kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(
@@ -559,17 +586,21 @@ class VideoProvider extends Component {
     return new Promise((resolve, reject) => {
       try {
         const handleSubPeerCreation = (error) => {
-          const peer = this.webRtcPeers[stream];
-          peer.stream = stream;
-          peer.started = false;
-          peer.attached = false;
-          peer.didSDPAnswered = false;
-          peer.inboundIceQueue = [];
-          peer.isPublisher = false;
+          try {
+            const peer = this.webRtcPeers[stream];
+            peer.stream = stream;
+            peer.started = false;
+            peer.attached = false;
+            peer.didSDPAnswered = false;
+            peer.inboundIceQueue = [];
+            peer.isPublisher = false;
 
-          if (error) return reject(error);
+            if (error) return reject(error);
 
-          return resolve();
+            return resolve();
+          } catch (error) {
+            return reject(error);
+          }
         };
 
         this.webRtcPeers[stream] = new window.kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(
@@ -603,6 +634,9 @@ class VideoProvider extends Component {
         video: constraints,
       },
       onicecandidate: this._getOnIceCandidateCallback(stream, isLocal),
+      configuration: {
+        iceTransportPolicy: shouldForceRelay() ? 'relay' : undefined,
+      }
     };
 
     try {
@@ -621,7 +655,6 @@ class VideoProvider extends Component {
       iceServers = getMappedFallbackStun();
     } finally {
       if (iceServers.length > 0) {
-        peerOptions.configuration = {};
         peerOptions.configuration.iceServers = iceServers;
       }
 
@@ -889,14 +922,54 @@ class VideoProvider extends Component {
     if (isAbleToAttach) {
       this.attach(peer, video);
       peer.attached = true;
+
+      if (isLocal) {
+        const deviceId = MediaStreamUtils.extractDeviceIdFromStream(
+          peer.bbbVideoStream.mediaStream,
+          'video',
+        );
+        const { type, name } = getSessionVirtualBackgroundInfo(deviceId);
+
+        this.restoreVirtualBackground(peer.bbbVideoStream, type, name).catch((error) => {
+          this.handleVirtualBgError(error, type, name);
+        });
+      }
     }
+  }
+
+  restoreVirtualBackground(stream, type, name) {
+    return new Promise((resolve, reject) => {
+      if (type !== EFFECT_TYPES.NONE_TYPE) {
+        stream.startVirtualBackground(type, name).then(() => {
+          resolve();
+        }).catch((error) => {
+          reject(error);
+        });
+      }
+      resolve();
+    });
+  }
+
+  handleVirtualBgError(error, type, name) {
+    const { intl } = this.props;
+    logger.error({
+      logCode: `video_provider_virtualbg_error`,
+      extraInfo: {
+        errorName: error.name,
+        errorMessage: error.message,
+        virtualBgType: type,
+        virtualBgName: name,
+      },
+    }, `Failed to restore virtual background after reentering the room: ${error.message}`);
+
+    notify(intl.formatMessage(intlMessages.virtualBgGenericError), 'error', 'video');
   }
 
   createVideoTag(stream, video) {
     const peer = this.webRtcPeers[stream];
     this.videoTags[stream] = video;
 
-    if (peer && !peer.attached) {
+    if (peer && !peer.attached && peer.stream === stream) {
       this.attachVideoStream(stream);
     }
   }

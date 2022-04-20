@@ -1,19 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
-import Modal from '/imports/ui/components/modal/simple/component';
-import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
-import { styles } from './styles';
+import Styled from './styles';
 import PermissionsOverlay from '../permissions-overlay/component';
 import AudioSettings from '../audio-settings/component';
 import EchoTest from '../echo-test/component';
 import Help from '../help/component';
 import AudioDial from '../audio-dial/component';
 import AudioAutoplayPrompt from '../autoplay/component';
+import Settings from '/imports/ui/services/settings';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -45,6 +43,9 @@ const propTypes = {
   formattedTelVoice: PropTypes.string.isRequired,
   autoplayBlocked: PropTypes.bool.isRequired,
   handleAllowAutoplay: PropTypes.func.isRequired,
+  changeInputStream: PropTypes.func.isRequired,
+  localEchoEnabled: PropTypes.bool.isRequired,
+  showVolumeMeter: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -136,6 +137,7 @@ class AudioModal extends Component {
     this.handleRetryGoToEchoTest = this.handleRetryGoToEchoTest.bind(this);
     this.handleGoToEchoTest = this.handleGoToEchoTest.bind(this);
     this.handleJoinMicrophone = this.handleJoinMicrophone.bind(this);
+    this.handleJoinLocalEcho = this.handleJoinLocalEcho.bind(this);
     this.handleJoinListenOnly = this.handleJoinListenOnly.bind(this);
     this.skipAudioOptions = this.skipAudioOptions.bind(this);
 
@@ -177,6 +179,8 @@ class AudioModal extends Component {
       if (forceListenOnlyAttendee || audioLocked) return this.handleJoinListenOnly();
 
       if (joinFullAudioImmediately && !listenOnlyMode) return this.handleJoinMicrophone();
+
+      if (!listenOnlyMode) return this.handleGoToEchoTest();
     }
     return false;
   }
@@ -233,6 +237,16 @@ class AudioModal extends Component {
     return this.handleGoToEchoTest();
   }
 
+  handleGoToLocalEcho() {
+    // Simplified echo test: this will return the AudioSettings with:
+    //   - withEcho: true
+    // Echo test will be local and done in the AudioSettings view instead of the
+    // old E2E -> yes/no -> join view
+    this.setState({
+      content: 'settings',
+    });
+  }
+
   handleGoToEchoTest() {
     const { AudioError } = this.props;
     const { MIC_ERROR } = AudioError;
@@ -248,6 +262,7 @@ class AudioModal extends Component {
     const {
       joinEchoTest,
       isConnecting,
+      localEchoEnabled,
     } = this.props;
 
     const {
@@ -255,6 +270,8 @@ class AudioModal extends Component {
     } = this.state;
 
     if (disableActions && isConnecting) return null;
+
+    if (localEchoEnabled) return this.handleGoToLocalEcho();
 
     this.setState({
       hasError: false,
@@ -321,6 +338,17 @@ class AudioModal extends Component {
     });
   }
 
+  handleJoinLocalEcho(inputStream) {
+    const { changeInputStream } = this.props;
+    // Reset the modal to a connecting state - this kind of sucks?
+    // prlanzarin Apr 04 2022
+    this.setState({
+      content: null,
+    });
+    if (inputStream) changeInputStream(inputStream);
+    this.handleJoinMicrophone();
+  }
+
   handleJoinMicrophone() {
     const {
       joinMicrophone,
@@ -381,13 +409,13 @@ class AudioModal extends Component {
 
     return (
       <div>
-        <span className={styles.audioOptions}>
+        <Styled.AudioOptions data-test="audioModalOptions">
           {!showMicrophone && !isMobileNative
               && (
               <>
-                <Button
-                  className={styles.audioBtn}
+                <Styled.AudioModalButton
                   label={intl.formatMessage(intlMessages.microphoneLabel)}
+                  data-test="microphoneBtn"
                   aria-describedby="mic-description"
                   icon="unmute"
                   circle
@@ -407,9 +435,9 @@ class AudioModal extends Component {
           {listenOnlyMode
               && (
               <>
-                <Button
-                  className={styles.audioBtn}
+                <Styled.AudioModalButton
                   label={intl.formatMessage(intlMessages.listenOnlyLabel)}
+                  data-test="listenOnlyBtn"
                   aria-describedby="listenOnly-description"
                   icon="listen"
                   circle
@@ -421,10 +449,9 @@ class AudioModal extends Component {
                 </span>
               </>
               )}
-        </span>
+        </Styled.AudioOptions>
         {formattedDialNum ? (
-          <Button
-            className={styles.audioDial}
+          <Styled.AudioDial
             label={dialAudioLabel}
             size="md"
             color="primary"
@@ -447,15 +474,16 @@ class AudioModal extends Component {
     } = this.props;
 
     const { content } = this.state;
+    const { animations } = Settings.application;
 
     if (this.skipAudioOptions()) {
       return (
-        <div className={styles.connecting} role="alert">
+        <Styled.Connecting role="alert">
           <span data-test={!isEchoTest ? 'connecting' : 'connectingToEchoTest'}>
             {intl.formatMessage(intlMessages.connecting)}
           </span>
-          <span className={styles.connectingAnimation} />
-        </div>
+          <Styled.ConnectingAnimation animations={animations} />
+        </Styled.Connecting>
       );
     }
     return content ? this.contents[content].component() : this.renderAudioOptions();
@@ -480,12 +508,27 @@ class AudioModal extends Component {
       joinEchoTest,
       changeInputDevice,
       changeOutputDevice,
+      localEchoEnabled,
+      showVolumeMeter,
     } = this.props;
+
+    const confirmationCallback = !localEchoEnabled
+      ? this.handleRetryGoToEchoTest
+      : this.handleJoinLocalEcho;
+
+    const handleGUMFailure = () => {
+      this.setState({
+        content: 'help',
+        errCode: 0,
+        disableActions: false,
+      });
+    };
 
     return (
       <AudioSettings
         handleBack={this.handleGoToAudioOptions}
-        handleRetry={this.handleRetryGoToEchoTest}
+        handleConfirmation={confirmationCallback}
+        handleGUMFailure={handleGUMFailure}
         joinEchoTest={joinEchoTest}
         changeInputDevice={changeInputDevice}
         changeOutputDevice={changeOutputDevice}
@@ -494,6 +537,9 @@ class AudioModal extends Component {
         isEchoTest={isEchoTest}
         inputDeviceId={inputDeviceId}
         outputDeviceId={outputDeviceId}
+        withVolumeMeter={showVolumeMeter}
+        withEcho={localEchoEnabled}
+        produceStreams={localEchoEnabled || showVolumeMeter}
       />
     );
   }
@@ -548,15 +594,14 @@ class AudioModal extends Component {
     return (
       <span>
         {showPermissionsOvelay ? <PermissionsOverlay closeModal={closeModal} /> : null}
-        <Modal
-          overlayClassName={styles.overlay}
-          className={styles.modal}
+        <Styled.AudioModal
           onRequestClose={closeModal}
           hideBorder
+          data-test="audioModal"
           contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         >
           {isIE ? (
-            <p className={cx(styles.text, styles.browserWarning)}>
+            <Styled.BrowserWarning>
               <FormattedMessage
                 id="app.audioModal.unsupportedBrowserLabel"
                 description="Warning when someone joins with a browser that isnt supported"
@@ -565,28 +610,25 @@ class AudioModal extends Component {
                   1: <a href="https://getfirefox.com">Firefox</a>,
                 }}
               />
-            </p>
+            </Styled.BrowserWarning>
           ) : null}
           {
             !this.skipAudioOptions()
               ? (
-                <header
-                  data-test="audioModalHeader"
-                  className={styles.header}
-                >
-                  <h2 className={styles.title}>
+                <Styled.Header>
+                  <Styled.Title>
                     {content
                       ? intl.formatMessage(this.contents[content].title)
                       : intl.formatMessage(intlMessages.audioChoiceLabel)}
-                  </h2>
-                </header>
+                  </Styled.Title>
+                </Styled.Header>
               )
               : null
           }
-          <div className={styles.content}>
+          <Styled.Content>
             {this.renderContent()}
-          </div>
-        </Modal>
+          </Styled.Content>
+        </Styled.AudioModal>
       </span>
     );
   }

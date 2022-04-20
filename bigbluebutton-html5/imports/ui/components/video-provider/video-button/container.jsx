@@ -1,7 +1,7 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { injectIntl } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import JoinVideoButton from './component';
 import VideoService from '../service';
@@ -10,16 +10,17 @@ const JoinVideoOptionsContainer = (props) => {
   const {
     hasVideoStream,
     disableReason,
+    status,
     intl,
     mountModal,
     ...restProps
   } = props;
 
-  const mountVideoPreview = () => { mountModal(<VideoPreviewContainer />); };
+  const mountVideoPreview = (force) => { mountModal(<VideoPreviewContainer forceOpen={force} />); };
 
   return (
     <JoinVideoButton {...{
-      mountVideoPreview, hasVideoStream, disableReason, ...restProps,
+      mountVideoPreview, hasVideoStream, disableReason, status, ...restProps,
     }}
     />
   );
@@ -28,4 +29,5 @@ const JoinVideoOptionsContainer = (props) => {
 export default withModalMounter(injectIntl(withTracker(() => ({
   hasVideoStream: VideoService.hasVideoStream(),
   disableReason: VideoService.disableReason(),
+  status: VideoService.getStatus(),
 }))(JoinVideoOptionsContainer)));

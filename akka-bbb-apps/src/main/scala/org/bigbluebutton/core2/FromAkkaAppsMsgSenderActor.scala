@@ -41,10 +41,6 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       case SyncGetVoiceUsersRespMsg.NAME       => sendToHTML5InstanceIdChannel(msg, json)
 
       // Sent to FreeSWITCH
-      case ScreenshareStartRtmpBroadcastVoiceConfMsg.NAME =>
-        msgSender.send(toVoiceConfRedisChannel, json)
-      case ScreenshareStopRtmpBroadcastVoiceConfMsg.NAME =>
-        msgSender.send(toVoiceConfRedisChannel, json)
       case EjectAllFromVoiceConfMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)
       case GetUsersInVoiceConfSysMsg.NAME =>
@@ -63,6 +59,14 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         msgSender.send(toVoiceConfRedisChannel, json)
       case GetUsersStatusToVoiceConfSysMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)
+
+      // Sent to SFU
+      case EjectUserFromSfuSysMsg.NAME =>
+        msgSender.send(toSfuRedisChannel, json)
+      case CamBroadcastStopSysMsg.NAME =>
+        msgSender.send(toSfuRedisChannel, json)
+      case CamStreamUnsubscribeSysMsg.NAME =>
+        msgSender.send(toSfuRedisChannel, json)
 
       //==================================================================
       // Send chat, presentation, and whiteboard in different channels so as not to
@@ -100,8 +104,6 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       case UpdateBreakoutUsersEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
       case BreakoutRoomsListEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsPresRedisChannel, json)
-      case BreakoutRoomJoinURLEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
       case BreakoutRoomsTimeRemainingUpdateEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsPresRedisChannel, json)

@@ -3,6 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import SettingsService from '/imports/ui/services/settings';
 import Settings from './component';
 import { layoutDispatch } from '../layout/context';
+import { isScreenSharingEnabled } from '/imports/ui/services/features';
 
 import {
   getUserRoles,
@@ -17,7 +18,8 @@ const SettingsContainer = (props) => {
   return <Settings {...props} layoutContextDispatch={layoutContextDispatch} />;
 };
 
-export default withTracker(() => ({
+export default withTracker((props) => ({
+  ...props,
   audio: SettingsService.audio,
   dataSaving: SettingsService.dataSaving,
   application: SettingsService.application,
@@ -26,4 +28,6 @@ export default withTracker(() => ({
   isModerator: getUserRoles() === 'MODERATOR',
   showGuestNotification: showGuestNotification(),
   showToggleLabel: false,
+  isScreenSharingEnabled: isScreenSharingEnabled(),
+  isVideoEnabled: Meteor.settings.public.kurento.enableVideo,
 }))(SettingsContainer);

@@ -2,10 +2,11 @@ import { Tracker } from 'meteor/tracker';
 import { Session } from 'meteor/session';
 import Settings from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
-import Users from '/imports/ui/local-collections/users-collection/users';
+import Meetings from '/imports/api/meetings';
+import Users from '/imports/api/users';
 import VideoStreams from '/imports/api/video-streams';
 import UserListService from '/imports/ui/components/user-list/service';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { makeCall } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -28,7 +29,12 @@ const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 const MIRROR_WEBCAM = Meteor.settings.public.app.mirrorOwnWebcam;
-const CAMERA_QUALITY_THRESHOLDS = Meteor.settings.public.kurento.cameraQualityThresholds.thresholds || [];
+const PIN_WEBCAM = Meteor.settings.public.kurento.enableVideoPin;
+const {
+  thresholds: CAMERA_QUALITY_THRESHOLDS = [],
+  applyConstraints: CAMERA_QUALITY_THR_CONSTRAINTS = false,
+  debounceTime: CAMERA_QUALITY_THR_DEBOUNCE = 2500,
+} = Meteor.settings.public.kurento.cameraQualityThresholds;
 const {
   paginationToggleEnabled: PAGINATION_TOGGLE_ENABLED,
   pageChangeDebounceTime: PAGE_CHANGE_DEBOUNCE_TIME,
@@ -78,7 +84,11 @@ class VideoService {
       }
       this.updateNumberOfDevices();
     }
-    this.webRtcPeers = {};
+
+    // FIXME this is abhorrent. Remove when peer lifecycle is properly decoupled
+    // from the React component's lifecycle. Any attempt at a half-baked
+    // decoupling will most probably generate problems - prlanzarin Dec 16 2021
+    this.webRtcPeersRef = {};
   }
 
   defineProperties(obj) {
@@ -242,13 +252,15 @@ class VideoService {
 
     // Page size refers only to the number of subscribers. Publishers are always
     // shown, hence not accounted for
-    const nofPages = Math.ceil((numberOfSubscribers || numberOfPublishers) / pageSize);
+    const nofPages = Math.ceil(numberOfSubscribers / pageSize);
 
     if (nofPages !== this.numberOfPages) {
       this.numberOfPages = nofPages;
       // Check if we have to page back on the current video page index due to a
       // page ceasing to exist
-      if ((this.currentVideoPageIndex + 1) > this.numberOfPages) {
+      if (nofPages === 0) {
+        this.currentVideoPageIndex = 0;
+      } else if ((this.currentVideoPageIndex + 1) > this.numberOfPages) {
         this.getPreviousVideoPage();
       }
     }
@@ -364,11 +376,14 @@ class VideoService {
 
   getVideoPage (streams, pageSize) {
     // Publishers are taken into account for the page size calculations. They
-    // also appear on every page.
-    const [mine, others] = _.partition(streams, (vs => { return Auth.userID === vs.userId; }));
+    // also appear on every page. Same for pinned user.
+    const [filtered, others] = _.partition(streams, (vs) => Auth.userID === vs.userId || vs.pin);
+
+    // Separate pin from local cameras
+    const [pin, mine] = _.partition(filtered, (vs) => vs.pin);
 
     // Recalculate total number of pages
-    this.setNumberOfPages(mine.length, others.length, pageSize);
+    this.setNumberOfPages(filtered.length, others.length, pageSize);
     const chunkIndex = this.currentVideoPageIndex * pageSize;
 
     // This is an extra check because pagination is globally in effect (hard
@@ -379,10 +394,9 @@ class VideoService {
       .slice(chunkIndex, (chunkIndex + pageSize)) || [];
 
     if (getSortingMethod(sortingMethod).localFirst) {
-      return [...mine, ...paginatedStreams];
+      return [...pin, ...mine, ...paginatedStreams];
     }
-
-    return [...paginatedStreams, ...mine];
+    return [...pin, ...paginatedStreams, ...mine];
   }
 
   getUsersIdFromVideoStreams() {
@@ -392,6 +406,16 @@ class VideoService {
     ).fetch().map(user => user.userId);
 
     return usersId;
+  }
+
+  getVideoPinByUser(userId) {
+    const user = Users.findOne({ userId }, { fields: { pin: 1 } });
+
+    return user.pin;
+  }
+
+  toggleVideoPin(userId, userIsPinned) {
+    makeCall('changePin', userId, !userIsPinned);
   }
 
   getVideoStreams() {
@@ -551,6 +575,43 @@ class VideoService {
     return false;
   }
 
+  hasCapReached() {
+    const meeting = Meetings.findOne(
+      { meetingId: Auth.meetingID },
+      {
+        fields: {
+          'meetingProp.meetingCameraCap': 1,
+          'usersProp.userCameraCap': 1,
+        },
+      },
+    );
+
+    // If the meeting prop data is unreachable, force a safe return
+    if (!meeting?.usersProp || !meeting?.meetingProp) return true;
+
+    const { meetingCameraCap } = meeting.meetingProp;
+    const { userCameraCap } = meeting.usersProp;
+
+    const meetingCap = meetingCameraCap !== 0 && this.getVideoStreamsCount() >= meetingCameraCap;
+    const userCap = userCameraCap !== 0 && this.getLocalVideoStreamsCount() >= userCameraCap;
+
+    return meetingCap || userCap;
+  }
+
+  getVideoStreamsCount() {
+    const streams = VideoStreams.find({}).count();
+
+    return streams;
+  }
+
+  getLocalVideoStreamsCount() {
+    const localStreams = VideoStreams.find(
+      { userId: Auth.userID }
+    ).count();
+
+    return localStreams;
+  }
+
   getInfo() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'voiceProp.voiceConf': 1 } });
@@ -571,6 +632,24 @@ class VideoService {
     return isOwnWebcam && isEnabledMirroring;
   }
 
+  isPinEnabled() {
+    return PIN_WEBCAM;
+  }
+
+  // In user-list it is necessary to check if the user is sharing his webcam
+  isVideoPinEnabledForCurrentUser() {
+    const currentUser = Users.findOne({ userId: Auth.userID },
+      { fields: { role: 1 } });
+
+    const isModerator = currentUser.role === 'MODERATOR';
+    const isBreakout = meetingIsBreakout();
+    const isPinEnabled = this.isPinEnabled();
+
+    return !!(isModerator
+      && isPinEnabled
+      && !isBreakout);
+  }
+
   getMyStreamId(deviceId) {
     const videoStream = VideoStreams.findOne(
       {
@@ -584,6 +663,7 @@ class VideoService {
 
   isUserLocked() {
     return !!Users.findOne({
+      meetingId: Auth.meetingID,
       userId: Auth.userID,
       locked: true,
       role: { $ne: ROLE_MODERATOR },
@@ -650,10 +730,16 @@ class VideoService {
     this.exitVideo();
   }
 
+  getStatus() {
+    if (this.isConnecting) return 'videoConnecting';
+    if (this.isConnected) return 'connected';
+    return 'disconnected';
+  }
+
   disableReason() {
     const locks = {
       videoLocked: this.isUserLocked(),
-      videoConnecting: this.isConnecting,
+      camCapReached: this.hasCapReached() && !this.hasVideoStream(),
       meteorDisconnected: !Meteor.status().connected
     };
     const locksKeys = Object.keys(locks);
@@ -755,59 +841,58 @@ class VideoService {
       return {
         ...constraints,
         width: trackSettings.width,
-        height: trackSettings.height
+        height: trackSettings.height,
       };
-    } else {
-      return constraints;
     }
+
+    return constraints;
   }
 
   applyCameraProfile (peer, profileId) {
-    const profile = CAMERA_PROFILES.find(targetProfile => targetProfile.id === profileId);
+    const profile = CAMERA_PROFILES.find((targetProfile) => targetProfile.id === profileId);
 
-    if (!profile) {
-      logger.warn({
-        logCode: 'video_provider_noprofile',
-        extraInfo: { profileId },
-      }, `Apply failed: no camera profile found.`);
-      return;
-    }
-
-    // Profile is currently applied or it's better than the original user's profile,
-    // skip
-    if (peer.currentProfileId === profileId
+    // When this should be skipped:
+    // 1 - Badly defined profile
+    // 2 - Badly defined peer (ie {})
+    // 3 - The target profile is already applied
+    // 4 - The targetr profile is better than the original profile
+    if (!profile
+      || peer == null
+      || peer.peerConnection == null
+      || peer.currentProfileId === profileId
       || this.isProfileBetter(profileId, peer.originalProfileId)) {
       return;
     }
 
     const { bitrate, constraints } = profile;
 
-    if (bitrate) {
-      this.applyBitrate(peer, bitrate);
-    }
+    if (bitrate) this.applyBitrate(peer, bitrate);
 
-    if (constraints && typeof constraints === 'object') {
-      peer.peerConnection.getSenders().forEach(sender => {
+    if (CAMERA_QUALITY_THR_CONSTRAINTS
+      && constraints
+      && typeof constraints === 'object'
+    ) {
+      peer.peerConnection.getSenders().forEach((sender) => {
         const { track } = sender;
-        if (track && track.kind === 'video' && typeof track.applyConstraints  === 'function') {
-          let normalizedVideoConstraints = this.reapplyResolutionIfNeeded(track, constraints);
+        if (track && track.kind === 'video' && typeof track.applyConstraints === 'function') {
+          const normalizedVideoConstraints = this.reapplyResolutionIfNeeded(track, constraints);
           track.applyConstraints(normalizedVideoConstraints)
-            .then(() => {
-              logger.info({
-                logCode: 'video_provider_profile_applied',
-                extraInfo: { profileId },
-              }, `New camera profile applied: ${profileId}`);
-              peer.currentProfileId = profileId;
-            })
-            .catch(error => {
+            .catch((error) => {
               logger.warn({
-                logCode: 'video_provider_profile_apply_failed',
+                logCode: 'video_provider_constraintchange_failed',
                 extraInfo: { errorName: error.name, errorCode: error.code },
               }, 'Error applying camera profile');
             });
         }
       });
     }
+
+    logger.info({
+      logCode: 'video_provider_profile_applied',
+      extraInfo: { profileId },
+    }, `New camera profile applied: ${profileId}`);
+
+    peer.currentProfileId = profileId;
   }
 
   getThreshold (numberOfPublishers) {
@@ -830,14 +915,6 @@ class VideoService {
   }
 
   /**
-   * Getter for webRtcPeers hash, which stores a reference for all
-   * RTCPeerConnection objects.
-   */
-  getWebRtcPeers() {
-    return this.webRtcPeers;
-  }
-
-  /**
    * Get all active video peers.
    * @returns An Object containing the reference for all active peers peers
    */
@@ -850,13 +927,11 @@ class VideoService {
 
     if (!activeVideoStreams) return null;
 
-    const peers = this.getWebRtcPeers();
-
     const activePeers = {};
 
     activeVideoStreams.forEach((stream) => {
-      if (peers[stream.stream]) {
-        activePeers[stream.stream] = peers[stream.stream].peerConnection;
+      if (this.webRtcPeersRef[stream.stream]) {
+        activePeers[stream.stream] = this.webRtcPeersRef[stream.stream].peerConnection;
       }
     });
 
@@ -901,6 +976,10 @@ class VideoService {
 
     return stats;
   }
+
+  updatePeerDictionaryReference(newRef) {
+    this.webRtcPeersRef = newRef;
+  }
 }
 
 const videoService = new VideoService();
@@ -918,6 +997,7 @@ export default {
   getAuthenticatedURL: () => videoService.getAuthenticatedURL(),
   isLocalStream: cameraId => videoService.isLocalStream(cameraId),
   hasVideoStream: () => videoService.hasVideoStream(),
+  getStatus: () => videoService.getStatus(),
   disableReason: () => videoService.disableReason(),
   playStart: cameraId => videoService.playStart(cameraId),
   getCameraProfile: () => videoService.getCameraProfile(),
@@ -930,10 +1010,15 @@ export default {
   getUserParameterProfile: () => videoService.getUserParameterProfile(),
   isMultipleCamerasEnabled: () => videoService.isMultipleCamerasEnabled(),
   mirrorOwnWebcam: userId => videoService.mirrorOwnWebcam(userId),
+  hasCapReached: () => videoService.hasCapReached(),
   onBeforeUnload: () => videoService.onBeforeUnload(),
   notify: message => notify(message, 'error', 'video'),
   updateNumberOfDevices: devices => videoService.updateNumberOfDevices(devices),
-  applyCameraProfile: (peer, newProfile) => videoService.applyCameraProfile(peer, newProfile),
+  applyCameraProfile: _.debounce(
+    videoService.applyCameraProfile.bind(videoService),
+    CAMERA_QUALITY_THR_DEBOUNCE,
+    { leading: false, trailing: true },
+  ),
   getThreshold: (numberOfPublishers) => videoService.getThreshold(numberOfPublishers),
   isPaginationEnabled: () => videoService.isPaginationEnabled(),
   getNumberOfPages: () => videoService.getNumberOfPages(),
@@ -943,7 +1028,11 @@ export default {
   getPageChangeDebounceTime: () => { return PAGE_CHANGE_DEBOUNCE_TIME },
   getUsersIdFromVideoStreams: () => videoService.getUsersIdFromVideoStreams(),
   shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
+  toggleVideoPin: (userId, pin) => videoService.toggleVideoPin(userId, pin),
+  getVideoPinByUser: (userId) => videoService.getVideoPinByUser(userId),
+  isVideoPinEnabledForCurrentUser: () => videoService.isVideoPinEnabledForCurrentUser(),
+  isPinEnabled: () => videoService.isPinEnabled(),
   getPreloadedStream: () => videoService.getPreloadedStream(),
-  getWebRtcPeers: () => videoService.getWebRtcPeers(),
   getStats: () => videoService.getStats(),
+  updatePeerDictionaryReference: (newRef) => videoService.updatePeerDictionaryReference(newRef),
 };

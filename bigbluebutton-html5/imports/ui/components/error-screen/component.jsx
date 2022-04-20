@@ -5,7 +5,7 @@ import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import AudioManager from '/imports/ui/services/audio-manager';
 import logger from '/imports/startup/client/logger';
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   500: {
@@ -56,9 +56,10 @@ const defaultProps = {
 class ErrorScreen extends PureComponent {
   componentDidMount() {
     const { code } = this.props;
+    const log = code === 403 ? 'warn' : 'error';
     AudioManager.exitAudio();
     Meteor.disconnect();
-    logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${code}`);
+    logger[log]({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${code}`);
   }
 
   render() {
@@ -81,24 +82,25 @@ class ErrorScreen extends PureComponent {
     }
 
     return (
-      <div className={styles.background}>
-        <h1 className={styles.message} data-test="errorScreenMessage">
+      <Styled.Background>
+        <Styled.Message data-test="errorScreenMessage">
           {formatedMessage}
-        </h1>
+        </Styled.Message>
         {
           !errorMessageDescription || (
-            <div className={styles.sessionMessage}>
+            <Styled.SessionMessage>
               {errorMessageDescription}
-            </div>)
+            </Styled.SessionMessage>
+          )
         }
-        <div className={styles.separator} />
-        <h1 className={styles.codeError}>
+        <Styled.Separator />
+        <Styled.CodeError>
           {code}
-        </h1>
+        </Styled.CodeError>
         <div>
           {children}
         </div>
-      </div>
+      </Styled.Background>
     );
   }
 }

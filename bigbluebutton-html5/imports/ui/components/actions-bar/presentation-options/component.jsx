@@ -50,6 +50,7 @@ const PresentationOptionsContainer = ({
   return (
     <Styled.RestorePresentationButton
       icon={`${buttonType}${isLayoutSwapped ? '_off' : ''}`}
+      data-test="restorePresentationButton"
       label={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
       aria-label={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
       aria-describedby={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationDesc : intlMessages.minimizePresentationDesc)}
@@ -62,6 +63,7 @@ const PresentationOptionsContainer = ({
       id="restore-presentation"
       ghost={isLayoutSwapped}
       disabled={!isThereCurrentPresentation}
+      data-test={isLayoutSwapped ? 'restorePresentation' : 'minimizePresentation'}
     />
   );
 };

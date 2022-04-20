@@ -15,6 +15,7 @@ export default function addUserPersistentData(user) {
     intId: String,
     extId: String,
     name: String,
+    pin: Boolean,
     role: String,
     guest: Boolean,
     authed: Boolean,
@@ -25,9 +26,9 @@ export default function addUserPersistentData(user) {
     locked: Boolean,
     avatar: String,
     clientType: String,
+    left: Boolean,
     effectiveConnectionType: null,
   });
-
 
   const {
     intId,
@@ -39,6 +40,7 @@ export default function addUserPersistentData(user) {
     avatar,
     guest,
     color,
+    pin,
   } = user;
 
   const userData = {
@@ -51,6 +53,7 @@ export default function addUserPersistentData(user) {
     avatar,
     guest,
     color,
+    pin,
     loggedOut: false,
   };
 

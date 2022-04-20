@@ -1,11 +1,11 @@
-import Breakouts from '/imports/ui/local-collections/breakouts-collection/breakouts';
-import { MeetingTimeRemaining } from '/imports/api/meetings';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Breakouts from '/imports/api/breakouts';
+import { MeetingTimeRemaining, Meetings } from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/ui/local-collections/users-collection/users';
+import Users from '/imports/api/users';
 import UserListService from '/imports/ui/components/user-list/service';
 import fp from 'lodash/fp';
+import UsersPersistentData from '/imports/api/users-persistent-data';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -46,7 +46,7 @@ const requestJoinURL = (breakoutId) => {
   });
 };
 
-const isExtendTimeHigherThanMeetingRemaining = (extendTimeInMinutes) => {
+const isNewTimeHigherThanMeetingRemaining = (newTimeInMinutes) => {
   const meetingId = Auth.meetingID;
   const meetingTimeRemaining = MeetingTimeRemaining.findOne({ meetingId });
 
@@ -54,10 +54,7 @@ const isExtendTimeHigherThanMeetingRemaining = (extendTimeInMinutes) => {
     const { timeRemaining } = meetingTimeRemaining;
 
     if (timeRemaining) {
-      const breakoutRooms = findBreakouts();
-      const breakoutRoomsTimeRemaining = breakoutRooms[0].timeRemaining;
-      const newBreakoutRoomsRemainingTime =
-        breakoutRoomsTimeRemaining + extendTimeInMinutes * 60;
+      const newBreakoutRoomsRemainingTime = newTimeInMinutes * 60;
       //  Keep margin of 5 seconds for breakout rooms end before parent meeting
       const meetingTimeRemainingWithMargin = timeRemaining - 5;
 
@@ -70,11 +67,19 @@ const isExtendTimeHigherThanMeetingRemaining = (extendTimeInMinutes) => {
   return false;
 };
 
-const extendBreakoutsTime = (extendTimeInMinutes) => {
-  if (extendTimeInMinutes <= 0) return false;
+const setBreakoutsTime = (timeInMinutes) => {
+  if (timeInMinutes <= 0) return false;
 
-  makeCall('extendBreakoutsTime', {
-    extendTimeInMinutes,
+  makeCall('setBreakoutsTime', {
+    timeInMinutes,
+  });
+
+  return true;
+};
+
+const sendMessageToAllBreakouts = (msg) => {
+  makeCall('sendMessageToAllBreakouts', {
+    msg,
   });
 
   return true;
@@ -117,26 +122,27 @@ const checkInviteModerators = () => {
 const getBreakoutByUserId = (userId) =>
   Breakouts.find(
     { [`url_${userId}`]: { $exists: true } },
-    { fields: { timeRemaining: 0 } }
+    { fields: { timeRemaining: 0 } },
   ).fetch();
 
-const getBreakoutByUrlData = (breakoutUrlData) =>
-  Breakouts.findOne({ [`url_${Auth.userID}`]: breakoutUrlData });
+const getWithBreakoutUrlData = (userId) => (breakoutsArray) => breakoutsArray
+  .map((breakout) => {
+    if (typeof breakout[`url_${userId}`] === 'object') {
+      return Object.assign(breakout, { breakoutUrlData: breakout[`url_${userId}`] });
+    }
+    return Object.assign(breakout, { breakoutUrlData: { insertedTime: 0 } });
+  })
+  .reduce((acc, urlDataArray) => acc.concat(urlDataArray), []);
 
-const getUrlFromBreakouts = (userId) => (breakoutsArray) =>
-  breakoutsArray
-    .map((breakout) => breakout[`url_${userId}`])
-    .reduce((acc, urlDataArray) => acc.concat(urlDataArray), []);
+const getLastBreakoutInserted = (breakoutURLArray) => breakoutURLArray.sort((a, b) => {
+  return a.breakoutUrlData.insertedTime - b.breakoutUrlData.insertedTime;
+}).pop();
 
-const getLastURLInserted = (breakoutURLArray) =>
-  breakoutURLArray.sort((a, b) => a.insertedTime - b.insertedTime).pop();
-
-const getBreakoutUrlByUserId = (userId) =>
-  fp.pipe(
-    getBreakoutByUserId,
-    getUrlFromBreakouts(userId),
-    getLastURLInserted
-  )(userId);
+const getLastBreakoutByUserId = (userId) => fp.pipe(
+  getBreakoutByUserId,
+  getWithBreakoutUrlData(userId),
+  getLastBreakoutInserted,
+)(userId);
 
 const getBreakouts = () =>
   Breakouts.find({}, { sort: { sequence: 1 } }).fetch();
@@ -155,6 +161,33 @@ const getBreakoutUserIsIn = (userId) =>
     { fields: { sequence: 1 } }
   );
 
+const getBreakoutUserWasIn = (userId, extId) => {
+  const selector = {
+    meetingId: Auth.meetingID,
+    lastBreakoutRoom: { $exists: 1 },
+  };
+
+  if (extId !== null) {
+    selector.extId = extId;
+  } else {
+    selector.userId = userId;
+  }
+
+  const users = UsersPersistentData.find(
+    selector,
+    { fields: { userId: 1, lastBreakoutRoom: 1 } },
+  ).fetch();
+
+  if (users.length > 0) {
+    const hasCurrUserId = users.filter((user) => user.userId === userId);
+    if (hasCurrUserId.length > 0) return hasCurrUserId.pop().lastBreakoutRoom;
+
+    return users.pop().lastBreakoutRoom;
+  }
+
+  return null;
+};
+
 const isUserInBreakoutRoom = (joinedUsers) => {
   const userId = Auth.userID;
 
@@ -164,19 +197,20 @@ const isUserInBreakoutRoom = (joinedUsers) => {
 export default {
   findBreakouts,
   endAllBreakouts,
-  extendBreakoutsTime,
-  isExtendTimeHigherThanMeetingRemaining,
+  setBreakoutsTime,
+  sendMessageToAllBreakouts,
+  isNewTimeHigherThanMeetingRemaining,
   requestJoinURL,
   getBreakoutRoomUrl,
   transferUserToMeeting,
   transferToBreakout,
   meetingId: () => Auth.meetingID,
   amIModerator,
-  getBreakoutUrlByUserId,
-  getBreakoutByUrlData,
+  getLastBreakoutByUserId,
   getBreakouts,
   getBreakoutsNoTime,
   getBreakoutUserIsIn,
+  getBreakoutUserWasIn,
   sortUsersByName: UserListService.sortUsersByName,
   isUserInBreakoutRoom,
   checkInviteModerators,

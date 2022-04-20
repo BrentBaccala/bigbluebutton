@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/modal/service';
-import Modal from '/imports/ui/components/modal/fullscreen/component';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
+import Modal from '/imports/ui/components/common/modal/fullscreen/component';
 import logger from '/imports/startup/client/logger';
 import PropTypes from 'prop-types';
 import AudioService from '../audio/service';
 import VideoService from '../video-provider/service';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
-import UserListService from '/imports/ui/components/user-list/service';
 import Styled from './styles';
+import { Session } from 'meteor/session';
 
 const intlMessages = defineMessages({
   title: {
@@ -102,6 +102,7 @@ class BreakoutJoinConfirmation extends Component {
       isFreeJoin,
       voiceUserJoined,
       requestJoinURL,
+      amIPresenter,
     } = this.props;
 
     const { selectValue } = this.state;
@@ -122,13 +123,15 @@ class BreakoutJoinConfirmation extends Component {
 
     VideoService.storeDeviceIds();
     VideoService.exitVideo();
-    if (UserListService.amIPresenter()) screenshareHasEnded();
+    if (amIPresenter) screenshareHasEnded();
     if (url === '') {
       logger.error({
         logCode: 'breakoutjoinconfirmation_redirecting_to_url',
         extraInfo: { breakoutURL, isFreeJoin },
       }, 'joining breakout room but redirected to about://blank');
     }
+
+    Session.set('lastBreakoutIdOpened', selectValue);
     window.open(url);
     mountModal(null);
   }

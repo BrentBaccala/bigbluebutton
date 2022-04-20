@@ -1,5 +1,5 @@
 import Users from '/imports/api/users';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Meetings from '/imports/api/meetings';
 import GroupChat from '/imports/api/group-chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
@@ -12,6 +12,7 @@ import PollService from '/imports/ui/components/poll/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
+const CHAT_EMPHASIZE_TEXT = CHAT_CONFIG.moderatorChatEmphasized;
 
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 
@@ -171,7 +172,7 @@ const sendGroupMessage = (message, idChatOpen) => {
 
   let destinationChatId = PUBLIC_GROUP_CHAT_ID;
 
-  const { fullname: senderName, userID: senderUserId } = Auth;
+  const { userID: senderUserId } = Auth;
   const receiverId = { id: chatID };
 
   if (!isPublicChat) {
@@ -185,15 +186,14 @@ const sendGroupMessage = (message, idChatOpen) => {
     }
   }
 
-  const userAvatarColor = Users.findOne({ userId: senderUserId }, { fields: { color: 1 } });
-
   const payload = {
-    color: userAvatarColor?.color || '0',
     correlationId: `${senderUserId}-${Date.now()}`,
     sender: {
       id: senderUserId,
-      name: senderName,
+      name: '',
+      role: '',
     },
+    chatEmphasizedText: CHAT_EMPHASIZE_TEXT,
     message,
   };
 

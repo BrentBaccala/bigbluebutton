@@ -33,6 +33,7 @@ export default function addUser(meetingId, userData) {
     presenter: Boolean,
     locked: Boolean,
     avatar: String,
+    pin: Boolean,
     clientType: String,
   });
 
@@ -61,6 +62,7 @@ export default function addUser(meetingId, userData) {
     inactivityCheck: false,
     responseDelay: 0,
     loggedOut: false,
+    left: false,
     ...flat(user),
   };
 

@@ -1,6 +1,6 @@
 import { defineMessages } from 'react-intl';
 import ConnectionStatus from '/imports/api/connection-status';
-import Users from '/imports/ui/local-collections/users-collection/users';
+import Users from '/imports/api/users';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
@@ -29,6 +29,7 @@ const intlMessages = defineMessages({
 });
 
 let stats = -1;
+let lastRtt = null;
 const statsDep = new Tracker.Dependency();
 
 let statsTimeout = null;
@@ -111,11 +112,12 @@ const addConnectionStatus = (level, type, value) => {
 
 const fetchRoundTripTime = () => {
   const t0 = Date.now();
-  makeCall('voidConnection').then(() => {
+  makeCall('voidConnection', lastRtt).then(() => {
     const tf = Date.now();
     const rtt = tf - t0;
     const event = new CustomEvent('socketstats', { detail: { rtt } });
     window.dispatchEvent(event);
+    lastRtt = rtt;
   });
 };
 
@@ -570,6 +572,7 @@ const calculateBitsPerSecondFromMultipleData = (currentData, previousData) => {
 };
 
 export default {
+  isModerator,
   getConnectionStatus,
   getStats,
   getHelp,
@@ -581,4 +584,5 @@ export default {
   getNetworkData,
   calculateBitsPerSecond,
   calculateBitsPerSecondFromMultipleData,
+  getDataType,
 };

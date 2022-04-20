@@ -1,18 +1,18 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
 import { makeCall } from '/imports/ui/services/api';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
-import Button from '/imports/ui/components/button/component';
-import BBBMenu from '/imports/ui/components/menu/component';
+import BBBMenu from '/imports/ui/components/common/menu/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import FullscreenService from '../../fullscreen-button/service';
-
-import { styles } from '../styles';
+import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
+import { colorDanger } from '/imports/ui/stylesheets/styled-components/palette';
+import Styled from './styles';
+import browserInfo from '/imports/utils/browserInfo';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -97,6 +97,7 @@ const propTypes = {
   isBreakoutRoom: PropTypes.bool,
   isMeteorConnected: PropTypes.bool.isRequired,
   isDropdownOpen: PropTypes.bool,
+  isMobile: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -108,6 +109,8 @@ const defaultProps = {
 };
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+const { isSafari } = browserInfo;
+const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
 class SettingsDropdown extends PureComponent {
   constructor(props) {
@@ -125,11 +128,11 @@ class SettingsDropdown extends PureComponent {
   }
 
   componentDidMount() {
-    document.documentElement.addEventListener('fullscreenchange', this.onFullscreenChange);
+    document.documentElement.addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
   }
 
   componentWillUnmount() {
-    document.documentElement.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    document.documentElement.removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
   }
 
   onFullscreenChange() {
@@ -252,6 +255,8 @@ class SettingsDropdown extends PureComponent {
     }
 
     if (allowLogoutSetting && isMeteorConnected) {
+      const customStyles = { color: colorDanger };
+
       this.menuItems.push(
         {
           key: 'list-item-logout',
@@ -259,7 +264,7 @@ class SettingsDropdown extends PureComponent {
           icon: 'logout',
           label: intl.formatMessage(intlMessages.leaveSessionLabel),
           // description: intl.formatMessage(intlMessages.leaveSessionDesc),
-          className: styles.leaveMeetingButton,
+          customStyles,
           onClick: () => this.leaveSession(),
         },
       );
@@ -273,21 +278,24 @@ class SettingsDropdown extends PureComponent {
       intl,
       shortcuts: OPEN_OPTIONS_AK,
       isDropdownOpen,
+      isMobile,
     } = this.props;
 
-    return (
+    const customStyles = { top: '3rem' };
 
+    return (
       <BBBMenu
-        classes={[styles.offsetTop]}
         accessKey={OPEN_OPTIONS_AK}
+        customStyles={!isMobile ? customStyles : null}
         trigger={(
-          <Button
+          <Styled.DropdownButton
+            state={isDropdownOpen ? 'open' : 'closed'}
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
+            data-test="optionsButton"
             ghost
             circle
             hideLabel
-            className={isDropdownOpen ? styles.hideDropdownButton : styles.btn}
             // FIXME: Without onClick react proptypes keep warning
             // even after the DropdownTrigger inject an onClick handler
             onClick={() => null}
@@ -295,7 +303,6 @@ class SettingsDropdown extends PureComponent {
         )}
         actions={this.renderMenuItems()}
       />
-
     );
   }
 }

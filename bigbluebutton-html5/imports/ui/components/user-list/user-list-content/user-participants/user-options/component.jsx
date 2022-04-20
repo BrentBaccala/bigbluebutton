@@ -2,16 +2,17 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
 import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import CaptionsService from '/imports/ui/components/captions/service';
 import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
-import BBBMenu from '/imports/ui/components/menu/component';
+import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import { getUserNamesLink } from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
+import { isBreakoutRoomsEnabled, isLearningDashboardEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -26,7 +27,6 @@ const propTypes = {
   guestPolicy: PropTypes.string.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
   hasBreakoutRoom: PropTypes.bool.isRequired,
-  isBreakoutEnabled: PropTypes.bool.isRequired,
   isBreakoutRecordable: PropTypes.bool.isRequired,
   dynamicGuestPolicy: PropTypes.bool.isRequired,
 };
@@ -99,10 +99,6 @@ const intlMessages = defineMessages({
   learningDashboardDesc: {
     id: 'app.learning-dashboard.description',
     description: 'Activity Report description',
-  },
-  invitationItem: {
-    id: 'app.invitation.title',
-    description: 'invitation to breakout title',
   },
   saveUserNames: {
     id: 'app.actionsBar.actionsDropdown.saveUserNames',
@@ -211,9 +207,6 @@ class UserOptions extends PureComponent {
       toggleMuteAllUsersExceptPresenter,
       meetingIsBreakout,
       hasBreakoutRoom,
-      isBreakoutEnabled,
-      getUsersNotAssigned,
-      learningDashboardEnabled,
       openLearningDashboardUrl,
       amIModerator,
       users,
@@ -224,12 +217,7 @@ class UserOptions extends PureComponent {
     const canCreateBreakout = amIModerator
       && !meetingIsBreakout
       && !hasBreakoutRoom
-      && isBreakoutEnabled;
-
-    const canInviteUsers = amIModerator
-      && !meetingIsBreakout
-      && hasBreakoutRoom
-      && getUsersNotAssigned(users).length;
+      && isBreakoutRoomsEnabled();
 
     const { locale } = intl;
 
@@ -261,6 +249,7 @@ class UserOptions extends PureComponent {
           // description: intl.formatMessage(intlMessages.lockViewersDesc),
           onClick: () => mountModal(<LockViewersContainer />),
           icon: 'lock',
+          dataTest: 'lockViewersButton',
         });
 
         if (dynamicGuestPolicy) {
@@ -282,6 +271,7 @@ class UserOptions extends PureComponent {
           // description: ,
           onClick: this.onSaveUserNames,
           icon: 'download',
+          dataTest: 'downloadUserNamesList',
         });
       }
 
@@ -305,16 +295,6 @@ class UserOptions extends PureComponent {
         });
       }
 
-      if (canInviteUsers) {
-        this.menuItems.push({
-          icon: 'rooms',
-          dataTest: 'inviteBreakoutRooms',
-          label: intl.formatMessage(intlMessages.invitationItem),
-          key: this.createBreakoutId,
-          onClick: this.onInvitationUsers,
-        });
-      }
-
       if (amIModerator && CaptionsService.isCaptionsEnabled()) {
         this.menuItems.push({
           icon: 'closed_caption',
@@ -325,7 +305,7 @@ class UserOptions extends PureComponent {
         });
       }
       if (amIModerator) {
-        if (learningDashboardEnabled === true) {
+        if (isLearningDashboardEnabled()) {
           this.menuItems.push({
             icon: 'multi_whiteboard',
             iconRight: 'popout_window',

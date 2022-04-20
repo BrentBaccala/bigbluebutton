@@ -2,18 +2,16 @@ import Redis from 'redis';
 import { Meteor } from 'meteor/meteor';
 import { EventEmitter2 } from 'eventemitter2';
 import { check } from 'meteor/check';
-import {
-  isPadMessage,
-  getInstanceIdFromPadMessage,
-} from './etherpad';
 import Logger from './logger';
 import Metrics from './metrics';
 import queue from 'queue';
+import { PrometheusAgent, METRIC_NAMES } from './prom-metrics/index.js'
 
 // Fake meetingId used for messages that have no meetingId
 const NO_MEETING_ID = '_';
 
 const { queueMetrics } = Meteor.settings.private.redis.metrics;
+const { collectRedisMetrics: PROM_METRICS_ENABLED  } = Meteor.settings.private.prometheus;
 
 const makeEnvelope = (channel, eventName, header, body, routing) => {
   const envelope = {
@@ -37,11 +35,6 @@ const getInstanceIdFromMessage = (parsedMessage) => {
   // End meeting message does not seem to have systemProps
   let instanceIdFromMessage = parsedMessage.core.body.props?.systemProps?.html5InstanceId;
 
-  // Pad messages does not have systemProps
-  if (!instanceIdFromMessage && isPadMessage(parsedMessage)) {
-    instanceIdFromMessage = getInstanceIdFromPadMessage(parsedMessage);
-  }
-
   return instanceIdFromMessage;
 };
 
@@ -49,7 +42,7 @@ class MeetingMessageQueue {
   constructor(eventEmitter, asyncMessages = [], redisDebugEnabled = false) {
     this.asyncMessages = asyncMessages;
     this.emitter = eventEmitter;
-    this.queue = queue({ autostart: true });
+    this.queue = queue({ autostart: true, concurrency: 1 });
     this.redisDebugEnabled = redisDebugEnabled;
 
     this.handleTask = this.handleTask.bind(this);
@@ -87,6 +80,16 @@ class MeetingMessageQueue {
       }
 
       const queueLength = this.queue.length;
+
+      if (PROM_METRICS_ENABLED) {
+        const dataLength = JSON.stringify(data).length;
+        const currentTimestamp = Date.now();
+        const processTime = currentTimestamp - beginHandleTimestamp;
+        PrometheusAgent.observe(METRIC_NAMES.REDIS_PROCESSING_TIME, processTime, { eventName });
+        PrometheusAgent.observe(METRIC_NAMES.REDIS_PAYLOAD_SIZE, dataLength, { eventName });
+        meetingId && PrometheusAgent.set(METRIC_NAMES.REDIS_MESSAGE_QUEUE, queueLength, { meetingId });
+      }
+
       if (queueLength > 100) {
         Logger.warn(`Redis: MeetingMessageQueue for meetingId=${meetingId} has queue size=${queueLength} `);
       }

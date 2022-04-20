@@ -3,7 +3,11 @@ import _ from 'lodash';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
-import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import {
+  ACTIONS,
+  PANELS,
+  CAMERADOCK_POSITION,
+} from '/imports/ui/components/layout/enums';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -100,7 +104,7 @@ const PresentationFocusLayout = (props) => {
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: _.defaultsDeep({
           sidebarNavigation: {
-            isOpen: input.sidebarNavigation.isOpen || false,
+            isOpen: input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
           },
           sidebarContent: {
             isOpen: sidebarContentPanel !== PANELS.NONE,
@@ -224,7 +228,7 @@ const PresentationFocusLayout = (props) => {
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
 
-    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
+    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare' || fullscreenElement === 'ExternalVideo') {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
       mediaBounds.top = 0;
@@ -282,6 +286,7 @@ const PresentationFocusLayout = (props) => {
       sidebarContentWidth.width,
       sidebarContentHeight.height,
     );
+    const { isOpen } = presentationInput;
 
     layoutContextDispatch({
       type: ACTIONS.SET_NAVBAR_OUTPUT,
@@ -389,6 +394,7 @@ const PresentationFocusLayout = (props) => {
       type: ACTIONS.SET_CAMERA_DOCK_OUTPUT,
       value: {
         display: cameraDockInput.numCameras > 0,
+        position: CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM,
         minWidth: cameraDockBounds.minWidth,
         width: cameraDockBounds.width,
         maxWidth: cameraDockBounds.maxWidth,
@@ -429,7 +435,7 @@ const PresentationFocusLayout = (props) => {
       type: ACTIONS.SET_SCREEN_SHARE_OUTPUT,
       value: {
         width: mediaBounds.width,
-        height: mediaBounds.height,
+        height: isOpen ? mediaBounds.height : 0,
         top: mediaBounds.top,
         left: mediaBounds.left,
         right: mediaBounds.right,
@@ -440,8 +446,8 @@ const PresentationFocusLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
       value: {
-        width: mediaBounds.width,
-        height: mediaBounds.height,
+        width: isOpen ? mediaBounds.width : 0,
+        height: isOpen ? mediaBounds.height : 0,
         top: mediaBounds.top,
         left: mediaBounds.left,
         right: mediaBounds.right,

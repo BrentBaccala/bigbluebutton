@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
-import Modal from '/imports/ui/components/modal/simple/component';
+import Modal from '/imports/ui/components/common/modal/simple/component';
 import _ from 'lodash';
 import Styled from './styles';
 import withShortcutHelper from './service';
+import { isChatEnabled } from '/imports/ui/services/features';
 
 const intlMessages = defineMessages({
   title: {
@@ -97,10 +98,23 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.previousSlideDesc',
     description: 'describes the previous slide shortcut',
   },
+  togglePanKey: {
+    id: 'app.shortcut-help.togglePanKey',
+    description: 'describes the toggle pan shortcut key',
+  },
+  toggleFullscreenKey: {
+    id: 'app.shortcut-help.toggleFullscreenKey',
+    description: 'describes the toggle full-screen shortcut key',
+  },
+  nextSlideKey: {
+    id: 'app.shortcut-help.nextSlideKey',
+    description: 'describes the next slide shortcut key',
+  },
+  previousSlideKey: {
+    id: 'app.shortcut-help.previousSlideKey',
+    description: 'describes the previous slide shortcut key',
+  },
 });
-
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const CHAT_ENABLED = CHAT_CONFIG.enabled;
 
 const ShortcutHelpComponent = (props) => {
   const { intl, shortcuts } = props;
@@ -134,7 +148,7 @@ const ShortcutHelpComponent = (props) => {
   }
 
   const shortcutItems = shortcuts.map((shortcut) => {
-    if (!CHAT_ENABLED && shortcut.descId.indexOf('Chat') !== -1) return null;
+    if (!isChatEnabled() && shortcut.descId.indexOf('Chat') !== -1) return null;
     return (
       <tr key={_.uniqueId('hotkey-item-')}>
         <Styled.KeyCell>{`${accessMod} + ${shortcut.accesskey}`}</Styled.KeyCell>
@@ -145,28 +159,28 @@ const ShortcutHelpComponent = (props) => {
 
   shortcutItems.push((
     <tr key={_.uniqueId('hotkey-item-')}>
-      <Styled.KeyCell>Spacebar</Styled.KeyCell>
+      <Styled.KeyCell>{intl.formatMessage(intlMessages.togglePanKey)}</Styled.KeyCell>
       <Styled.DescCell>{intl.formatMessage(intlMessages.togglePan)}</Styled.DescCell>
     </tr>
   ));
 
   shortcutItems.push((
     <tr key={_.uniqueId('hotkey-item-')}>
-      <Styled.KeyCell>Enter</Styled.KeyCell>
+      <Styled.KeyCell>{intl.formatMessage(intlMessages.toggleFullscreenKey)}</Styled.KeyCell>
       <Styled.DescCell>{intl.formatMessage(intlMessages.toggleFullscreen)}</Styled.DescCell>
     </tr>
   ));
 
   shortcutItems.push((
     <tr key={_.uniqueId('hotkey-item-')}>
-      <Styled.KeyCell>Right Arrow</Styled.KeyCell>
+      <Styled.KeyCell>{intl.formatMessage(intlMessages.nextSlideKey)}</Styled.KeyCell>
       <Styled.DescCell>{intl.formatMessage(intlMessages.nextSlideDesc)}</Styled.DescCell>
     </tr>
   ));
 
   shortcutItems.push((
     <tr key={_.uniqueId('hotkey-item-')}>
-      <Styled.KeyCell>Left Arrow</Styled.KeyCell>
+      <Styled.KeyCell>{intl.formatMessage(intlMessages.previousSlideKey)}</Styled.KeyCell>
       <Styled.DescCell>{intl.formatMessage(intlMessages.previousSlideDesc)}</Styled.DescCell>
     </tr>
   ));

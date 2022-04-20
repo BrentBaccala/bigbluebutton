@@ -26,6 +26,7 @@ public final class UploadedPresentation {
   private final String podId;
   private final String meetingId;
   private final String id;
+  private final String temporaryPresentationId;
   private final String name;
   private final boolean uploadFailed;
   private final ArrayList<String> uploadFailReason;
@@ -35,10 +36,34 @@ public final class UploadedPresentation {
   private String conversionStatus;
   private final String baseUrl;
   private boolean isDownloadable = false;
+  private boolean isRemovable = true;
   private boolean current = false;
   private String authzToken;
   private boolean conversionStarted = false;
 
+
+  public UploadedPresentation(String podId,
+                              String meetingId,
+                              String id,
+                              String temporaryPresentationId,
+                              String name,
+                              String baseUrl,
+                              Boolean current,
+                              String authzToken,
+                              Boolean uploadFailed,
+                              ArrayList<String> uploadFailReason) {
+    this.podId = podId;
+    this.meetingId = meetingId;
+    this.id = id;
+    this.temporaryPresentationId = temporaryPresentationId;
+    this.name = name;
+    this.baseUrl = baseUrl;
+    this.isDownloadable = false;
+    this.current = current;
+    this.authzToken = authzToken;
+    this.uploadFailed = uploadFailed;
+    this.uploadFailReason = uploadFailReason;
+  }
 
   public UploadedPresentation(String podId,
                               String meetingId,
@@ -49,16 +74,8 @@ public final class UploadedPresentation {
                               String authzToken,
                               Boolean uploadFailed,
                               ArrayList<String> uploadFailReason) {
-    this.podId = podId;
-    this.meetingId = meetingId;
-    this.id = id;
-    this.name = name;
-    this.baseUrl = baseUrl;
-    this.isDownloadable = false;
-    this.current = current;
-    this.authzToken = authzToken;
-    this.uploadFailed = uploadFailed;
-    this.uploadFailReason = uploadFailReason;
+    this(podId, meetingId, id, "", name, baseUrl,
+            current, authzToken, uploadFailed, uploadFailReason);
   }
 
   public File getUploadedFile() {
@@ -79,6 +96,10 @@ public final class UploadedPresentation {
 
   public String getId() {
     return id;
+  }
+
+  public String getTemporaryPresentationId() {
+    return temporaryPresentationId;
   }
 
   public String getName() {
@@ -119,6 +140,14 @@ public final class UploadedPresentation {
 
   public void setDownloadable() {
     this.isDownloadable = true;
+  }
+
+  public boolean isRemovable() {
+    return isRemovable;
+  }
+
+  public void setRemovable(boolean removable) {
+    isRemovable = removable;
   }
 
   public boolean isCurrent() {

@@ -1,23 +1,32 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import AudioService from '/imports/ui/components/audio/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import BreakoutComponent from './component';
 import Service from './service';
 import { layoutDispatch } from '../layout/context';
+import Auth from '/imports/ui/services/auth';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 
 const BreakoutContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const amIPresenter = users[Auth.meetingID][Auth.userID].presenter;
 
-  return <BreakoutComponent {...{ layoutContextDispatch, ...props }} />;
+  return <BreakoutComponent
+    amIPresenter={amIPresenter}
+    {...{ layoutContextDispatch, ...props }}
+  />;
 };
 
 export default withTracker((props) => {
   const {
     endAllBreakouts,
     requestJoinURL,
-    extendBreakoutsTime,
-    isExtendTimeHigherThanMeetingRemaining,
+    setBreakoutsTime,
+    sendMessageToAllBreakouts,
+    isNewTimeHigherThanMeetingRemaining,
     findBreakouts,
     getBreakoutRoomUrl,
     transferUserToMeeting,
@@ -41,8 +50,9 @@ export default withTracker((props) => {
     breakoutRooms,
     endAllBreakouts,
     requestJoinURL,
-    extendBreakoutsTime,
-    isExtendTimeHigherThanMeetingRemaining,
+    setBreakoutsTime,
+    sendMessageToAllBreakouts,
+    isNewTimeHigherThanMeetingRemaining,
     getBreakoutRoomUrl,
     transferUserToMeeting,
     transferToBreakout,

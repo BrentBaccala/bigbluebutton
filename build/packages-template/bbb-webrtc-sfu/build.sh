@@ -13,7 +13,7 @@ rm -rf staging
 
 #
 # Create directory for fpm to process
-DIRS="/etc/bigbluebutton/nginx /usr/local/bigbluebutton/bbb-webrtc-sfu /etc/logrotate.d /usr/lib/systemd/system /etc/cron.hourly"
+DIRS="/usr/share/bigbluebutton/nginx /usr/local/bigbluebutton/bbb-webrtc-sfu /etc/logrotate.d /usr/lib/systemd/system /etc/cron.hourly"
 for dir in $DIRS; do
   mkdir -p staging$dir
 done
@@ -32,7 +32,7 @@ rm -rf .git
 # npm install expects this to be a git repository
 git init
 
-if [ "$DISTRO" == "bionic" ]; then
+if [ "$DISTRO" == "focal" ]; then
   # this is a workaround so that the post-install command will find the pegjs binary
   export PATH=$PWD/node_modules/pegjs/bin:$PATH
   npm install --unsafe-perm --production
@@ -40,17 +40,13 @@ else
   npm install --unsafe-perm --production
 fi
 
-# clean out stuff that is not required in the final package
-rm -rf node_modules/mediasoup/{rust,.github,test}
-rm -rf node_modules/mediasoup/worker/{deps,src,test,include,fuzzer}
-rm -rf node_modules/mediasoup/worker/out/Release/*.a
-rm -rf node_modules/mediasoup/worker/out/Release/.deps
-rm -rf node_modules/mediasoup/worker/out/Release/obj.target
-rm -rf node_modules/mediasoup/worker/out/deps
-
+# clean out stuff that is not required in the final package. Most of this are object files from dependant libraries
+rm -rf node_modules/mediasoup/worker/out/Release/subprojects
+rm -rf node_modules/mediasoup/worker/out/Release/mediasoup-worker.p
+rm -rf node_modules/mediasoup/worker/out/Release/deps
 popd
 
-cp webrtc-sfu.nginx staging/etc/bigbluebutton/nginx
+cp webrtc-sfu.nginx staging/usr/share/bigbluebutton/nginx
 
 cp bbb-webrtc-sfu.service staging/usr/lib/systemd/system
 cp bbb-webrtc-sfu.logrotate staging/etc/logrotate.d
