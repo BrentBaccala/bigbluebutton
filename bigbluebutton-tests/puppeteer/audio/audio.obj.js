@@ -10,7 +10,7 @@ const audioTest = () => {
     jest.setTimeout(MAX_AUDIO_TEST_TIMEOUT);
   });
 
-  test('Join audio with Listen Only', async () => {
+  test.skip('Join audio with Listen Only', async () => {
     const test = new Audio();
     let response;
     let screenshot;

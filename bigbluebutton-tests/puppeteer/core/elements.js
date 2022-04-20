@@ -224,6 +224,7 @@ exports.webcamVideo = 'video[data-test="videoContainer"]';
 
 // Whiteboard
 exports.whiteboard = 'svg[data-test="whiteboard"]';
+exports.presentationPlaceholder = 'div[data-test="presentationPlaceholder"]';
 exports.tools = 'button[aria-label="Tools"]';
 exports.pencil = 'button[aria-label="Pencil"]';
 exports.rectangle = 'button[aria-label="Rectangle"]';

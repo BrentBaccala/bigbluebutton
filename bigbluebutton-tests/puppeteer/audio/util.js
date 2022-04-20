@@ -17,8 +17,9 @@ async function joinMicrophone(test) {
   await test.waitForElementHandleToBeRemoved(e.connectingStatus, ELEMENT_WAIT_LONGER_TIME);
   const parsedSettings = await test.getSettingsYaml();
   const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
-  await test.waitAndClick(e.echoYesButton, listenOnlyCallTimeout);
-  await test.waitForSelector(e.whiteboard);
+  // await test.waitAndClick(e.echoYesButton, listenOnlyCallTimeout);
+  // await test.waitForSelector(e.whiteboard);
+  await test.waitForSelector(e.presentationPlaceholder);
   return test.hasElement(e.echoYesButton);
 }
 
