@@ -843,31 +843,6 @@ check_configuration() {
         fi
     fi
 
-    SIP_PROTOCOL=$(cat /etc/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)
-    if [[ $SIP_PROTOCOL == "https" ]]; then
-        if ! grep wss-binding $FREESWITCH_EXTERNAL > /dev/null; then
-            echo "# Warning: Websockets is using HTTPS in /etc/bigbluebutton/nginx/sip.nginx"
-            echo "# but no definition for wss-binding found in "
-            echo "#"
-            echo "#    $FREESWITCH_EXTERNAL"
-            echo
-        fi
-
-        if [ -f $HTML5_CONFIG_OLD ]; then
-            if grep \"enableListenOnly\".*true $HTML5_CONFIG_OLD > /dev/null; then
-                if ! grep -q ws-binding $FREESWITCH_EXTERNAL ;  then
-                echo "# Warning: You have enabled listen-only audio via Kurento"
-                echo "# but FreeSWITCH is not listening on port 5066.  You should edit "
-                echo "#"
-                echo "#    $FREESWITCH_EXTERNAL"
-                echo "#"
-                echo "# and add a line that enables ws-binding on port 5066."
-                echo
-                fi
-            fi
-        fi
-    fi
-
     if [ "$(ls -ld /var/freeswitch/meetings | cut -d' ' -f3)" != "freeswitch" ]; then
         echo "# Warning: Detected the directory"
         echo "#    /var/freeswitch/meetings"
