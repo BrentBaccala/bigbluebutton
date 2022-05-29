@@ -34,6 +34,19 @@ case "$1" in
 	fi
       fi
  
+    # bbb-install will set this (incorrectly, after PR#15157) in
+    # default.yml.  Set it now in production.yml to override what
+    # bbb-install is going to do and instead point mediasoup at
+    # FreeSWITCH's private SIP profile listening for insecure WS
+    # connections on port 5068.
+
+    TARGET=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/production.yml
+    touch $TARGET
+    chown bigbluebutton:bigbluebutton $TARGET
+    yq w -i $TARGET freeswitch.ip "127.0.0.1"
+    yq w -i $TARGET freeswitch.sip_ip "127.0.0.1"
+    yq w -i $TARGET freeswitch.port "5068"
+
     cd /usr/local/bigbluebutton/bbb-webrtc-sfu
     mkdir -p node_modules
 
