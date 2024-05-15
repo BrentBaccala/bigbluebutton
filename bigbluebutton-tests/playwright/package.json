@@ -9,9 +9,11 @@
   },
   "dependencies": {
     "@playwright/test": "^1.19.2",
-    "playwright": "^1.19.2",
     "axios": "^0.26.1",
     "dotenv": "^16.0.0",
+    "imghash": "^0.0.9",
+    "leven": "^4.0.0",
+    "playwright": "^1.19.2",
     "sha1": "^1.1.1"
   }
 }
