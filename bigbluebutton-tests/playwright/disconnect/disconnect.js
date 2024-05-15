@@ -1,3 +1,5 @@
+// -*- js-indent-level: 3 -*-
+
 const { expect } = require('@playwright/test');
 const Page = require('../core/page');
 const e = require('../core/elements');
@@ -5,6 +7,11 @@ const c = require('../core/constants');
 const parameters = require('../core/parameters');
 const { checkIsPresenter } = require('../user/util');
 const { createMeeting } = require('../core/helpers');
+const imghash = require('imghash');
+
+// This doesn't work: const leven = require('leven');
+// The solution is from https://stackoverflow.com/a/75281896/1493790
+const leven = (...args) => import('leven').then(({default: leven}) => leven(...args));
 
 class Disconnect {
   constructor(browser, context, page) {
@@ -124,6 +131,71 @@ class Disconnect {
 	await userPage.waitAndClick(e.microphoneButton);
         await modPage.waitAndClick(e.echoYesButton, modPage.settings.listenOnlyCallTimeout);
         await userPage.waitAndClick(e.echoYesButton, userPage.settings.listenOnlyCallTimeout);
+      }
+    }
+
+    if (! keepPagesOpen) {
+      pages.forEach(async (currentPage) => {
+        await currentPage.page.close();
+      })
+    }
+  }
+
+  async usersJoinWithRemoteDesktop(rounds = c.JOIN_TWO_USERS_KEEPING_CONNECTED_ROUNDS,
+				  withAudio = false, keepPagesOpen = false, withConsole = false) {
+    const meetingId = await createMeeting(parameters);
+    const pages = [];
+
+    for (let i = 1; i <= rounds; i++) {
+      console.log(`joining user ${i} of ${rounds}`);
+      const modPage = new Page(this.browser, await this.getNewPageTab());
+      pages.push(modPage);
+      if (withConsole) {
+	modPage.page.on('console', (...msg) => console.log(`Mod-${i}`, ...msg));
+      }
+      await Promise.all([
+	// this true makes it a moderator
+        modPage.init(true, !withAudio, { meetingId, fullName: `Mod-${i}` }),
+      ]);
+      if (withAudio) {
+        await modPage.waitForSelector(e.audioModal, c.ELEMENT_WAIT_LONGER_TIME);
+	await modPage.waitAndClick(e.microphoneButton);
+        await modPage.waitAndClick(e.echoYesButton, modPage.settings.listenOnlyCallTimeout);
+      }
+      if (i == 1) {
+        await modPage.waitAndClick(e.actions);
+        await modPage.waitAndClick('li[data-test="shareRemoteDesktop"]');
+        // add a data-test tag to this button
+        await modPage.waitAndClick('button[aria-label="Share a remote desktop"]');
+      }
+      const canvas = await modPage.page.waitForSelector('canvas', {visible:true});
+      for (let j = 1; j <= 60; j++) {
+	 const imagedata = await modPage.page.evaluate((canvas) => {
+            const context = canvas.getContext('2d');
+            //console.log('canvas', canvas.width, canvas.height);
+            // It's a 1900x1200 image, but I know that only because I know that's the default in vnc.conf
+            // The 150x50 rectangle at the bottom left of the image contains the word "Applications"
+            // for the applications menu in the default freesoft.org GNOME configuration (which differs from the default)
+            return Array.from(context.getImageData(0,1150,150,50).data);
+	 }, canvas);
+	 //console.log(imagedata);
+	 //const array = Array.from(imagedata);
+	 //console.log('array', array);
+
+	 // This is how we would save it to a file, it we wanted to.
+	 // const fs = require('fs');
+	 // fs.writeFile('bwb.img', Buffer.from(imagedata), (err) => {console.log(err); });
+	 // then convert it from the command line like this:
+	 // convert -depth 8 -size 150x50 rgba:bwb.img bwb.png
+
+	 const hash = imghash.hashRaw({width: 150, height: 50, data: imagedata}, 8)
+	 //console.log('hash', imghash.hexToBinary(hash));
+	 // I've seen both of these two hashs: ff0000fefe400f0f and ff0001fefe400f0f
+	 // The Levenshtein distance (minimum number of single-character edits - insertions, deletions, or substitutions)
+	 const distance = await leven("ff0000fefe400f0f", hash);
+	 //console.log('distance', distance);
+	 if (distance < 2) break;
+	 if (j == 60) consolt.log('Final query to desktop yielded Levenshtein distance', distance);
       }
     }
 

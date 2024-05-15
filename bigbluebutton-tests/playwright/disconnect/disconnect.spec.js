@@ -8,3 +8,10 @@ if (env?.KEEP_OPEN)
     await disconnect.usersJoinKeepingConnected(env.KEEP_OPEN, false, true, true);
     await page.pause();
   });
+
+if (env?.REMOTE_DESKTOP)
+  test.only('Join users with remote desktop', async ({ browser, context, page }) => {
+    const disconnect = new Disconnect(browser, context, page);
+    await disconnect.usersJoinWithRemoteDesktop(env.REMOTE_DESKTOP, false, true, true);
+    await page.pause();
+  });
