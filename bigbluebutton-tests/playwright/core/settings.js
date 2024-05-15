@@ -10,7 +10,9 @@ async function generateSettingsData(page) {
 
     settings = {
       raiseHandButton: settingsData.app.raiseHandActionButton.enabled,
-      sharedNotesEnabled: settingsData.notes.enabled,
+      // 2.4 compatibility, I think (2.4 was note; it changed to notes)
+      // sharedNotesEnabled: settingsData?.notes.enabled || settingsData?.note.enabled,
+      sharedNotesEnabled: settingsData?.note.enabled,
       // Audio
       autoJoinAudioModal: settingsData.app.autoJoin,
       listenOnlyMode: settingsData.app.listenOnlyMode,
