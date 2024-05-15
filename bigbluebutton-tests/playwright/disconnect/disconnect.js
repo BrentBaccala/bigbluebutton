@@ -1,4 +1,4 @@
-// -*- js-indent-level: 3 -*-
+// -*- js-indent-level: 2 -*-
 
 const { expect } = require('@playwright/test');
 const Page = require('../core/page');
@@ -8,6 +8,9 @@ const parameters = require('../core/parameters');
 const { checkIsPresenter } = require('../user/util');
 const { createMeeting } = require('../core/helpers');
 const imghash = require('imghash');
+//const { exec } = require('child_process');
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
 
 // This doesn't work: const leven = require('leven');
 // The solution is from https://stackoverflow.com/a/75281896/1493790
@@ -154,7 +157,7 @@ class Disconnect {
 	modPage.page.on('console', (...msg) => console.log(`Mod-${i}`, ...msg));
       }
       await Promise.all([
-	// this true makes it a moderator
+	// the first arg true makes it a moderator
         modPage.init(true, !withAudio, { meetingId, fullName: `Mod-${i}` }),
       ]);
       if (withAudio) {
@@ -169,34 +172,39 @@ class Disconnect {
         await modPage.waitAndClick('button[aria-label="Share a remote desktop"]');
       }
       const canvas = await modPage.page.waitForSelector('canvas', {visible:true});
+      // there's no sleep statement in the next loop, so it's not sixty seconds
       for (let j = 1; j <= 60; j++) {
-	 const imagedata = await modPage.page.evaluate((canvas) => {
-            const context = canvas.getContext('2d');
-            //console.log('canvas', canvas.width, canvas.height);
-            // It's a 1900x1200 image, but I know that only because I know that's the default in vnc.conf
-            // The 150x50 rectangle at the bottom left of the image contains the word "Applications"
-            // for the applications menu in the default freesoft.org GNOME configuration (which differs from the default)
-            return Array.from(context.getImageData(0,1150,150,50).data);
-	 }, canvas);
-	 //console.log(imagedata);
-	 //const array = Array.from(imagedata);
-	 //console.log('array', array);
+	const imagedata = await modPage.page.evaluate((canvas) => {
+          const context = canvas.getContext('2d');
+          //console.log('canvas', canvas.width, canvas.height);
+          // It's a 1900x1200 image, but I know that only because I know that's the default in vnc.conf
+          // The 150x50 rectangle at the bottom left of the image contains the word "Applications"
+          // for the applications menu in the default freesoft.org GNOME configuration (which differs from the default)
+          return Array.from(context.getImageData(0,1150,150,50).data);
+	}, canvas);
+	//console.log(imagedata);
+	//const array = Array.from(imagedata);
+	//console.log('array', array);
 
-	 // This is how we would save it to a file, it we wanted to.
-	 // const fs = require('fs');
-	 // fs.writeFile('bwb.img', Buffer.from(imagedata), (err) => {console.log(err); });
-	 // then convert it from the command line like this:
-	 // convert -depth 8 -size 150x50 rgba:bwb.img bwb.png
+	// This is how we would save it to a file, it we wanted to.
+	// const fs = require('fs');
+	// fs.writeFile('bwb.img', Buffer.from(imagedata), (err) => {console.log(err); });
+	// then convert it from the command line like this:
+	// convert -depth 8 -size 150x50 rgba:bwb.img bwb.png
 
-	 const hash = imghash.hashRaw({width: 150, height: 50, data: imagedata}, 8)
-	 //console.log('hash', imghash.hexToBinary(hash));
-	 // I've seen both of these two hashs: ff0000fefe400f0f and ff0001fefe400f0f
-	 // The Levenshtein distance (minimum number of single-character edits - insertions, deletions, or substitutions)
-	 const distance = await leven("ff0000fefe400f0f", hash);
-	 //console.log('distance', distance);
-	 if (distance < 2) break;
-	 if (j == 60) consolt.log('Final query to desktop yielded Levenshtein distance', distance);
+	const hash = imghash.hashRaw({width: 150, height: 50, data: imagedata}, 8)
+	//console.log('hash', imghash.hexToBinary(hash));
+	// I've seen both of these two hashs: ff0000fefe400f0f and ff0001fefe400f0f
+	// The Levenshtein distance (minimum number of single-character edits - insertions, deletions, or substitutions)
+	const distance = await leven("ff0000fefe400f0f", hash);
+	//console.log('distance', distance);
+	if (distance < 2) break;
+	if (j == 60) console.log('Final query to desktop yielded Levenshtein distance', distance);
       }
+
+      /* promise-based approach suggested by gpt4 */
+      const { stdout, stderr } = await exec('ssh bionic-240 grep MemFree /proc/meminfo');
+      console.log(stdout);
     }
 
     if (! keepPagesOpen) {
