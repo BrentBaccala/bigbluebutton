@@ -11,6 +11,7 @@ const imghash = require('imghash');
 //const { exec } = require('child_process');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const { env } = require('node:process');
 
 // This doesn't work: const leven = require('leven');
 // The solution is from https://stackoverflow.com/a/75281896/1493790
@@ -149,7 +150,9 @@ class Disconnect {
     const meetingId = await createMeeting(parameters);
     const pages = [];
 
-    for (let i = 1; i <= rounds; i++) {
+    const start_mod = env?.START || 1;
+
+    for (let i = start_mod; i <= rounds; i++) {
       console.log(`joining user ${i} of ${rounds}`);
       const modPage = new Page(this.browser, await this.getNewPageTab());
       pages.push(modPage);
@@ -165,7 +168,7 @@ class Disconnect {
 	await modPage.waitAndClick(e.microphoneButton);
         await modPage.waitAndClick(e.echoYesButton, modPage.settings.listenOnlyCallTimeout);
       }
-      if (i == 1) {
+      if (i == start_mod) {
         await modPage.waitAndClick(e.actions);
         await modPage.waitAndClick('li[data-test="shareRemoteDesktop"]');
         // add a data-test tag to this button
