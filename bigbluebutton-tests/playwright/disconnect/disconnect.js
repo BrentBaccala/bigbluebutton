@@ -150,18 +150,22 @@ class Disconnect {
     const meetingId = await createMeeting(parameters);
     const pages = [];
 
-    const start_mod = env?.START || 1;
+    const start_mod = Number(env?.START) || 1;
 
     for (let i = start_mod; i <= rounds; i++) {
       console.log(`joining user ${i} of ${rounds}`);
       const modPage = new Page(this.browser, await this.getNewPageTab());
+      const modName = "Student-" + i.toString().padStart(2,'0')
+      //const modName = "CloudMyLab";
+      //const modName = "Student-50";
+      //const modName = "baccala";
       pages.push(modPage);
       if (withConsole) {
-	modPage.page.on('console', (...msg) => console.log(`Mod-${i}`, ...msg));
+	modPage.page.on('console', (...msg) => console.log(modName, ...msg));
       }
       await Promise.all([
 	// the first arg true makes it a moderator
-        modPage.init(true, !withAudio, { meetingId, fullName: `Mod-${i}` }),
+        modPage.init(true, !withAudio, { meetingId, fullName: modName }),
       ]);
       if (withAudio) {
         await modPage.waitForSelector(e.audioModal, c.ELEMENT_WAIT_LONGER_TIME);
