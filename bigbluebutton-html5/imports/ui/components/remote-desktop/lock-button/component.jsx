@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Button from '/imports/ui/components/common/button/component';
 import { defineMessages, injectIntl } from 'react-intl';
-import { styles } from './styles';
+// import { styles } from './styles';
 
 const START_VIEWONLY = Meteor.settings.public.remoteDesktop.startLocked;
 
@@ -68,7 +68,7 @@ class LockRemoteDesktopButton extends Component {
     return (
       <Button
         label={label}
-        className={cx(styles.button, !desktopLocked || styles.btn)}
+/*        className={cx(styles.button, !desktopLocked || styles.btn)} */
         onClick={this.handleOnClick}
         hideLabel
         aria-label={intl.formatMessage(intlMessages.lockDesktopButtonDesc)}

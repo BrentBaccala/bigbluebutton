@@ -8,7 +8,7 @@ import Auth from '/imports/ui/services/auth';
 import { defineMessages, injectIntl } from 'react-intl';
 import { isUrlValid } from '../service';
 
-import { styles } from './styles';
+// import { styles } from './styles';
 
 const propTypes = {
   remoteDesktopUrl: PropTypes.string,
@@ -110,7 +110,7 @@ class RemoteDesktopModal extends Component {
     return (
       !valid
         ? (
-          <div className={styles.urlError}>
+          <div /* className={styles.urlError} */ >
             {intl.formatMessage(intlMessages.urlError)}
           </div>
         )
@@ -126,18 +126,18 @@ class RemoteDesktopModal extends Component {
 
     return (
       <Modal
-        overlayClassName={styles.overlay}
-        className={styles.modal}
+/*        overlayClassName={styles.overlay} */
+/*        className={styles.modal} */
         onRequestClose={closeModal}
         contentLabel={intl.formatMessage(intlMessages.title)}
         hideBorder
       >
-        <header data-test="remoteDesktopModalHeader" className={styles.header}>
-          <h3 className={styles.title}>{intl.formatMessage(intlMessages.title)}</h3>
+        <header data-test="remoteDesktopModalHeader" /* className={styles.header} */ >
+          <h3 /*className={styles.title}*/ >{intl.formatMessage(intlMessages.title)}</h3>
         </header>
 
-        <div className={styles.content}>
-          <div className={styles.remoteDesktopUrl}>
+        <div /* className={styles.content}*/ >
+          <div /* className={styles.remoteDesktopUrl}*/ >
             <label htmlFor="remote-desktop-modal-input" id="remote-desktop-modal-input">
               {intl.formatMessage(intlMessages.input)}
               <input
@@ -151,7 +151,7 @@ class RemoteDesktopModal extends Component {
             </label>
           </div>
 
-          <div className={styles.remoteDesktopUrl}>
+          <div /*className={styles.remoteDesktopUrl}*/ >
             <label htmlFor="remote-desktop-modal-password" id="remote-desktop-modal-password">
               {intl.formatMessage(intlMessages.password)}
               <input
@@ -164,7 +164,7 @@ class RemoteDesktopModal extends Component {
             </label>
           </div>
 
-          <div className={styles.remoteDesktopUrl}>
+          <div /*className={styles.remoteDesktopUrl}*/ >
             <label htmlFor="remote-desktop-modal-operators" id="remote-desktop-modal-operators">
               <select
                 id="remote-desktop-modal-operators"
@@ -185,7 +185,7 @@ class RemoteDesktopModal extends Component {
           </div>
 
           <Button
-            className={styles.startBtn}
+/*            className={styles.startBtn} */
             label={intl.formatMessage(intlMessages.start)}
             onClick={this.startWatchingHandler}
             disabled={startDisabled}

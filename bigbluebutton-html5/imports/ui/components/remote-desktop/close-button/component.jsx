@@ -1,7 +1,7 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
-import { styles } from './styles';
+// import { styles } from './styles';
 
 const intlMessages = defineMessages({
   closeRemoteDesktopLabel: {
@@ -20,7 +20,7 @@ const CloseDesktopComponent = ({ intl, toggleSwapLayout }) => (
     onClick={toggleSwapLayout}
     label={intl.formatMessage(intlMessages.closeRemoteDesktopLabel)}
     hideLabel
-    className={styles.button}
+/*    className={styles.button} */
   />
 );
 

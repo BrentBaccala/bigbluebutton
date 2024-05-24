@@ -10,7 +10,7 @@ import Auth from '/imports/ui/services/auth';
 import { notify } from '/imports/ui/services/notification';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 
-import { styles } from './styles';
+// import { styles } from './styles';
 
 const propTypes = {
   remoteDesktopUrl: PropTypes.string,
@@ -220,7 +220,7 @@ class RemoteDesktop extends Component {
       <div
         id="remote-desktop"
         data-test="remoteDesktop"
-        className={styles.remoteDesktop}
+/*        className={styles.remoteDesktop} */
         style={{
           top: presentationBounds.top,
           left: presentationBounds.left,
@@ -240,7 +240,7 @@ class RemoteDesktop extends Component {
       >
         {this.renderFullscreenButton()}
         <VncDisplay
-          className={styles.remoteDesktop}
+/*          className={styles.remoteDesktop} */
           width='100%'
           height='100%'
           background="transparent"
