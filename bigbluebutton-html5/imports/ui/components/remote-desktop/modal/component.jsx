@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+/* import { withModalMounter } from '/imports/ui/components/common/modal/service'; */
 import Modal from '/imports/ui/components/common/modal/simple/component';
 import Button from '/imports/ui/components/common/button/component';
 import Auth from '/imports/ui/services/auth';
@@ -198,4 +198,5 @@ class RemoteDesktopModal extends Component {
 
 RemoteDesktopModal.propTypes = propTypes;
 
-export default injectIntl(withModalMounter(RemoteDesktopModal));
+/* export default injectIntl(withModalMounter(RemoteDesktopModal)); */
+export default injectIntl(RemoteDesktopModal);
