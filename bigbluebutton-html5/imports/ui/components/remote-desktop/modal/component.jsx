@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import Modal from '/imports/ui/components/modal/simple/component';
-import Button from '/imports/ui/components/button/component';
+import Modal from '/imports/ui/components/common/modal/simple/component';
+import Button from '/imports/ui/components/common/button/component';
 import Auth from '/imports/ui/services/auth';
 
 import { defineMessages, injectIntl } from 'react-intl';

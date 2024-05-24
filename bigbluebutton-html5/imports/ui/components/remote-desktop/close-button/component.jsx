@@ -1,6 +1,6 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({

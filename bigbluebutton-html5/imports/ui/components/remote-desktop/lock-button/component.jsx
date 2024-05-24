@@ -1,7 +1,7 @@
 import React, { memo, Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles';
 
