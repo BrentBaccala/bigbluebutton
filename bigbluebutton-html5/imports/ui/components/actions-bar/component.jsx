@@ -9,9 +9,11 @@ import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/scree
 import ReactionsButtonContainer from './reactions-button/container';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
+import LockRemoteDesktopContainer from '../remote-desktop/lock-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
 import RaiseHandDropdownContainer from './raise-hand/container';
 import { isPresentationEnabled } from '/imports/ui/services/features';
+import MediaService, { getSwapLayout } from '/imports/ui/components/media/service';
 
 class ActionsBar extends PureComponent {
   constructor(props) {
@@ -60,7 +62,10 @@ class ActionsBar extends PureComponent {
       hasScreenshare,
       hasGenericContent,
       hasCameraAsContent,
+      canIOperateDesktop,
       stopExternalVideoShare,
+      isSharingDesktop,
+      stopRemoteDesktop,
       isTimerActive,
       isTimerEnabled,
       isCaptionsAvailable,
@@ -70,6 +75,7 @@ class ActionsBar extends PureComponent {
       isRaiseHandButtonCentered,
       isThereCurrentPresentation,
       allowExternalVideo,
+      allowRemoteDesktop,
       layoutContextDispatch,
       actionsBarStyle,
       setMeetingLayout,
@@ -98,10 +104,13 @@ class ActionsBar extends PureComponent {
             isPollingEnabled,
             isSelectRandomUserEnabled,
             allowExternalVideo,
+            allowRemoteDesktop,
             handleTakePresenter,
             intl,
             isSharingVideo,
+            isSharingDesktop,
             stopExternalVideoShare,
+            stopRemoteDesktop,
             isTimerActive,
             isTimerEnabled,
             isMeteorConnected,
@@ -149,6 +158,11 @@ class ActionsBar extends PureComponent {
             isMeteorConnected,
           }}
           />
+          {canIOperateDesktop
+            ? (
+              <LockRemoteDesktopContainer />
+            )
+            : null}
         {isRaiseHandButtonCentered && this.renderRaiseHand()}
         </Styled.Center>
         <Styled.Right>
@@ -157,7 +171,7 @@ class ActionsBar extends PureComponent {
               presentationIsOpen={presentationIsOpen}
               setPresentationIsOpen={setPresentationIsOpen}
               layoutContextDispatch={layoutContextDispatch}
-              hasPresentation={isThereCurrentPresentation}
+              hasPresentation={MediaService.shouldShowRemoteDesktop() || isThereCurrentPresentation}
               hasExternalVideo={isSharingVideo}
               hasScreenshare={hasScreenshare}
               hasPinnedSharedNotes={isSharedNotesPinned}

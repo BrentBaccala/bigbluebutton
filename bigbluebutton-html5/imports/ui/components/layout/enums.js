@@ -95,6 +95,8 @@ export const ACTIONS = {
   SET_EXTERNAL_VIDEO_SIZE: 'setExternalVideoSize',
   SET_EXTERNAL_VIDEO_OUTPUT: 'setExternalVideoOutput',
 
+  SET_HAS_REMOTE_DESKTOP: 'setHasRemoteDesktop',
+
   SET_SHARED_NOTES_OUTPUT: 'setSharedNotesOutput',
   SET_NOTES_IS_PINNED: 'setNotesIsPinned',
 };

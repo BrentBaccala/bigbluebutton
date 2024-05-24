@@ -9,6 +9,7 @@ import { ACTIONS } from '../layout/enums';
 import UserService from '/imports/ui/components/user-list/service';
 import NotesService from '/imports/ui/components/notes/service';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
+import { getRemoteDesktopUrl } from '/imports/ui/components/remote-desktop/service';
 import VideoStreams from '/imports/api/video-streams';
 import Auth from '/imports/ui/services/auth/index';
 
@@ -43,6 +44,11 @@ function shouldShowExternalVideo() {
 
 function shouldShowSharedNotes() {
   return NotesService.isSharedNotesPinned();
+}
+
+function shouldShowRemoteDesktop() {
+  const { enabled: enableRemoteDesktop } = Meteor.settings.public.remoteDesktop;
+  return enableRemoteDesktop && getRemoteDesktopUrl();
 }
 
 function shouldShowOverlay() {
@@ -84,6 +90,7 @@ export default {
   shouldShowWhiteboard,
   shouldShowScreenshare,
   shouldShowExternalVideo,
+  shouldShowRemoteDesktop,
   shouldShowOverlay,
   isScreenBroadcasting,
   isCameraAsContentBroadcasting,

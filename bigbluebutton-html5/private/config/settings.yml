@@ -299,6 +299,9 @@ public:
     disableWebsocketFallback: true
   externalVideoPlayer:
     enabled: true
+  remoteDesktop:
+    enabled: true
+    startLocked: true
   kurento:
     wsUrl: HOST
     cameraWsOptions:

@@ -29,6 +29,7 @@ import WebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoContainer from '../external-video-player/container';
+import RemoteDesktopContainer from '../remote-desktop/container';
 import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
 import { DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT, PANELS } from '../layout/enums';
@@ -532,6 +533,7 @@ class App extends Component {
       setPushLayout,
       shouldShowScreenshare,
       shouldShowExternalVideo,
+      shouldShowRemoteDesktop,
     } = this.props;
 
     return (
@@ -562,6 +564,7 @@ class App extends Component {
           setPushLayout,
           shouldShowScreenshare,
           shouldShowExternalVideo: !!shouldShowExternalVideo,
+          shouldShowRemoteDesktop,
         }}
       />
     );
@@ -590,6 +593,7 @@ class App extends Component {
       shouldShowPresentation,
       shouldShowScreenshare,
       shouldShowExternalVideo,
+      shouldShowRemoteDesktop,
       shouldShowSharedNotes,
       isPresenter,
       selectedLayout,
@@ -627,6 +631,11 @@ class App extends Component {
           {
             shouldShowExternalVideo
               ? <ExternalVideoContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
+              : null
+          }
+          {
+            (shouldShowRemoteDesktop && !MediaService.getSwapLayout())
+              ? <RemoteDesktopContainer isPresenter={isPresenter} />
               : null
           }
           {shouldShowSharedNotes

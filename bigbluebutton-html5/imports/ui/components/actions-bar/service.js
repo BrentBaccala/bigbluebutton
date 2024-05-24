@@ -4,6 +4,7 @@ import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
+import { getRemoteDesktopUrl, getRemoteDesktopCanOperate } from '/imports/ui/components/remote-desktop/service';
 import NotesService from '/imports/ui/components/notes/service';
 import BreakoutsHistory from '/imports/api/breakouts-history';
 
@@ -83,4 +84,6 @@ export default {
   takePresenterRole,
   isSharedNotesPinned: () => NotesService.isSharedNotesPinned(),
   isSharingVideo: () => getVideoUrl(),
+  isSharingDesktop: () => getRemoteDesktopUrl(),
+  canIOperateDesktop: () => getRemoteDesktopCanOperate(),
 };

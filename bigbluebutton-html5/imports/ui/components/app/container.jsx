@@ -269,6 +269,7 @@ export default withTracker(() => {
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowSharedNotes = MediaService.shouldShowSharedNotes();
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
+  const shouldShowRemoteDesktop = MediaService.shouldShowRemoteDesktop();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
     && (viewScreenshare || currentUser?.presenter);
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
@@ -318,8 +319,9 @@ export default withTracker(() => {
     pushAlertEnabled: AppSettings.chatPushAlerts,
     darkTheme: AppSettings.darkTheme,
     shouldShowScreenshare,
-    shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo && !shouldShowSharedNotes,
+    shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo && !shouldShowRemoteDesktop && !shouldShowSharedNotes,
     shouldShowExternalVideo,
+    shouldShowRemoteDesktop,
     shouldShowSharedNotes,
     isLargeFont: Session.get('isLargeFont'),
     presentationRestoreOnUpdate: getFromUserSettings(

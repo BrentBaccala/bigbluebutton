@@ -11,6 +11,7 @@ import ActionsBar from './component';
 import Service from './service';
 import UserListService from '/imports/ui/components/user-list/service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
+import RemoteDesktopService from '/imports/ui/components/remote-desktop/service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import TimerService from '/imports/ui/components/timer/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
@@ -60,6 +61,7 @@ const isReactionsButtonEnabled = () => {
 export default withTracker(() => ({
   amIModerator: Service.amIModerator(),
   stopExternalVideoShare: ExternalVideoService.stopWatching,
+  stopRemoteDesktop: RemoteDesktopService.stopWatching,
   enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
   setPresentationIsOpen: MediaService.setPresentationIsOpen,
   handleTakePresenter: Service.takePresenterRole,
@@ -68,6 +70,8 @@ export default withTracker(() => ({
   isSharingVideo: Service.isSharingVideo(),
   isSharedNotesPinned: Service.isSharedNotesPinned(),
   hasScreenshare: isScreenBroadcasting(),
+  isSharingDesktop: Service.isSharingDesktop(),
+  canIOperateDesktop: Service.canIOperateDesktop(),
   hasCameraAsContent: isCameraAsContentBroadcasting(),
   isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
   isTimerActive: TimerService.isActive(),
@@ -82,4 +86,5 @@ export default withTracker(() => ({
     { fields: {} }),
   allowExternalVideo: isExternalVideoEnabled(),
   setEmojiStatus: UserListService.setEmojiStatus,
+  allowRemoteDesktop: Meteor.settings.public.remoteDesktop.enabled,
 }))(injectIntl(ActionsBarContainer));

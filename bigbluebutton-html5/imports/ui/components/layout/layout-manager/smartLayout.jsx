@@ -102,6 +102,9 @@ const SmartLayout = (props) => {
             externalVideo: {
               hasExternalVideo: externalVideoInput.hasExternalVideo,
             },
+            remoteDesktop: {
+              hasRemoteDesktop: input.remoteDesktop.hasRemoteDesktop,
+            },
             screenShare: {
               hasScreenShare: screenShareInput.hasScreenShare,
               width: screenShareInput.width,

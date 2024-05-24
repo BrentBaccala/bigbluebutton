@@ -14,6 +14,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 import { isPresentationEnabled, isLayoutsEnabled } from '/imports/ui/services/features';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
+import RemoteDesktopModal from '/imports/ui/components/remote-desktop/modal/container';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -27,6 +28,8 @@ const propTypes = {
   isTimerEnabled: PropTypes.bool.isRequired,
   allowExternalVideo: PropTypes.bool.isRequired,
   stopExternalVideoShare: PropTypes.func.isRequired,
+  allowRemoteDesktop: PropTypes.bool.isRequired,
+  stopRemoteDesktop: PropTypes.func.isRequired,
   isMobile: PropTypes.bool.isRequired,
   setMeetingLayout: PropTypes.func.isRequired,
   setPushLayout: PropTypes.func.isRequired,
@@ -93,6 +96,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.stopShareExternalVideo',
     description: 'Stop sharing external video button',
   },
+  startRemoteDesktopLabel: {
+    id: 'app.actionsBar.actionsDropdown.shareRemoteDesktop',
+    description: 'Start sharing remote desktop button',
+  },
+  stopRemoteDesktopLabel: {
+    id: 'app.actionsBar.actionsDropdown.stopShareRemoteDesktop',
+    description: 'Stop sharing remote desktop button',
+  },
   selectRandUserLabel: {
     id: 'app.actionsBar.actionsDropdown.selectRandUserLabel',
     description: 'Label for selecting a random user',
@@ -135,6 +146,7 @@ class ActionsDropdown extends PureComponent {
 
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
     this.makePresentationItems = this.makePresentationItems.bind(this);
+    this.handleRemoteDesktopClick = this.handleRemoteDesktopClick.bind(this);
     this.setExternalVideoModalIsOpen = this.setExternalVideoModalIsOpen.bind(this);
     this.setRandomUserSelectModalIsOpen = this.setRandomUserSelectModalIsOpen.bind(this);
     this.setLayoutModalIsOpen = this.setLayoutModalIsOpen.bind(this);
@@ -156,6 +168,11 @@ class ActionsDropdown extends PureComponent {
     this.setExternalVideoModalIsOpen(true);
   }
 
+  handleRemoteDesktopClick() {
+    const { mountModal } = this.props;
+    mountModal(<RemoteDesktopModal />);
+  }
+
   handleTimerClick() {
     const { isTimerActive, layoutContextDispatch } = this.props;
     if (!isTimerActive) {
@@ -170,11 +187,14 @@ class ActionsDropdown extends PureComponent {
       intl,
       amIPresenter,
       allowExternalVideo,
+      allowRemoteDesktop,
       handleTakePresenter,
       isSharingVideo,
+      isSharingDesktop,
       isPollingEnabled,
       isSelectRandomUserEnabled,
       stopExternalVideoShare,
+      stopRemoteDesktop,
       isTimerActive,
       isTimerEnabled,
       layoutContextDispatch,
@@ -247,6 +267,17 @@ class ActionsDropdown extends PureComponent {
         onClick: isSharingVideo ? stopExternalVideoShare : this.handleExternalVideoClick,
         dataTest: 'shareExternalVideo',
       });
+    }
+
+    if (amIPresenter && allowRemoteDesktop) {
+      actions.push({
+        icon: "desktop",
+        label: !isSharingDesktop ? intl.formatMessage(intlMessages.startRemoteDesktopLabel)
+          : intl.formatMessage(intlMessages.stopRemoteDesktopLabel),
+        key: "remote-desktop",
+        onClick: isSharingDesktop ? stopRemoteDesktop : this.handleRemoteDesktopClick,
+        dataTest: "shareRemoteDesktop",
+      })
     }
 
     if (amIPresenter && isSelectRandomUserEnabled) {

@@ -26,6 +26,7 @@ import '/imports/api/connection-status/server';
 import '/imports/api/timer/server';
 import '/imports/api/audio-captions/server';
 import '/imports/api/external-videos/server';
+import '/imports/api/remote-desktop/server';
 import '/imports/api/pads/server';
 import '/imports/api/guest-users/server';
 import '/imports/api/local-settings/server';

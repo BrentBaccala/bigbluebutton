@@ -95,6 +95,9 @@ export const INITIAL_INPUT_STATE = {
     browserWidth: 0,
     browserHeight: 0,
   },
+  remoteDesktop: {
+    hasRemoteDesktop: false,
+  },
   sharedNotes: {
     isPinned: false,
     width: 0,
