@@ -210,8 +210,12 @@ class Disconnect {
       }
 
       /* promise-based approach suggested by gpt4 */
-      const { stdout, stderr } = await exec('ssh bionic-240 grep MemFree /proc/meminfo');
-      console.log(stdout);
+      /* commented out just because we're not split between c200-1/edge and ragazzo anymore */
+      /* const { stdout, stderr } = await exec('ssh ragazzo grep MemFree /proc/meminfo'); */
+      /* console.log('ragazzo', stdout); */
+      // I don't know why this doesn't work
+      //const { stdout2, stderr2 } = await exec('grep MemFree /proc/meminfo');
+      //console.log('local', stdout2, stderr2);
     }
 
     if (! keepPagesOpen) {
