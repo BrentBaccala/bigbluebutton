@@ -156,6 +156,7 @@ class RemoteDesktop extends Component {
     this.player.rfb._windowResize();
   }
 
+/*
   componentDidUpdate(prevProps) {
     const {
       presentationBounds,
@@ -171,6 +172,7 @@ class RemoteDesktop extends Component {
 
     if (presentationBounds !== prevPresentationBounds) this.player.rfb._windowResize();
   }
+*/
 
   onFullscreenChange = () => {
     const { isFullscreen } = this.state;
@@ -214,13 +216,15 @@ class RemoteDesktop extends Component {
 
   render() {
     var { remoteDesktopUrl, viewOnly } = this.state;
-    const { remoteDesktopPassword, remoteDesktopCanOperate, presentationBounds, fullscreenContext, layoutSwapped } = this.props;
+    // const { remoteDesktopPassword, remoteDesktopCanOperate, presentationBounds, fullscreenContext, layoutSwapped } = this.props;
+    const { remoteDesktopPassword, remoteDesktopCanOperate, fullscreenContext } = this.props;
 
     return (
       <div
         id="remote-desktop"
         data-test="remoteDesktop"
 /*        className={styles.remoteDesktop} */
+/*
         style={{
           top: presentationBounds.top,
           left: presentationBounds.left,
@@ -230,6 +234,7 @@ class RemoteDesktop extends Component {
           display: layoutSwapped ? 'none' : 'flex',
           zIndex: fullscreenContext ? presentationBounds.zIndex : undefined,
         }}
+*/
         ref={(ref) => { this.playerParent = ref; }}
         /* onMouseEnter/onFocus doesn't seem to work on VncDisplay
          *
