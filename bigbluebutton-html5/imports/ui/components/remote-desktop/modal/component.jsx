@@ -10,7 +10,6 @@ import Styled from './styles';
 const propTypes = {
   remoteDesktopUrl: PropTypes.string,
   startWatching: PropTypes.func.isRequired,
-  closeModal: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -73,7 +72,7 @@ class RemoteDesktopModal extends Component {
   startWatchingHandler() {
     const {
       startWatching,
-      closeModal,
+      setIsOpen,
     } = this.props;
 
     const { url, password, operators } = this.state;
@@ -83,7 +82,7 @@ class RemoteDesktopModal extends Component {
     }
 
     startWatching(url.trim(), password, operators);
-    closeModal();
+    setIsOpen(false);
   }
 
   updateRemoteDesktopUrlHandler(ev) {
@@ -116,7 +115,7 @@ class RemoteDesktopModal extends Component {
   }
 
   render() {
-    const { intl, closeModal, setIsOpen, isOpen, onRequestClose, priority, } = this.props;
+    const { intl, setIsOpen, isOpen, onRequestClose, priority, } = this.props;
     const { url, sharing } = this.state;
 
     const startDisabled = !isUrlValid(url);
@@ -124,7 +123,7 @@ class RemoteDesktopModal extends Component {
     return (
       <Styled.RemoteDesktopModal
 /*        overlayClassName={styles.overlay} */
-        onRequestClose={closeModal}
+        onRequestClose={() => setIsOpen(false)}
         contentLabel={intl.formatMessage(intlMessages.title)}
 /*        hideBorder */
         {...{
