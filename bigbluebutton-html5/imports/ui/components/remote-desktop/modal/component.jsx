@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 /* import { withModalMounter } from '/imports/ui/components/common/modal/service'; */
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Button from '/imports/ui/components/common/button/component';
 import Auth from '/imports/ui/services/auth';
 
@@ -119,18 +119,24 @@ class RemoteDesktopModal extends Component {
   }
 
   render() {
-    const { intl, closeModal } = this.props;
+    const { intl, closeModal, setIsOpen, isOpen, onRequestClose, priority, } = this.props;
     const { url, sharing } = this.state;
 
     const startDisabled = !isUrlValid(url);
 
     return (
-      <Modal
+      <ModalSimple
 /*        overlayClassName={styles.overlay} */
 /*        className={styles.modal} */
         onRequestClose={closeModal}
         contentLabel={intl.formatMessage(intlMessages.title)}
-        hideBorder
+/*        hideBorder */
+        {...{
+          setIsOpen,
+          isOpen,
+          onRequestClose,
+          priority,
+        }}
       >
         <header data-test="remoteDesktopModalHeader" /* className={styles.header} */ >
           <h3 /*className={styles.title}*/ >{intl.formatMessage(intlMessages.title)}</h3>
@@ -191,7 +197,7 @@ class RemoteDesktopModal extends Component {
             disabled={startDisabled}
           />
         </div>
-      </Modal>
+      </ModalSimple>
     );
   }
 }

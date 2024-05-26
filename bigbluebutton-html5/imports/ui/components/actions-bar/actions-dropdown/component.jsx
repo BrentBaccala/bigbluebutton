@@ -139,6 +139,7 @@ class ActionsDropdown extends PureComponent {
     this.selectUserRandId = uniqueId('action-item-');
     this.state = {
       isExternalVideoModalOpen: false,
+      isRemoteDesktopModalOpen: false,
       isRandomUserSelectModalOpen: false,
       isLayoutModalOpen: false,
       isCameraAsContentModalOpen: false,
@@ -148,6 +149,7 @@ class ActionsDropdown extends PureComponent {
     this.makePresentationItems = this.makePresentationItems.bind(this);
     this.handleRemoteDesktopClick = this.handleRemoteDesktopClick.bind(this);
     this.setExternalVideoModalIsOpen = this.setExternalVideoModalIsOpen.bind(this);
+    this.setRemoteDesktopModalIsOpen = this.setRemoteDesktopModalIsOpen.bind(this);
     this.setRandomUserSelectModalIsOpen = this.setRandomUserSelectModalIsOpen.bind(this);
     this.setLayoutModalIsOpen = this.setLayoutModalIsOpen.bind(this);
     this.setCameraAsContentModalIsOpen = this.setCameraAsContentModalIsOpen.bind(this);
@@ -161,6 +163,7 @@ class ActionsDropdown extends PureComponent {
     const { amIPresenter: isPresenter } = this.props;
     if (wasPresenter && !isPresenter) {
       this.setExternalVideoModalIsOpen(false);
+      this.setRemoteDesktopModalIsOpen(false);
     }
   }
 
@@ -169,8 +172,7 @@ class ActionsDropdown extends PureComponent {
   }
 
   handleRemoteDesktopClick() {
-    const { mountModal } = this.props;
-    mountModal(<RemoteDesktopModal />);
+    this.setRemoteDesktopModalIsOpen(true);
   }
 
   handleTimerClick() {
@@ -373,6 +375,10 @@ class ActionsDropdown extends PureComponent {
     this.setState({ isExternalVideoModalOpen: value });
   }
 
+  setRemoteDesktopModalIsOpen(value) {
+    this.setState({ isRemoteDesktopModalOpen: value });
+  }
+
   setRandomUserSelectModalIsOpen(value) {
     this.setState({ isRandomUserSelectModalOpen: value });
   }
@@ -420,6 +426,7 @@ class ActionsDropdown extends PureComponent {
 
     const {
       isExternalVideoModalOpen,
+      isRemoteDesktopModalOpen,
       isRandomUserSelectModalOpen,
       isLayoutModalOpen,
       isCameraAsContentModalOpen,
@@ -473,6 +480,12 @@ class ActionsDropdown extends PureComponent {
           this.setExternalVideoModalIsOpen,
           'low',
           ExternalVideoModal,
+        )}
+        {this.renderModal(
+          isRemoteDesktopModalOpen,
+          this.setRemoteDesktopModalIsOpen,
+          'low',
+          RemoteDesktopModal,
         )}
         {amIPresenter && isSelectRandomUserEnabled
           ? this.renderModal(
