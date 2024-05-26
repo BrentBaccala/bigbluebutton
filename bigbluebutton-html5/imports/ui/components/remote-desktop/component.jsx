@@ -10,7 +10,7 @@ import Auth from '/imports/ui/services/auth';
 import { notify } from '/imports/ui/services/notification';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 
-// import { styles } from './styles';
+import Styled from './styles';
 
 const propTypes = {
   remoteDesktopUrl: PropTypes.string,
@@ -216,10 +216,9 @@ class RemoteDesktop extends Component {
     const { remoteDesktopPassword, remoteDesktopCanOperate, fullscreenContext } = this.props;
 
     return (
-      <div
+      <Styled.StyledDiv
         id="remote-desktop"
         data-test="remoteDesktop"
-/*        className={styles.remoteDesktop} */
 /*
         style={{
           top: presentationBounds.top,
@@ -247,8 +246,7 @@ class RemoteDesktop extends Component {
         onFocus={() => this.transferClipboardText('div.onFocus')}
       >
         {this.renderFullscreenButton()}
-        <VncDisplay
-/*          className={styles.remoteDesktop} */
+        <Styled.StyledVncDisplay
           width='100%'
           height='100%'
           background="transparent"
@@ -270,7 +268,7 @@ class RemoteDesktop extends Component {
 	      this.player = ref;
 	  }}
         />}
-      </div>
+      </Styled.StyledDiv>
     );
   }
 }
