@@ -87,7 +87,7 @@ class ActionsBar extends PureComponent {
     const { isCaptionsReaderMenuModalOpen } = this.state;
 
     const shouldShowOptionsButton = (isPresentationEnabled() && isThereCurrentPresentation)
-      || isSharingVideo || hasScreenshare || isSharedNotesPinned;
+      || isSharingVideo || isSharingDesktop || hasScreenshare || isSharedNotesPinned;
     return (
       <Styled.ActionsBar
         ref={this.actionsBarRef}
@@ -173,6 +173,7 @@ class ActionsBar extends PureComponent {
               layoutContextDispatch={layoutContextDispatch}
               hasPresentation={MediaService.shouldShowRemoteDesktop() || isThereCurrentPresentation}
               hasExternalVideo={isSharingVideo}
+              hasRemoteDesktop={isSharingDesktop}
               hasScreenshare={hasScreenshare}
               hasPinnedSharedNotes={isSharedNotesPinned}
               hasGenericContent={hasGenericContent}

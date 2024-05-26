@@ -37,6 +37,7 @@ const PresentationOptionsContainer = ({
   layoutContextDispatch,
   hasPresentation,
   hasExternalVideo,
+  hasRemoteDesktop,
   hasScreenshare,
   hasPinnedSharedNotes,
   hasGenericContent,
@@ -46,13 +47,15 @@ const PresentationOptionsContainer = ({
   if (hasExternalVideo) {
     // hack until we have an external-video icon
     buttonType = 'external-video';
+  } else if (hasRemoteDesktop) {
+    buttonType = 'desktop';
   } else if (hasScreenshare) {
     buttonType = 'desktop';
   } else if (hasCameraAsContent) {
     buttonType = 'video';
   }
 
-  const isThereCurrentPresentation = hasExternalVideo || hasScreenshare
+  const isThereCurrentPresentation = hasExternalVideo || hasRemoteDesktop || hasScreenshare
   || hasPresentation || hasPinnedSharedNotes
   || hasGenericContent || hasCameraAsContent;
   return (
@@ -68,7 +71,7 @@ const PresentationOptionsContainer = ({
       size="lg"
       onClick={() => {
         setPresentationIsOpen(layoutContextDispatch, !presentationIsOpen);
-        if (!hasExternalVideo && !hasScreenshare && !hasPinnedSharedNotes) {
+        if (!hasExternalVideo && !hasRemoteDesktop && !hasScreenshare && !hasPinnedSharedNotes) {
           Session.set('presentationLastState', !presentationIsOpen);
         }
       }}
