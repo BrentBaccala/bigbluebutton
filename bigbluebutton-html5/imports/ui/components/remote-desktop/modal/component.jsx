@@ -1,14 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-/* import { withModalMounter } from '/imports/ui/components/common/modal/service'; */
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
-import Button from '/imports/ui/components/common/button/component';
 import Auth from '/imports/ui/services/auth';
 
 import { defineMessages, injectIntl } from 'react-intl';
 import { isUrlValid } from '../service';
 
-// import { styles } from './styles';
+import Styled from './styles';
 
 const propTypes = {
   remoteDesktopUrl: PropTypes.string,
@@ -110,9 +107,9 @@ class RemoteDesktopModal extends Component {
     return (
       !valid
         ? (
-          <div /* className={styles.urlError} */ >
+          <Styled.UrlError>
             {intl.formatMessage(intlMessages.urlError)}
-          </div>
+          </Styled.UrlError>
         )
         : null
     );
@@ -125,9 +122,8 @@ class RemoteDesktopModal extends Component {
     const startDisabled = !isUrlValid(url);
 
     return (
-      <ModalSimple
+      <Styled.RemoteDesktopModal
 /*        overlayClassName={styles.overlay} */
-/*        className={styles.modal} */
         onRequestClose={closeModal}
         contentLabel={intl.formatMessage(intlMessages.title)}
 /*        hideBorder */
@@ -138,12 +134,12 @@ class RemoteDesktopModal extends Component {
           priority,
         }}
       >
-        <header data-test="remoteDesktopModalHeader" /* className={styles.header} */ >
-          <h3 /*className={styles.title}*/ >{intl.formatMessage(intlMessages.title)}</h3>
-        </header>
+        <Styled.RemoteDesktopHeader data-test="remoteDesktopModalHeader">
+          <Styled.Title>{intl.formatMessage(intlMessages.title)}</Styled.Title>
+        </Styled.RemoteDesktopHeader>
 
-        <div /* className={styles.content}*/ >
-          <div /* className={styles.remoteDesktopUrl}*/ >
+        <Styled.RemoteDesktopContent>
+          <Styled.RemoteDesktopUrl>
             <label htmlFor="remote-desktop-modal-input" id="remote-desktop-modal-input">
               {intl.formatMessage(intlMessages.input)}
               <input
@@ -155,9 +151,9 @@ class RemoteDesktopModal extends Component {
                 aria-describedby="remote-desktop-note"
               />
             </label>
-          </div>
+          </Styled.RemoteDesktopUrl>
 
-          <div /*className={styles.remoteDesktopUrl}*/ >
+          <Styled.RemoteDesktopUrl>
             <label htmlFor="remote-desktop-modal-password" id="remote-desktop-modal-password">
               {intl.formatMessage(intlMessages.password)}
               <input
@@ -168,9 +164,9 @@ class RemoteDesktopModal extends Component {
                 required={false}
               />
             </label>
-          </div>
+          </Styled.RemoteDesktopUrl>
 
-          <div /*className={styles.remoteDesktopUrl}*/ >
+          <Styled.RemoteDesktopUrl>
             <label htmlFor="remote-desktop-modal-operators" id="remote-desktop-modal-operators">
               <select
                 id="remote-desktop-modal-operators"
@@ -184,20 +180,19 @@ class RemoteDesktopModal extends Component {
                 <option value="I">Only I can operate desktop</option>
               </select>
             </label>
-          </div>
+          </Styled.RemoteDesktopUrl>
 
           <div>
             {this.renderUrlError()}
           </div>
 
-          <Button
-/*            className={styles.startBtn} */
+          <Styled.StartButton
             label={intl.formatMessage(intlMessages.start)}
             onClick={this.startWatchingHandler}
             disabled={startDisabled}
           />
-        </div>
-      </ModalSimple>
+        </Styled.RemoteDesktopContent>
+      </Styled.RemoteDesktopModal>
     );
   }
 }
