@@ -91,7 +91,6 @@ class RemoteDesktop extends Component {
   componentDidMount() {
     const {
       layoutContextDispatch,
-      hidePresentation,
     } = this.props;
 
     this.playerParent.addEventListener('fullscreenchange', this.onFullscreenChange);
@@ -102,12 +101,10 @@ class RemoteDesktop extends Component {
     /* XXX this is what external video does, don't know why (bwb) */
     /* if (getSwapLayout()) toggleSwapLayout(layoutContextDispatch); */
 
-    if (hidePresentation) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-        value: true,
-      });
-    }
+    layoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+      value: true,
+    });
 
     layoutContextDispatch({
       type: ACTIONS.SET_HAS_REMOTE_DESKTOP,
@@ -116,19 +113,17 @@ class RemoteDesktop extends Component {
   }
 
   componentWillUnmount() {
-    const { hidePresentation, layoutContextDispatch } = this.props;
+    const { layoutContextDispatch } = this.props;
 
     layoutContextDispatch({
       type: ACTIONS.SET_HAS_REMOTE_DESKTOP,
       value: false,
     });
 
-    if (hidePresentation) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-        value: false,
-      });
-    }
+    layoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+      value: false,
+    });
     document.removeEventListener('copy', this.transferClipboardText);
     document.removeEventListener('cut', this.transferClipboardText);
     this.playerParent.removeEventListener('fullscreenchange', this.onFullscreenChange);
@@ -217,6 +212,7 @@ class RemoteDesktop extends Component {
   render() {
     var { remoteDesktopUrl, viewOnly } = this.state;
     // const { remoteDesktopPassword, remoteDesktopCanOperate, presentationBounds, fullscreenContext, layoutSwapped } = this.props;
+    const { top, left, right, width, height } = this.props;
     const { remoteDesktopPassword, remoteDesktopCanOperate, fullscreenContext } = this.props;
 
     return (
@@ -235,6 +231,13 @@ class RemoteDesktop extends Component {
           zIndex: fullscreenContext ? presentationBounds.zIndex : undefined,
         }}
 */
+        style={{
+          top,
+          left,
+          right,
+          width,
+          height,
+        }}
         ref={(ref) => { this.playerParent = ref; }}
         /* onMouseEnter/onFocus doesn't seem to work on VncDisplay
          *

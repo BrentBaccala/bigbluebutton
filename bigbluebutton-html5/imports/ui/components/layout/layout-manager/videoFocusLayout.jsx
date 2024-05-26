@@ -35,6 +35,7 @@ const VideoFocusLayout = (props) => {
 
   const presentationInput = layoutSelectInput((i) => i.presentation);
   const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
+  const remoteDesktopInput = layoutSelectInput((i) => i.remoteDesktop);
   const screenShareInput = layoutSelectInput((i) => i.screenShare);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
 
@@ -109,6 +110,9 @@ const VideoFocusLayout = (props) => {
             externalVideo: {
               hasExternalVideo: input.externalVideo.hasExternalVideo,
             },
+            remoteDesktop: {
+              hasRemoteDesktop: remoteDesktopInput.hasRemoteDesktop,
+            },
             screenShare: {
               hasScreenShare: input.screenShare.hasScreenShare,
               width: input.screenShare.width,
@@ -147,6 +151,9 @@ const VideoFocusLayout = (props) => {
             externalVideo: {
               hasExternalVideo: input.externalVideo.hasExternalVideo,
             },
+            remoteDesktop: {
+              hasRemoteDesktop: remoteDesktopInput.hasRemoteDesktop,
+            },
             screenShare: {
               hasScreenShare: input.screenShare.hasScreenShare,
               width: input.screenShare.width,
@@ -164,12 +171,13 @@ const VideoFocusLayout = (props) => {
   const calculatesSidebarContentHeight = () => {
     const { isOpen, slidesLength } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
+    const { hasRemoteDesktop } = remoteDesktopInput;
     const { hasScreenShare } = screenShareInput;
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
 
     const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
     const isGeneralMediaOff =
-      !hasPresentation && !hasExternalVideo && !hasScreenShare && !isSharedNotesPinned;
+      !hasPresentation && !hasExternalVideo && !hasRemoteDesktop && !hasScreenShare && !isSharedNotesPinned;
 
     let minHeight = 0;
     let height = 0;
@@ -261,7 +269,8 @@ const VideoFocusLayout = (props) => {
     if (
       fullscreenElement === 'Presentation' ||
       fullscreenElement === 'Screenshare' ||
-      fullscreenElement === 'ExternalVideo'
+      fullscreenElement === 'ExternalVideo' ||
+      fullscreenElement === 'RemoteDesktop'
     ) {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();

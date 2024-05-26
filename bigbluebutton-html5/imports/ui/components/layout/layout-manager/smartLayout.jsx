@@ -35,6 +35,7 @@ const SmartLayout = (props) => {
   const actionbarInput = layoutSelectInput((i) => i.actionBar);
   const navbarInput = layoutSelectInput((i) => i.navBar);
   const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
+  const remoteDesktopInput = layoutSelectInput((i) => i.remoteDesktop);
   const screenShareInput = layoutSelectInput((i) => i.screenShare);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
   const layoutContextDispatch = layoutDispatch();
@@ -103,7 +104,7 @@ const SmartLayout = (props) => {
               hasExternalVideo: externalVideoInput.hasExternalVideo,
             },
             remoteDesktop: {
-              hasRemoteDesktop: input.remoteDesktop.hasRemoteDesktop,
+              hasRemoteDesktop: remoteDesktopInput.hasRemoteDesktop,
             },
             screenShare: {
               hasScreenShare: screenShareInput.hasScreenShare,
@@ -145,6 +146,9 @@ const SmartLayout = (props) => {
             },
             externalVideo: {
               hasExternalVideo: externalVideoInput.hasExternalVideo,
+            },
+            remoteDesktop: {
+              hasRemoteDesktop: remoteDesktopInput.hasRemoteDesktop,
             },
             screenShare: {
               hasScreenShare: screenShareInput.hasScreenShare,
@@ -283,12 +287,13 @@ const SmartLayout = (props) => {
   const calculatesMediaBounds = (mediaAreaBounds, slideSize, sidebarSize, screenShareSize) => {
     const { isOpen, slidesLength } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
+    const { hasRemoteDesktop } = remoteDesktopInput;
     const { hasScreenShare } = screenShareInput;
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
 
     const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
     const isGeneralMediaOff =
-      !hasPresentation && !hasExternalVideo && !hasScreenShare && !isSharedNotesPinned;
+      !hasPresentation && !hasExternalVideo && !hasRemoteDesktop && !hasScreenShare && !isSharedNotesPinned;
 
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
@@ -306,7 +311,8 @@ const SmartLayout = (props) => {
     if (
       fullscreenElement === 'Presentation' ||
       fullscreenElement === 'Screenshare' ||
-      fullscreenElement === 'ExternalVideo'
+      fullscreenElement === 'ExternalVideo' ||
+      fullscreenElement === 'RemoteDesktop'
     ) {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
@@ -320,6 +326,7 @@ const SmartLayout = (props) => {
     const mediaContentSize = hasScreenShare ? screenShareSize : slideSize;
 
     if (cameraDockInput.numCameras > 0 && !cameraDockInput.isDragging) {
+      /* XXX This has !hasExternalVideo; should it also have !hasRemoteDesktop? */
       if (mediaContentSize.width !== 0 && mediaContentSize.height !== 0 && !hasExternalVideo) {
         if (mediaContentSize.width < mediaAreaBounds.width && !isMobile) {
           if (mediaContentSize.width < mediaAreaBounds.width * 0.8) {

@@ -14,11 +14,12 @@ import {
 const RemoteDesktopContainer = props => {
   const layoutContextDispatch = layoutDispatch();
   const fullscreenElementId = 'RemoteDesktop';
+  const externalVideo = layoutSelectOutput((i) => i.externalVideo);
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const { element } = fullscreen;
   const fullscreenContext = (element === fullscreenElementId);
   return (
-    <RemoteDesktop {...{ ...props, layoutContextDispatch, fullscreenContext, }} />
+    <RemoteDesktop {...{ ...props, ...externalVideo, layoutContextDispatch, fullscreenContext, }} />
   );
 };
 

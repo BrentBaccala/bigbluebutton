@@ -33,6 +33,7 @@ const CustomLayout = (props) => {
 
   const presentationInput = layoutSelectInput((i) => i.presentation);
   const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
+  const remoteDesktopInput = layoutSelectInput((i) => i.remoteDesktop);
   const screenShareInput = layoutSelectInput((i) => i.screenShare);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
 
@@ -163,6 +164,9 @@ const CustomLayout = (props) => {
             externalVideo: {
               hasExternalVideo: input.externalVideo.hasExternalVideo,
             },
+            remoteDesktop: {
+              hasRemoteDesktop: input.remoteDesktop.hasRemoteDesktop,
+            },
             screenShare: {
               hasScreenShare: input.screenShare.hasScreenShare,
               width: input.screenShare.width,
@@ -204,6 +208,9 @@ const CustomLayout = (props) => {
             externalVideo: {
               hasExternalVideo: input.externalVideo.hasExternalVideo,
             },
+            remoteDesktop: {
+              hasRemoteDesktop: input.remoteDesktop.hasRemoteDesktop,
+            },
             screenShare: {
               hasScreenShare: input.screenShare.hasScreenShare,
               width: input.screenShare.width,
@@ -224,12 +231,13 @@ const CustomLayout = (props) => {
   const calculatesSidebarContentHeight = (cameraDockHeight) => {
     const { isOpen, slidesLength } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
+    const { hasRemoteDesktop } = remoteDesktopInput;
     const { hasScreenShare } = screenShareInput;
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
 
     const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
     const isGeneralMediaOff =
-      !hasPresentation && !hasExternalVideo && !hasScreenShare && !isSharedNotesPinned;
+      !hasPresentation && !hasExternalVideo && !hasRemoteDesktop && !hasScreenShare && !isSharedNotesPinned;
 
     let sidebarContentHeight = 0;
     if (sidebarContentInput.isOpen) {
@@ -401,6 +409,7 @@ const CustomLayout = (props) => {
   const calculatesMediaBounds = (sidebarNavWidth, sidebarContentWidth, cameraDockBounds) => {
     const { isOpen, slidesLength } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
+    const { hasRemoteDesktop } = remoteDesktopInput;
     const { hasScreenShare } = screenShareInput;
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
 
@@ -414,7 +423,7 @@ const CustomLayout = (props) => {
 
     const hasPresentation = isPresentationEnabled() && slidesLength !== 0;
     const isGeneralMediaOff =
-      !hasPresentation && !hasExternalVideo && !hasScreenShare && !isSharedNotesPinned;
+      !hasPresentation && !hasExternalVideo && !hasRemoteDesktop && !hasScreenShare && !isSharedNotesPinned;
 
     if (!isOpen || isGeneralMediaOff) {
       mediaBounds.width = 0;
@@ -429,7 +438,8 @@ const CustomLayout = (props) => {
     if (
       fullscreenElement === 'Presentation' ||
       fullscreenElement === 'Screenshare' ||
-      fullscreenElement === 'ExternalVideo'
+      fullscreenElement === 'ExternalVideo' ||
+      fullscreenElement === 'RemoteDesktop'
     ) {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
