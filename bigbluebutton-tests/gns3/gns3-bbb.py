@@ -874,6 +874,8 @@ def BBB_server_standalone(hostname, x=100, y=300):
             args.install_script = 'bbb-install-2.5.sh'
         elif '26' in args.release:
             args.install_script = 'bbb-install-2.6.sh'
+        elif '27' in args.release:
+            args.install_script = 'https://raw.githubusercontent.com/bigbluebutton/bbb-install/v2.7.x-release/bbb-install.sh'
         else:
             print("Can't guess which install script version to use")
             exit(1)
