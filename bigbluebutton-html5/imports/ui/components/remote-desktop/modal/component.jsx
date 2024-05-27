@@ -198,5 +198,4 @@ class RemoteDesktopModal extends Component {
 
 RemoteDesktopModal.propTypes = propTypes;
 
-/* export default injectIntl(withModalMounter(RemoteDesktopModal)); */
 export default injectIntl(RemoteDesktopModal);
