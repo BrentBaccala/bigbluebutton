@@ -178,56 +178,7 @@ class Disconnect {
         // add a data-test tag to this button
         await modPage.waitAndClick('button[aria-label="Share a remote desktop"]');
       }
-      const canvas = await modPage.page.waitForSelector('canvas', {visible:true});
-      // there's no sleep statement in the next loop, so it's not sixty seconds
-      for (let j = 1; j <= 0; j++) {
-      //for (let j = 1; j <= 60; j++) {
-	const imagedata = await modPage.page.evaluate((canvas) => {
-          const context = canvas.getContext('2d');
-          //console.log('canvas', canvas.width, canvas.height);
-          // It's a 1900x1200 image, but I know that only because I know that's the default in vnc.conf
-          // The 150x50 rectangle at the bottom left of the image contains the word "Applications"
-          // for the applications menu in the default freesoft.org GNOME configuration (which differs from the default)
-
-          //return Array.from(context.getImageData(0,1150,150,50).data);
-
-	  // make that 1280x1024, 1024-50=974
-          return Array.from(context.getImageData(0,974,150,50).data);
-	}, canvas);
-	//console.log(imagedata);
-	//const array = Array.from(imagedata);
-	//console.log('array', array);
-
-	// This is how we would save it to a file, it we wanted to.
-	// const fs = require('fs');
-	// fs.writeFile('bwb.img', Buffer.from(imagedata), (err) => {console.log(err); });
-	// then convert it from the command line like this:
-	// convert -depth 8 -size 150x50 rgba:bwb.img bwb.png
-
-	const hash = imghash.hashRaw({width: 150, height: 50, data: imagedata}, 8)
-	//console.log('hash', imghash.hexToBinary(hash));
-	// I've seen both of these two hashs: ff0000fefe400f0f and ff0001fefe400f0f
-	// The Levenshtein distance (minimum number of single-character edits - insertions, deletions, or substitutions)
-	// this hash is the default desktop from freesoft-gnome-desktop on bionic beaver
-	// const distance = await leven("ff0000fefe400f0f", hash);
-	// this hash is the blue background I'm using on ragazzo
-	// const distance = await leven("ff0001fdfd018100", hash);
-	//console.log('distance', distance);
-	// this hash is the focal fossa (Ubuntu 20) background
-	const distance = await leven("ff00ff00fd40ff00", hash);
-	if (distance < 2) break;
-	if (j == 60) {
-	  console.log('Final query to desktop yielded hash', hash, 'Levenshtein distance', distance);
-	}
-      }
-
-      /* promise-based approach suggested by gpt4 */
-      /* commented out just because we're not split between c200-1/edge and ragazzo anymore */
-      /* const { stdout, stderr } = await exec('ssh ragazzo grep MemFree /proc/meminfo'); */
-      /* console.log('ragazzo', stdout); */
-      // I don't know why this doesn't work
-      //const { stdout2, stderr2 } = await exec('grep MemFree /proc/meminfo');
-      //console.log('local', stdout2, stderr2);
+      await modPage.page.waitForSelector('canvas', {visible:true});
     }
 
     if (! keepPagesOpen) {
