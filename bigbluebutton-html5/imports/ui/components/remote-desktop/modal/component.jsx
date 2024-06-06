@@ -15,6 +15,10 @@ const propTypes = {
   }).isRequired,
 };
 
+const defaultProps = {
+  remoteDesktopUrl: Meteor.settings.public?.remoteDesktop?.defaultUrl,
+}
+
 const intlMessages = defineMessages({
   start: {
     id: 'app.remoteDesktop.start',
@@ -57,7 +61,7 @@ class RemoteDesktopModal extends Component {
     const { remoteDesktopUrl } = props;
 
     this.state = {
-      url: remoteDesktopUrl ? remoteDesktopUrl : Meteor.settings.public?.remoteDesktop?.defaultUrl,
+      url: remoteDesktopUrl,
       sharing: remoteDesktopUrl,
       password: null,
       operators: 'all',
@@ -77,11 +81,7 @@ class RemoteDesktopModal extends Component {
 
     const { url, password, operators } = this.state;
 
-    if (operators === 'I') {
-      operators = Auth.userID;
-    }
-
-    startWatching(url.trim(), password, operators);
+    startWatching(url.trim(), password, operators === 'I' ? Auth.userID : operators);
     setIsOpen(false);
   }
 
@@ -89,11 +89,11 @@ class RemoteDesktopModal extends Component {
     this.setState({ url: ev.target.value ? ev.target.value : Meteor.settings.public?.remoteDesktop?.defaultUrl });
   }
 
-  updateRemoteDesktopPassword = ev => {
+  updateRemoteDesktopPassword(ev) {
     this.setState({ password: ev.target.value });
   }
 
-  updateRemoteDesktopOperators = ev => {
+  updateRemoteDesktopOperators(ev) {
     this.setState({ operators: ev.target.value });
   }
 
@@ -199,5 +199,6 @@ class RemoteDesktopModal extends Component {
 }
 
 RemoteDesktopModal.propTypes = propTypes;
+RemoteDesktopModal.defaultProps = defaultProps;
 
 export default injectIntl(RemoteDesktopModal);
