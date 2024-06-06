@@ -189,6 +189,8 @@ class RemoteDesktopModal extends Component {
             label={intl.formatMessage(intlMessages.start)}
             onClick={this.startWatchingHandler}
             disabled={startDisabled}
+            data-test="shareRemoteDesktop"
+            color="primary"
           />
         </Styled.RemoteDesktopContent>
       </Styled.RemoteDesktopModal>

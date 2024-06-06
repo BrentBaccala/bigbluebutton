@@ -1,4 +1,15 @@
 import styled from 'styled-components';
+import {
+  borderSize,
+  borderRadius,
+  mdPaddingX,
+} from '/imports/ui/stylesheets/styled-components/general';
+import {
+  colorText,
+  colorGrayLighter,
+  colorBlueLight,
+  colorPrimary,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Button from '/imports/ui/components/common/button/component';
 
@@ -20,8 +31,7 @@ const RemoteDesktopContent = styled.div`
 `
 
 const RemoteDesktopModal = styled(ModalSimple)`
-  @extend .modal;
-  padding: 1.5rem;
+  padding: 1rem;
   min-height: 30rem;
 `
 
@@ -43,22 +53,21 @@ const CloseButton = styled(Button)`
 `
 
 const StartButton = styled(Button)`
+  display: flex;
   align-self: center;
+
   &:focus {
     outline: none !important;
   }
 
-  i{
+  & > i {
     color: #3c5764;
   }
 
   margin: 0;
-  width: 40%;
   display: block;
   position: absolute;
-  bottom:   20px;
-  color: var(--color-white) !important;
-  background-color: var(--color-link) !important;
+  bottom: ${mdPaddingX};
 `
 
 const Title = styled.h3`
@@ -74,32 +83,36 @@ const Title = styled.h3`
 `
 
 const RemoteDesktopUrl = styled.div`
-  margin: 0 var(--border-size) 0 var(--border-size);
+  margin: 0 ${borderSize} 0 ${borderSize};
 
-  label {
+  & > label {
     display: block;
   }
 
-  input, select {
-    @include inputFocus(var(--color-blue-light));
+  & > label input {
     display: block;
     margin: 10px 0 10px 0;
     padding: 0.4em;
-    color: var(--color-text);
-    background-color: rgb(232, 240, 254);
+    color: ${colorText};
     line-height: 2rem;
     width: 100%;
     font-family: inherit;
     font-weight: inherit;
-    border: 1px solid var(--color-gray-lighter);
-    border-radius: var(--border-radius);
+    border: 1px solid ${colorGrayLighter};
+    border-radius: ${borderRadius};
 
-    :global(.animationsEnabled) & {
+    ${({ animations }) => animations && `
       transition: box-shadow .2s;
+    `}
+
+    &:focus {
+      outline: none;
+      border-radius: ${borderSize};
+      box-shadow: 0 0 0 ${borderSize} ${colorBlueLight}, inset 0 0 0 1px ${colorPrimary};
     }
   }
 
-  span {
+  & > span {
     font-weight: 600;
   }
 `
