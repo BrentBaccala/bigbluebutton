@@ -41,15 +41,16 @@ case class WelcomeProp(welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMe
 case class VoiceProp(telVoice: String, voiceConf: String, dialNumber: String, muteOnStart: Boolean)
 
 case class UsersProp(
-    maxUsers:                 Int,
-    maxUserConcurrentAccesses:Int,
-    webcamsOnlyForModerator:  Boolean,
-    userCameraCap:            Int,
-    guestPolicy:              String,
-    meetingLayout:            String,
-    allowModsToUnmuteUsers:   Boolean,
-    allowModsToEjectCameras:  Boolean,
-    authenticatedGuest:       Boolean
+    maxUsers:                     Int,
+    maxUserConcurrentAccesses:    Int,
+    webcamsOnlyForModerator:      Boolean,
+    userCameraCap:                Int,
+    guestPolicy:                  String,
+    meetingLayout:                String,
+    allowModsToUnmuteUsers:       Boolean,
+    allowModsToEjectCameras:      Boolean,
+    authenticatedGuest:           Boolean,
+    allowPromoteGuestToModerator: Boolean
 )
 
 case class MetadataProp(metadata: collection.immutable.Map[String, String])
@@ -114,8 +115,8 @@ case class UserVO(id: String, externalId: String, name: String, role: String,
                   guest: Boolean, authed: Boolean, guestStatus: String, emojiStatus: String,
                   presenter: Boolean, hasStream: Boolean, locked: Boolean, webcamStreams: Set[String],
                   phoneUser: Boolean, voiceUser: VoiceUserVO, listenOnly: Boolean, avatarURL: String,
-                  joinedWeb: Boolean)
+                  webcamBackgroundURL: String, joinedWeb: Boolean)
 
 case class VoiceUserVO(userId: String, webUserId: String, callerName: String,
                        callerNum: String, joined: Boolean, locked: Boolean, muted: Boolean,
-                       talking: Boolean, avatarURL: String, listenOnly: Boolean)
+                       talking: Boolean, avatarURL: String, webcamBackgroundURL: String, listenOnly: Boolean)

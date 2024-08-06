@@ -401,6 +401,7 @@ const getUsersProp = () => {
         'usersProp.allowModsToUnmuteUsers': 1,
         'usersProp.allowModsToEjectCameras': 1,
         'usersProp.authenticatedGuest': 1,
+        'usersProp.allowPromoteGuestToModerator': 1,
       },
     },
   );
@@ -411,6 +412,7 @@ const getUsersProp = () => {
     allowModsToUnmuteUsers: false,
     allowModsToEjectCameras: false,
     authenticatedGuest: false,
+    allowPromoteGuestToModerator: false,
   };
 };
 
@@ -463,14 +465,18 @@ const getAvailableActions = (
     && !isSubjectUserModerator
     && !isDialInUser
     && !isBreakoutRoom
-    && !(isSubjectUserGuest && usersProp.authenticatedGuest);
+    && !(isSubjectUserGuest
+          && usersProp.authenticatedGuest
+          && !usersProp.allowPromoteGuestToModerator);
 
   const allowedToDemote = amIModerator
     && !amISubjectUser
     && isSubjectUserModerator
     && !isDialInUser
     && !isBreakoutRoom
-    && !(isSubjectUserGuest && usersProp.authenticatedGuest);
+    && !(isSubjectUserGuest
+          && usersProp.authenticatedGuest
+          && !usersProp.allowPromoteGuestToModerator);
 
   const allowedToChangeStatus = amISubjectUser && USER_STATUS_ENABLED;
 
@@ -668,6 +674,10 @@ const getGroupChatPrivate = (senderUserId, receiver) => {
   }
 };
 
+const toggleUserChatLock = (userId, isLocked) => {
+  makeCall('toggleUserChatLock', userId, isLocked);
+}
+
 const toggleUserLock = (userId, lockStatus) => {
   makeCall('toggleUserLock', userId, lockStatus);
 };
@@ -814,6 +824,7 @@ export default {
   roving,
   getCustomLogoUrl,
   getGroupChatPrivate,
+  toggleUserChatLock,
   hasBreakoutRoom,
   getEmojiList: () => EMOJI_STATUSES,
   getEmoji,

@@ -399,7 +399,7 @@ class MeetingActor(
       case m: ChangeUserPinStateReqMsg      => usersApp.handleChangeUserPinStateReqMsg(m)
       case m: ChangeUserMobileFlagReqMsg    => usersApp.handleChangeUserMobileFlagReqMsg(m)
       case m: SetUserSpeechLocaleReqMsg     => usersApp.handleSetUserSpeechLocaleReqMsg(m)
-      case m: SetUserSpeechOptionsReqMsg => usersApp.handleSetUserSpeechOptionsReqMsg(m)
+      case m: SetUserSpeechOptionsReqMsg    => usersApp.handleSetUserSpeechOptionsReqMsg(m)
 
       // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg =>
@@ -514,6 +514,7 @@ class MeetingActor(
         handleSetLockSettings(m)
         updateUserLastActivity(m.body.setBy)
       case m: LockUserInMeetingCmdMsg                        => handleLockUserInMeetingCmdMsg(m)
+      case m: LockUserChatInMeetingCmdMsg                    => handleLockUserChatInMeetingCmdMsg(m)
       case m: LockUsersInMeetingCmdMsg                       => handleLockUsersInMeetingCmdMsg(m)
       case m: GetLockSettingsReqMsg                          => handleGetLockSettingsReqMsg(m)
 

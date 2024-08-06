@@ -5,7 +5,7 @@ import org.bigbluebutton.core.domain.BreakoutRoom2x
 
 object RegisteredUsers {
   def create(userId: String, extId: String, name: String, roles: String,
-             token: String, avatar: String, color: String, guest: Boolean, authenticated: Boolean,
+             token: String, avatar: String, webcamBackground: String, color: String, guest: Boolean, authenticated: Boolean,
              guestStatus: String, excludeFromDashboard: Boolean, loggedOut: Boolean): RegisteredUser = {
     new RegisteredUser(
       userId,
@@ -14,6 +14,7 @@ object RegisteredUsers {
       roles,
       token,
       avatar,
+      webcamBackground,
       color,
       guest,
       authenticated,
@@ -164,6 +165,12 @@ object RegisteredUsers {
     u
   }
 
+  def updateUserCustomData(users: RegisteredUsers, user: RegisteredUser, userCustomData: Map[String, String]): RegisteredUser = {
+    val u = user.modify(_.userCustomData).setTo(userCustomData)
+    users.save(u)
+    u
+  }
+
 }
 
 class RegisteredUsers {
@@ -192,6 +199,7 @@ case class RegisteredUser(
     role:                     String,
     authToken:                String,
     avatarURL:                String,
+    webcamBackgroundURL:      String,
     color:                    String,
     guest:                    Boolean,
     authed:                   Boolean,
@@ -202,6 +210,7 @@ case class RegisteredUser(
     joined:                   Boolean,
     banned:                   Boolean,
     loggedOut:                Boolean,
-    lastBreakoutRoom:         BreakoutRoom2x = null
+    lastBreakoutRoom:         BreakoutRoom2x = null,
+    userCustomData:           Map[String, String] = Map.empty
 )
 
