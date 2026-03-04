@@ -15,15 +15,20 @@ FQDN=$(hostname --fqdn)
 
 EMAIL="root@$FQDN"
 
-# /bbb-install.sh (the proper version; either 2.4, 2.5 or 2.6) is created by gns3-bbb.py
-# INSTALL_OPTIONS and RELEASE get passed in the environment from gns3-bbb.py
+# /bbb-install.sh (the proper version; 2.5, 2.6, 2.7, or 3.0) is created by gns3-bbb.py
+# INSTALL_OPTIONS, RELEASE, and BBB_MAJOR_VERSION get passed in the environment from gns3-bbb.py
 #
 # INSTALL_OPTIONS can include -w (firewall) -a (api demos; deprecated in 2.6) -r (repository)
 
 sudo /bbb-install.sh -v $RELEASE -s $FQDN -e $EMAIL $INSTALL_OPTIONS
 
 sudo bbb-conf --salt bbbci
-echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" | sudo tee -a /usr/share/meteor/bundle/bbb-html5-with-roles.conf
+
+# v2 uses Meteor which needs NODE_EXTRA_CA_CERTS in bbb-html5-with-roles.conf
+# v3 replaced Meteor with a GraphQL stack; this file doesn't exist
+if [ -f /usr/share/meteor/bundle/bbb-html5-with-roles.conf ]; then
+    echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" | sudo tee -a /usr/share/meteor/bundle/bbb-html5-with-roles.conf
+fi
 
 # bbb-conf --salt doesn't set the shared secret on the web demo
 if [ -r /var/lib/tomcat9/webapps/demo/bbb_api_conf.jsp ]; then

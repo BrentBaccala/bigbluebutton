@@ -18,8 +18,9 @@ export BBB_SECRET=bbbci
 EOF
 
 # Which version of the repository should we use for the client test cases
+# v3.0.x-release tests are generally backward compatible with v2.7
 
-BRANCH=v2.5.x-release
+BRANCH=v3.0.x-release
 
 # if these are running, our apt operations may error out unable to get a lock
 sudo systemctl stop unattended-upgrades.service
@@ -46,8 +47,11 @@ git remote add origin https://github.com/bigbluebutton/bigbluebutton.git
 git fetch --depth 1 origin $BRANCH
 git checkout FETCH_HEAD
 
-# Focal distributes nodejs 10, which is too old for our playwright test suite.  Use nodejs 16.
-curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+# Install Node.js 22 (required by v3 Playwright tests; also works for v2 tests)
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+sudo apt update
 sudo apt install -y nodejs
 
 cd ~/bigbluebutton-$BRANCH/bigbluebutton-tests/playwright
@@ -76,9 +80,11 @@ sudo npx playwright install-deps
 # Earlier this this script, we did something similar to modify playwright's version of firefox.
 # This handles the standard system firefox.
 
-sudo mv /usr/lib/firefox/libnssckbi.so /usr/lib/firefox/libnssckbi.so.distrib
-sudo dpkg-divert --no-rename --add /usr/lib/firefox/libnssckbi.so
-sudo ln -s /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so /usr/lib/firefox/libnssckbi.so
+if [ -f /usr/lib/firefox/libnssckbi.so ]; then
+    sudo mv /usr/lib/firefox/libnssckbi.so /usr/lib/firefox/libnssckbi.so.distrib
+    sudo dpkg-divert --no-rename --add /usr/lib/firefox/libnssckbi.so
+    sudo ln -s /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so /usr/lib/firefox/libnssckbi.so
+fi
 
 # Install chromium and the tools we need to install our certificate into Chromium's private store
 sudo DEBIAN_FRONTEND=noninteractive apt -y install chromium-browser libnss3-tools jq

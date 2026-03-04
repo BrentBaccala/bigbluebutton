@@ -79,7 +79,7 @@ import argparse
 
 import subprocess
 
-SSH_AUTHORIZED_KEYS_FILES = ['~/.ssh/id_rsa.pub', "~/.ssh/authorized_keys"]
+SSH_AUTHORIZED_KEYS_FILES = ['~/.ssh/id_rsa.pub', '~/.ssh/id_ed25519.pub', '~/.ssh/id_ecdsa.pub', "~/.ssh/authorized_keys"]
 
 # These are bootable images provided by Canonical, Inc, that have the cloud-init package
 # installed.  When booted in a VM, cloud-init will configure them based on configuration
@@ -101,12 +101,14 @@ cloud_images = {
 }
 
 ubuntu_release = {
+    22: 'jammy',
     20: 'focal',
     18: 'bionic'
 }
 
-# We currently use Ubuntu 20 for everything
-cloud_image = cloud_images[20]
+# Default cloud image for infrastructure nodes (master gateway, NAT gateways).
+# Set to None here; resolved after GNS3 server is opened based on what's available.
+cloud_image = None
 
 # set to True to immediately upgrade to latest package versions; slows thing down a bit
 package_upgrade = False
@@ -126,8 +128,8 @@ parser.add_argument('-r', '--repository', type=str,
                     help='package repository to be used for BigBlueButton server install')
 parser.add_argument('-g', '--greenlight', action='store_true',
                     help='install Greenlight')
-parser.add_argument('--ubuntu-release', type=int, default=20,
-                    help='Ubuntu release (18 or 20; default 20) to be used for BigBlueButton server install')
+parser.add_argument('--ubuntu-release', type=int, default=None,
+                    help='Ubuntu release (18, 20, or 22; default auto-detected from version) to be used for BigBlueButton server install')
 parser.add_argument('--release', type=str,
                     help='BigBlueButton release to be used for BigBlueButton server install (default is server hostname)')
 parser.add_argument('--install-script', type=str,
@@ -145,7 +147,7 @@ parser.add_argument('--delete', type=str,
                     help="delete a BBB server and its associated subnet and NAT nodes")
 parser.add_argument('version', nargs='*',
                     help="""version of BigBlueButton server to be installed
-(focal-250, focal-25-dev, focal-260, focal-GITREV)
+(focal-250, focal-25-dev, focal-260, focal-270, jammy-300)
 version names starting with 'testclient' install clients""")
 args = parser.parse_args()
 
@@ -224,13 +226,18 @@ if args.delete:
         gns3_project.delete(orphan)
     exit(0)
 
-# Make sure the cloud and client images exist on the GNS3 server
+# Select the cloud image for infrastructure nodes (master gateway, NAT gateways).
+# Prefer focal (20.04) for backward compatibility; fall back to jammy (22.04).
 
-if not cloud_image in gns3_server.images():
-    print(f"{cloud_image} isn't available on GNS3 server {args.host}")
+if cloud_images[20] in gns3_server.images():
+    cloud_image = cloud_images[20]
+elif cloud_images[22] in gns3_server.images():
+    cloud_image = cloud_images[22]
+else:
+    print(f"No suitable cloud image (focal or jammy) found on GNS3 server {args.host}")
     exit(1)
 
-if not cloud_images[args.ubuntu_release] in gns3_server.images():
+if args.ubuntu_release is not None and cloud_images[args.ubuntu_release] not in gns3_server.images():
     print(f"{cloud_images[args.ubuntu_release]} isn't available on GNS3 server {args.host}")
     exit(1)
 
@@ -869,6 +876,17 @@ def BBB_server_standalone(hostname, x=100, y=300):
     if not args.release:
         args.release = hostname
 
+    # Auto-detect Ubuntu release from version name if not explicitly set
+    if args.ubuntu_release is None:
+        if args.release.startswith('jammy') or '30' in args.release:
+            args.ubuntu_release = 22
+        else:
+            args.ubuntu_release = 20
+
+    if cloud_images[args.ubuntu_release] not in gns3_server.images():
+        print(f"{cloud_images[args.ubuntu_release]} isn't available on GNS3 server {args.host}")
+        exit(1)
+
     if not args.install_script:
         if '25' in args.release:
             args.install_script = 'bbb-install-2.5.sh'
@@ -876,6 +894,8 @@ def BBB_server_standalone(hostname, x=100, y=300):
             args.install_script = 'bbb-install-2.6.sh'
         elif '27' in args.release:
             args.install_script = 'https://raw.githubusercontent.com/bigbluebutton/bbb-install/v2.7.x-release/bbb-install.sh'
+        elif '30' in args.release:
+            args.install_script = 'https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh'
         else:
             print("Can't guess which install script version to use")
             exit(1)
@@ -943,8 +963,15 @@ def BBB_server_standalone(hostname, x=100, y=300):
         if args.greenlight:
             install_options.append('-g')
 
+        # v3 install script requires -j to skip minimum server requirements
+        # checks, which GNS3 test VMs won't meet
+        if '30' in args.release:
+            install_options.append('-j')
+
         install_options_str = ' '.join(install_options)
-        user_data['runcmd'].append(f'sudo -u ubuntu RELEASE="{args.release}" INSTALL_OPTIONS="{install_options_str}" /testserver.sh')
+        # Pass BBB_MAJOR_VERSION so testserver.sh can handle version-specific post-install steps
+        bbb_major = '3' if '30' in args.release else '2'
+        user_data['runcmd'].append(f'sudo -u ubuntu RELEASE="{args.release}" INSTALL_OPTIONS="{install_options_str}" BBB_MAJOR_VERSION="{bbb_major}" /testserver.sh')
 
     if notification_url:
         user_data['phone_home'] = {'url': notification_url, 'tries': 1}
@@ -1018,17 +1045,17 @@ if 'domain' not in gns3_variables or 'initsrv' in args.version:
     ipaddr = gns3_project.httpd.instances_reported['initsrv']
     stdout = subprocess.check_output(['ssh', f'ubuntu@{ipaddr}',
                                       '-o', 'UserKnownHostsFile=/dev/null', '-o', 'StrictHostKeyChecking=no',
-                                      'netplan ip leases ens4 | grep ^DOMAINNAME= | cut -d = -f 2'],
+                                      'sudo netplan ip leases ens4 | grep ^DOMAINNAME= | cut -d = -f 2'],
                                      stderr = subprocess.DEVNULL)
     args.domain = stdout.strip().decode()
     stdout = subprocess.check_output(['ssh', f'ubuntu@{ipaddr}',
                                       '-o', 'UserKnownHostsFile=/dev/null', '-o', 'StrictHostKeyChecking=no',
-                                      'netplan ip leases ens4 | grep ^NETMASK= | cut -d = -f 2'],
+                                      'sudo netplan ip leases ens4 | grep ^NETMASK= | cut -d = -f 2'],
                                      stderr = subprocess.DEVNULL)
     veth_netmask = stdout.strip().decode()
     stdout = subprocess.check_output(['ssh', f'ubuntu@{ipaddr}',
                                       '-o', 'UserKnownHostsFile=/dev/null', '-o', 'StrictHostKeyChecking=no',
-                                      'netplan ip leases ens4 | grep ^ADDRESS= | cut -d = -f 2'],
+                                      'sudo netplan ip leases ens4 | grep ^ADDRESS= | cut -d = -f 2'],
                                      stderr = subprocess.DEVNULL)
     veth_address = stdout.strip().decode()
     veth_subnet = ipaddress.ip_network(veth_address + "/" + veth_netmask, strict=False)

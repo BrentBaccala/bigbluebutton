@@ -29,7 +29,9 @@ The master gateway also announces the 128.8.8.0/24 subnet to the bare metal mach
 
 The `focal-260-NAT` device announces itself into DHCP/DNS as `focal-260.DOMAIN` and forwards ports 80 and 443 (along with UDP ports) through to `focal-260` itself.  Clients can therefore connect to `focal-260.DOMAIN`, just as they would to a typical BBB server.  The NAT device itself listens for ssh on port 2222.  The `--no-nat` option can be specified to create a server without an associated NAT gateway.
 
-Default operation of the script is to install a server whose name is passed into the script and is used both as the hostname of the server and as the release name to install.  Obvious server names include `focal-250`, `focal-25-dev`, and `focal-260`.  You can specify the `-r`/`--repository` option to use a repository other than `ubuntu.bigbluebutton.org` (just like the install script).  The `--install-script` option allows an alternate install script to be used.
+Default operation of the script is to install a server whose name is passed into the script and is used both as the hostname of the server and as the release name to install.  Obvious server names include `focal-250`, `focal-25-dev`, `focal-260`, `focal-270`, and `jammy-300`.  You can specify the `-r`/`--repository` option to use a repository other than `ubuntu.bigbluebutton.org` (just like the install script).  The `--install-script` option allows an alternate install script to be used.
+
+BBB v3 (jammy-300) requires Ubuntu 22.04 (jammy).  The script auto-detects this from the version name and uses the appropriate cloud image.
 
 Some special names are defined.  Requesting a device name starting with `testclient` creates a test client that connects to NAT4 (overlapping server address space), NAT5 (private address not overlapping server address space), and NAT6 (carrier grade NAT).  Likewise, `turn` and `natturn` devices can also be created, just by requesting them by name.
 
@@ -44,9 +46,14 @@ Some special names are defined.  Requesting a device name starting with `testcli
 
 1. Read, understand, and run the `install-gns3.sh` script in `NPDC/GNS3`
 
-1. Upload a current Ubuntu 20 cloud image to the gns3 server using NPDC's `GNS3/upload-image.py`:
+1. Upload Ubuntu cloud images to the gns3 server using NPDC's `GNS3/upload-image.py`:
 
-   `./upload-image.py https://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img`
+   ```
+   ./upload-image.py https://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img
+   ./upload-image.py https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img
+   ```
+
+   The focal (20.04) image is needed for BBB 2.5/2.6/2.7 and the infrastructure nodes.  The jammy (22.04) image is needed for BBB 3.0.
 
    The most uncommon Python3 package that this script uses is `python3-requests-toolbelt`.  `python3-clint` is also recommended, to get a progress bar.
 
@@ -68,8 +75,10 @@ Some special names are defined.  Requesting a device name starting with `testcli
 
    The `--wait-all` option will cause the script to wait for BigBlueButton to install while you watch.  Without this option, the script will pause to wait for the NAT device to boot before starting the BigBlueButton server, then terminate once the BigBlueButton server has begun its install sequence.
 
+   For BBB v3: `./gns3-bbb.py --wait-all jammy-300`
+
 1. You can run tests directly from the bare metal machine.  The script created an SSL certificate in its own directory called `bbb-dev-ca.crt` which can be installed and trusted on your web browser.
-1. Add another server with `./gns3-bbb.py focal-250`
+1. Add another server with `./gns3-bbb.py focal-250` or `./gns3-bbb.py jammy-300`
 1. Remove a server and its associated NAT gateway and switch with `./gns3-bbb.py --delete focal-250`
 
 1. `ssh` into the server devices directly.
@@ -79,7 +88,7 @@ Some special names are defined.  Requesting a device name starting with `testcli
 1. Since test servers come and go fairly frequently, I find the following stanza useful in my `.ssh/config`:
 
    ```
-   Host BigBlueButton NAT? testclient* focal-*
+   Host BigBlueButton NAT? testclient* focal-* jammy-*
      User ubuntu
      UserKnownHostsFile /dev/null
      StrictHostKeyChecking no
@@ -93,7 +102,11 @@ Some special names are defined.  Requesting a device name starting with `testcli
 
    `./ubuntu.py -r 20 -s $((1024*1024)) -m 1024 --boot-script opendesktop.sh --gns3-appliance`
 
-   This step adds the GUI packages to the Ubuntu 20 cloud image and creates a new cloud image used for the test clients. It takes about half an hour.
+   or for an Ubuntu 22 client:
+
+   `./ubuntu.py -r 22 -s $((1024*1024)) -m 1024 --boot-script opendesktop.sh --gns3-appliance`
+
+   This step adds the GUI packages to the Ubuntu cloud image and creates a new cloud image used for the test clients. It takes about half an hour.
 
 1. Upload the resulting GUI image to the gns3 server using NPDC's `GNS3/upload-image.py`
 
