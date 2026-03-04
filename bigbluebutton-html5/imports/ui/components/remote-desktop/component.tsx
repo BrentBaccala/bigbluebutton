@@ -36,6 +36,7 @@ interface RemoteDesktopProps {
   isPresenter: boolean;
   isResizing: boolean;
   fullscreenContext: boolean;
+  fullscreenElementId: string;
   startLocked: boolean;
   externalVideo: ExternalVideo;
 }
@@ -47,6 +48,7 @@ const RemoteDesktop: React.FC<RemoteDesktopProps> = ({
   isPresenter,
   isResizing,
   fullscreenContext,
+  fullscreenElementId,
   startLocked,
   externalVideo,
 }) => {
@@ -167,7 +169,8 @@ const RemoteDesktop: React.FC<RemoteDesktopProps> = ({
             key={uniqueId('fullscreenButton-')}
             elementName={intl.formatMessage(intlMessages.remoteDesktopLabel)}
             fullscreenRef={playerParentRef.current}
-            isFullscreen={isFullscreen}
+            elementId={fullscreenElementId}
+            isFullscreen={fullscreenContext}
             dark
           />
         )}
@@ -265,6 +268,7 @@ const RemoteDesktopContainer: React.FC = () => {
       isPresenter={isPresenter}
       isResizing={isResizing}
       fullscreenContext={fullscreenContext}
+      fullscreenElementId={fullscreenElementId}
       startLocked={startLocked}
       externalVideo={externalVideo}
     />
