@@ -16,6 +16,7 @@ import org.bigbluebutton.core.apps.audiogroups.AudioGroupHdlrs
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.chat.ChatApp2x
 import org.bigbluebutton.core.apps.externalvideo.ExternalVideoApp2x
+import org.bigbluebutton.core.apps.remotedesktop.RemoteDesktopApp2x
 import org.bigbluebutton.core.apps.pads.{ PadsApp2x, PadslHdlrHelpers }
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.apps.audiocaptions.AudioCaptionsApp2x
@@ -128,6 +129,7 @@ class MeetingActor(
   val captionApp2x = new CaptionApp2x
   val chatApp2x = new ChatApp2x
   val externalVideoApp2x = new ExternalVideoApp2x
+  val remoteDesktopApp2x = new RemoteDesktopApp2x
   val padsApp2x = new PadsApp2x
   val usersApp = new UsersApp(liveMeeting, outGW, eventBus)
   val groupChatApp = new GroupChatHdlrs
@@ -783,6 +785,14 @@ class MeetingActor(
       case m: UpdateExternalVideoPubMsg => externalVideoApp2x.handle(m, liveMeeting, msgBus)
       case m: StopExternalVideoPubMsg =>
         externalVideoApp2x.handle(m, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
+
+      // RemoteDesktop
+      case m: StartRemoteDesktopPubMsg =>
+        remoteDesktopApp2x.handle(m, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
+      case m: StopRemoteDesktopPubMsg =>
+        remoteDesktopApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
 
       //Timer

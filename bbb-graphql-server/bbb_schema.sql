@@ -1773,6 +1773,25 @@ SELECT * FROM "externalVideo"
 WHERE "stoppedSharingAt" IS NULL;
 
 --------------------------------
+----Remote Desktop
+
+create unlogged table "remoteDesktop"(
+"remoteDesktopId" varchar(100) primary key,
+"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+"remoteDesktopUrl" varchar(500),
+"remoteDesktopPassword" varchar(500),
+"remoteDesktopOperators" varchar(100),
+"startedSharingAt" timestamp with time zone,
+"stoppedSharingAt" timestamp with time zone,
+"updatedAt" timestamp with time zone
+);
+create index "remoteDesktop_meetingId_current" on "remoteDesktop"("meetingId") WHERE "stoppedSharingAt" IS NULL;
+
+CREATE VIEW "v_remoteDesktop" AS
+SELECT * FROM "remoteDesktop"
+WHERE "stoppedSharingAt" IS NULL;
+
+--------------------------------
 ----Screenshare
 
 
@@ -2389,6 +2408,11 @@ select "meeting"."meetingId",
             from "v_externalVideo"
             where "v_externalVideo"."meetingId" = "meeting"."meetingId"
         ) as "hasExternalVideo",
+        exists (
+            select 1
+            from "v_remoteDesktop"
+            where "v_remoteDesktop"."meetingId" = "meeting"."meetingId"
+        ) as "hasRemoteDesktop",
         exists (
             select 1
             from "v_caption_activeLocales"

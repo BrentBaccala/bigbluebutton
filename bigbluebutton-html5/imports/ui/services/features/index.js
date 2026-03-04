@@ -32,6 +32,10 @@ export function useIsExternalVideoEnabled() {
   return useDisabledFeatures().indexOf('externalVideos') === -1 && window.meetingClientSettings.public.externalVideoPlayer.enabled;
 }
 
+export function useIsRemoteDesktopEnabled() {
+  return useDisabledFeatures().indexOf('remoteDesktop') === -1 && window.meetingClientSettings.public.remoteDesktop.enabled;
+}
+
 export function useIsChatEnabled() {
   return useDisabledFeatures().indexOf('chat') === -1 && window.meetingClientSettings.public.chat.enabled;
 }

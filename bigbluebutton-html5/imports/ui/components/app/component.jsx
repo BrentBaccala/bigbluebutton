@@ -24,6 +24,7 @@ import WebcamContainer from '../webcam/component';
 import PresentationContainer from '../presentation/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoPlayerContainer from '../external-video-player/external-video-player-graphql/component';
+import RemoteDesktopContainer from '../remote-desktop/component';
 import GenericContentMainAreaContainer from '../generic-content/generic-main-content/container';
 import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
@@ -376,6 +377,10 @@ class App extends Component {
           {
             !isNonMediaLayout
               && <ExternalVideoPlayerContainer />
+          }
+          {
+            !isNonMediaLayout
+              && <RemoteDesktopContainer />
           }
           <GenericContentMainAreaContainer
             genericMainContentId={genericMainContentId}

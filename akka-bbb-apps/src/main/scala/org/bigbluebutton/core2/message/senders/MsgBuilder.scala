@@ -119,6 +119,17 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildStopRemoteDesktopEvtMsg(meetingId: String, userId: String = "not-used"): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, "nodeJSapp")
+    val envelope = BbbCoreEnvelope(StopRemoteDesktopEvtMsg.NAME, routing)
+
+    val body = StopRemoteDesktopEvtMsgBody()
+    val header = BbbClientMsgHeader(StopRemoteDesktopEvtMsg.NAME, meetingId, userId)
+    val event = StopRemoteDesktopEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildStopScreenshareRtmpBroadcastEvtMsg(
       meetingId: String,
       voiceConf: String, screenshareConf: String,

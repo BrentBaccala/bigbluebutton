@@ -68,12 +68,23 @@ const MEETING_SUBSCRIPTION = gql`
           updatedAt
         }
 
+        remoteDesktop {
+          remoteDesktopId
+          remoteDesktopUrl
+          remoteDesktopPassword
+          remoteDesktopOperators
+          startedSharingAt
+          stoppedSharingAt
+          updatedAt
+        }
+
         componentsFlags {
           hasBreakoutRoom
           hasCameraAsContent
           hasCaption
           hasCurrentPresentation
           hasExternalVideo
+          hasRemoteDesktop
           hasPoll
           hasScreenshare
           hasScreenshareAsContent

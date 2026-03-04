@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.externalvideo
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.{ ExternalVideoModel, PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.{ ExternalVideoModel, RemoteDesktopModel, PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.requestBroadcastStop
@@ -41,6 +41,9 @@ trait StartExternalVideoPubMsgHdlr extends RightsManagementTrait {
 
       // Request Shared Notes to unpin
       setPinned(bus.outGW, liveMeeting, "notes", pinned = false)
+
+      // Stop any active remote desktop
+      RemoteDesktopModel.stop(bus.outGW, liveMeeting)
 
       val (videoUrl, initialSecond) = UrlTimeExtractor.extractTime(msg.body.externalVideoUrl)
       ExternalVideoModel.setURL(liveMeeting.externalVideoModel, videoUrl)

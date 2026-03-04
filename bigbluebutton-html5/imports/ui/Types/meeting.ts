@@ -96,6 +96,16 @@ export interface ExternalVideo {
   updatedAt: string;
 }
 
+export interface RemoteDesktop {
+  remoteDesktopId: string;
+  remoteDesktopUrl: string;
+  remoteDesktopPassword: string;
+  remoteDesktopOperators: string;
+  startedSharingAt: number;
+  stoppedSharingAt: number;
+  updatedAt: string;
+}
+
 export interface Layout {
   currentLayoutType: string;
 }
@@ -104,6 +114,7 @@ export interface ComponentsFlags {
   hasCaption: boolean;
   hasBreakoutRoom: boolean;
   hasExternalVideo: boolean;
+  hasRemoteDesktop: boolean;
   hasPoll: boolean;
   hasScreenshare: boolean;
   hasTimer: boolean;
@@ -138,6 +149,7 @@ export interface Meeting {
   breakoutPolicies: BreakoutPolicies;
   breakoutRoomsCommonProperties: BreakoutRoomsCommonProperties;
   externalVideo: ExternalVideo;
+  remoteDesktop: RemoteDesktop;
   layout: Layout;
   componentsFlags: ComponentsFlags;
   endWhenNoModerator: boolean;

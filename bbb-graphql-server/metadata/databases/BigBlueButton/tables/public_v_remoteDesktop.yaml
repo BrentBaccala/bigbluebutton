@@ -1,0 +1,22 @@
+table:
+  name: v_remoteDesktop
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: remoteDesktop
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - remoteDesktopId
+        - remoteDesktopUrl
+        - remoteDesktopPassword
+        - remoteDesktopOperators
+        - startedSharingAt
+        - stoppedSharingAt
+        - updatedAt
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId

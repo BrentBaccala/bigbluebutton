@@ -1469,6 +1469,21 @@ const updatePresentationAreaContent = (
         });
         break;
       }
+      case PRESENTATION_AREA.REMOTE_DESKTOP: {
+        layoutContextDispatch({
+          type: ACTIONS.SET_HAS_GENERIC_CONTENT,
+          value: undefined,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_NOTES_IS_PINNED,
+          value: !lastPresentationContentInPile.value.open,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
+          value: lastPresentationContentInPile.value.open,
+        });
+        break;
+      }
       case PRESENTATION_AREA.SCREEN_SHARE: {
         layoutContextDispatch({
           type: ACTIONS.SET_HAS_GENERIC_CONTENT,

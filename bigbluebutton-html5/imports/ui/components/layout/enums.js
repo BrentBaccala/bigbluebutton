@@ -142,6 +142,7 @@ export const PRESENTATION_AREA = {
   GENERIC_CONTENT: 'genericContent',
   PINNED_NOTES: 'pinnedNotes',
   EXTERNAL_VIDEO: 'externalVideo',
+  REMOTE_DESKTOP: 'remoteDesktop',
   SCREEN_SHARE: 'screenShare',
   WHITEBOARD_OPEN: 'whiteboardOpen',
 };

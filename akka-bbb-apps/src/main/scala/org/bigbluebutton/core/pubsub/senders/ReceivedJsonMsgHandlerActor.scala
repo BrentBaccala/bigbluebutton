@@ -486,6 +486,12 @@ class ReceivedJsonMsgHandlerActor(
       case StopExternalVideoPubMsg.NAME =>
         routeGenericMsg[StopExternalVideoPubMsg](envelope, jsonNode)
 
+      // RemoteDesktop
+      case StartRemoteDesktopPubMsg.NAME =>
+        routeGenericMsg[StartRemoteDesktopPubMsg](envelope, jsonNode)
+      case StopRemoteDesktopPubMsg.NAME =>
+        routeGenericMsg[StopRemoteDesktopPubMsg](envelope, jsonNode)
+
       // Timer
       case ActivateTimerReqMsg.NAME =>
         routeGenericMsg[ActivateTimerReqMsg](envelope, jsonNode)

@@ -15,6 +15,7 @@ class LiveMeeting(
     val timerModel:          TimerModel,
     val chatModel:           ChatModel,
     val externalVideoModel:  ExternalVideoModel,
+    val remoteDesktopModel:  RemoteDesktopModel,
     val layouts:             Layouts,
     val pads:                Pads,
     val registeredUsers:     RegisteredUsers,

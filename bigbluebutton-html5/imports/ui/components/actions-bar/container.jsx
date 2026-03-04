@@ -11,6 +11,7 @@ import {
 } from '../layout/context';
 import {
   useIsExternalVideoEnabled,
+  useIsRemoteDesktopEnabled,
   useIsPollingEnabled,
   useIsPresentationEnabled,
   useIsTimerFeatureEnabled,
@@ -26,6 +27,7 @@ import MediaService from '../media/service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
+import { REMOTE_DESKTOP_STOP } from '../remote-desktop/mutations';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import { useMeetingLayoutUpdater, usePushLayoutUpdater } from '../layout/push-layout/hooks';
@@ -58,10 +60,12 @@ const ActionsBarContainer = (props) => {
 
   const { data: currentMeeting } = useMeeting((m) => ({
     externalVideo: m.externalVideo,
+    remoteDesktop: m.remoteDesktop,
     componentsFlags: m.componentsFlags,
   }));
 
   const isSharingVideo = !!currentMeeting?.externalVideo?.externalVideoUrl;
+  const isSharingRemoteDesktop = !!currentMeeting?.remoteDesktop?.remoteDesktopUrl;
 
   const {
     pluginsExtensibleAreasAggregatedState,
@@ -79,6 +83,7 @@ const ActionsBarContainer = (props) => {
   }));
 
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+  const [stopRemoteDesktopShare] = useMutation(REMOTE_DESKTOP_STOP);
 
   const currentUser = {
     userId: Auth.userID,
@@ -87,6 +92,7 @@ const ActionsBarContainer = (props) => {
   const amIModerator = currentUserData?.isModerator;
 
   const allowExternalVideo = useIsExternalVideoEnabled();
+  const allowRemoteDesktop = useIsRemoteDesktopEnabled();
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   const intl = useIntl();
   const isPresentationEnabled = useIsPresentationEnabled();
@@ -129,6 +135,7 @@ const ActionsBarContainer = (props) => {
         hasCameraAsContent: currentMeeting?.componentsFlags?.hasCameraAsContent,
         intl,
         allowExternalVideo,
+        allowRemoteDesktop,
         isPollingEnabled,
         isPresentationEnabled,
         isRaiseHandEnabled,
@@ -140,7 +147,9 @@ const ActionsBarContainer = (props) => {
         actionBarItems,
         isThereCurrentPresentation,
         isSharingVideo,
+        isSharingRemoteDesktop,
         stopExternalVideoShare,
+        stopRemoteDesktopShare,
         isSharedNotesPinned,
         isTimerActive: currentMeeting?.componentsFlags?.hasTimer,
         isTimerEnabled: isTimerFeatureEnabled,

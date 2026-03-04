@@ -311,6 +311,9 @@ public:
   #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
   externalVideoPlayer:
     enabled: true
+  remoteDesktop:
+    enabled: true
+    startLocked: true
   kurento:
     wsUrl: HOST
     cameraWsOptions:

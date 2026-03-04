@@ -52,6 +52,15 @@ object_relationships:
         remote_table:
           name: v_externalVideo
           schema: public
+  - name: remoteDesktop
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_remoteDesktop
+          schema: public
   - name: layout
     using:
       manual_configuration:

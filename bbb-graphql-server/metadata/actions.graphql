@@ -227,6 +227,18 @@ type Mutation {
 }
 
 type Mutation {
+  remoteDesktopStart(
+    remoteDesktopUrl: String!
+    remoteDesktopPassword: String
+    remoteDesktopOperators: String!
+  ): Boolean
+}
+
+type Mutation {
+  remoteDesktopStop: Boolean
+}
+
+type Mutation {
   guestUsersSetLobbyMessage(
     message: String!
   ): Boolean

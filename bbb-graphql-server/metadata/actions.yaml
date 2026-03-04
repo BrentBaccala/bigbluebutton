@@ -214,6 +214,18 @@ actions:
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
+  - name: remoteDesktopStart
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
+  - name: remoteDesktopStop
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
   - name: guestUsersSetLobbyMessage
     definition:
       kind: synchronous

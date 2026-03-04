@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/external-video-player-graphql/modal/component';
+import RemoteDesktopModal from '/imports/ui/components/remote-desktop/modal/component';
 import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { ActionButtonDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/action-button-dropdown-item/enums';
@@ -117,6 +118,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.unshareCameraAsContent',
     description: 'Label for unshare camera as content',
   },
+  startRemoteDesktopLabel: {
+    id: 'app.actionsBar.actionsDropdown.shareRemoteDesktop',
+    description: 'Start sharing remote desktop button',
+  },
+  stopRemoteDesktopLabel: {
+    id: 'app.actionsBar.actionsDropdown.stopShareRemoteDesktop',
+    description: 'Stop sharing remote desktop button',
+  },
 });
 
 const handlePresentationClick = () => Session.setItem('showUploadPresentationView', true);
@@ -132,13 +141,16 @@ class ActionsDropdown extends PureComponent {
     this.selectUserRandId = uniqueId('action-item-');
     this.state = {
       isExternalVideoModalOpen: false,
+      isRemoteDesktopModalOpen: false,
       isLayoutModalOpen: false,
       isCameraAsContentModalOpen: false,
     };
 
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
+    this.handleRemoteDesktopClick = this.handleRemoteDesktopClick.bind(this);
     this.makePresentationItems = this.makePresentationItems.bind(this);
     this.setExternalVideoModalIsOpen = this.setExternalVideoModalIsOpen.bind(this);
+    this.setRemoteDesktopModalIsOpen = this.setRemoteDesktopModalIsOpen.bind(this);
     this.setLayoutModalIsOpen = this.setLayoutModalIsOpen.bind(this);
     this.setCameraAsContentModalIsOpen = this.setCameraAsContentModalIsOpen.bind(this);
     this.setPropsToPassModal = this.setPropsToPassModal.bind(this);
@@ -151,11 +163,16 @@ class ActionsDropdown extends PureComponent {
     const { amIPresenter: isPresenter } = this.props;
     if (wasPresenter && !isPresenter) {
       this.setExternalVideoModalIsOpen(false);
+      this.setRemoteDesktopModalIsOpen(false);
     }
   }
 
   handleExternalVideoClick() {
     this.setExternalVideoModalIsOpen(true);
+  }
+
+  handleRemoteDesktopClick() {
+    this.setRemoteDesktopModalIsOpen(true);
   }
 
   handleTimerClick() {
@@ -172,10 +189,13 @@ class ActionsDropdown extends PureComponent {
       intl,
       amIPresenter,
       allowExternalVideo,
+      allowRemoteDesktop,
       handleTakePresenter,
       isSharingVideo,
+      isSharingRemoteDesktop,
       isPollingEnabled,
       stopExternalVideoShare,
+      stopRemoteDesktopShare,
       isTimerActive,
       isTimerEnabled,
       layoutContextDispatch,
@@ -258,6 +278,18 @@ class ActionsDropdown extends PureComponent {
         key: 'external-video',
         onClick: isSharingVideo ? stopExternalVideoShare : this.handleExternalVideoClick,
         dataTest: 'shareExternalVideo',
+      });
+    }
+
+    if (amIPresenter && allowRemoteDesktop) {
+      actions.push({
+        icon: !isSharingRemoteDesktop ? 'desktop' : 'desktop_off',
+        label: !isSharingRemoteDesktop
+          ? intl.formatMessage(intlMessages.startRemoteDesktopLabel)
+          : intl.formatMessage(intlMessages.stopRemoteDesktopLabel),
+        key: 'remote-desktop',
+        onClick: isSharingRemoteDesktop ? stopRemoteDesktopShare : this.handleRemoteDesktopClick,
+        dataTest: 'shareRemoteDesktop',
       });
     }
 
@@ -353,6 +385,10 @@ class ActionsDropdown extends PureComponent {
     this.setState({ isExternalVideoModalOpen: value });
   }
 
+  setRemoteDesktopModalIsOpen(value) {
+    this.setState({ isRemoteDesktopModalOpen: value });
+  }
+
   setLayoutModalIsOpen(value) {
     this.setState({ isLayoutModalOpen: value });
   }
@@ -396,6 +432,7 @@ class ActionsDropdown extends PureComponent {
 
     const {
       isExternalVideoModalOpen,
+      isRemoteDesktopModalOpen,
       isLayoutModalOpen,
       isCameraAsContentModalOpen,
     } = this.state;
@@ -448,6 +485,12 @@ class ActionsDropdown extends PureComponent {
           this.setExternalVideoModalIsOpen,
           'low',
           ExternalVideoModal,
+        )}
+        {this.renderModal(
+          isRemoteDesktopModalOpen,
+          this.setRemoteDesktopModalIsOpen,
+          'low',
+          RemoteDesktopModal,
         )}
         {this.renderModal(
           isLayoutModalOpen,

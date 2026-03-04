@@ -91,6 +91,8 @@
     "react-markdown": "^8.0.7",
     "react-modal": "^3.15.1",
     "react-player": "^2.10.0",
+    "@novnc/novnc": "https://github.com/novnc/noVNC/archive/refs/tags/v1.6.0.tar.gz",
+    "react-vnc-display": "https://www.freesoft.org/react-vnc-display.tgz",
     "react-tabs": "^6.1.0",
     "react-tether": "^2.0.7",
     "react-toastify": "^11.0.2",
