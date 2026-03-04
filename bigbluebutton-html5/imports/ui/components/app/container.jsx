@@ -98,6 +98,7 @@ const AppContainer = (props) => {
   const presentationIsOpen = isOpen;
 
   const isSharingVideo = currentMeeting?.componentsFlags?.hasExternalVideo;
+  const isSharingRemoteDesktop = currentMeeting?.componentsFlags?.hasRemoteDesktop;
 
   const shouldShowExternalVideo = isExternalVideoEnabled && isSharingVideo;
 
@@ -108,6 +109,7 @@ const AppContainer = (props) => {
     || currentMeeting?.componentsFlags?.hasCameraAsContent) && showScreenshare;
   const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
       && !shouldShowExternalVideo && !shouldShowGenericMainContent
+      && !isSharingRemoteDesktop
       && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;
   const currentPageInfoData = currentPageInfo?.pres_page_curr[0] ?? {};
   const fitToWidth = currentPageInfoData?.fitToWidth ?? false;
