@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import VncDisplay from 'react-vnc-display';
+import VncDisplay from './VncDisplay';
 import Auth from '/imports/ui/services/auth';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -106,8 +106,8 @@ const RemoteDesktop: React.FC<RemoteDesktopProps> = ({
       document.fullscreenElement === el
     );
     setIsFullscreen(newIsFullscreen);
-    if (playerRef.current?.rfb) {
-      playerRef.current.rfb._windowResize();
+    if (playerRef.current?.rfb?._handleResize) {
+      playerRef.current.rfb._handleResize();
     }
   }, []);
 
@@ -134,8 +134,8 @@ const RemoteDesktop: React.FC<RemoteDesktopProps> = ({
   }, [viewOnly]);
 
   const handleResize = useCallback(() => {
-    if (playerRef.current?.rfb) {
-      playerRef.current.rfb._windowResize();
+    if (playerRef.current?.rfb?._handleResize) {
+      playerRef.current.rfb._handleResize();
     }
   }, []);
 
@@ -151,7 +151,7 @@ const RemoteDesktop: React.FC<RemoteDesktopProps> = ({
         top,
         left,
         right,
-        zIndex: externalVideo.zIndex,
+        zIndex: Math.max(externalVideo.zIndex ?? 1, 3),
       }}
       isResizing={isResizing}
       isMinimized={isMinimized}

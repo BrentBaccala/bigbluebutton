@@ -75,7 +75,8 @@ const RemoteDesktopModal: React.FC<RemoteDesktopModalProps> = ({
   const Settings = getSettingsSingletonInstance();
   // @ts-ignore - settings is a js singleton
   const { animations } = Settings.application;
-  const [url, setUrl] = React.useState('');
+  const defaultUrl = (window as any).meetingClientSettings?.public?.remoteDesktop?.defaultUrl || '';
+  const [url, setUrl] = React.useState(defaultUrl);
   const [password, setPassword] = React.useState('');
   const [operators, setOperators] = React.useState('all');
   const [startRemoteDesktop] = useMutation(REMOTE_DESKTOP_START);
@@ -110,6 +111,7 @@ const RemoteDesktopModal: React.FC<RemoteDesktopModalProps> = ({
             <input
               id="remote-desktop-modal-input"
               onChange={(e) => setUrl(e.target.value)}
+              value={url}
               name="remote-desktop-modal-input"
               placeholder={intl.formatMessage(intlMessages.urlInput)}
               aria-describedby="remote-desktop-note"

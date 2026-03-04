@@ -1,26 +1,24 @@
-declare module 'react-vnc-display' {
-  import React from 'react';
-
-  interface VncDisplayProps {
-    url: string;
-    width?: string | number;
-    height?: string | number;
-    background?: string;
-    credentials?: { password?: string };
-    viewOnly?: boolean;
-    shared?: boolean;
-    scaleViewport?: boolean;
-    onConnect?: () => void;
-    onDisconnect?: () => void;
-    onSecurityFailure?: () => void;
-    onCredentialsRequired?: () => void;
-    onClipboard?: (event: any) => void;
-    [key: string]: any;
+declare module '@novnc/novnc/core/rfb' {
+  class RFB {
+    constructor(target: HTMLElement, url: string, options?: Record<string, any>);
+    viewOnly: boolean;
+    focusOnClick: boolean;
+    clipViewport: boolean;
+    dragViewport: boolean;
+    scaleViewport: boolean;
+    resizeSession: boolean;
+    showDotCursor: boolean;
+    background: string;
+    qualityLevel: number;
+    compressionLevel: number;
+    _screen: HTMLElement;
+    disconnect(): void;
+    focus(): void;
+    blur(): void;
+    clipboardPasteFrom(text: string): void;
+    addEventListener(event: string, handler: (e?: any) => void): void;
+    removeEventListener(event: string, handler: (e?: any) => void): void;
+    _windowResize(): void;
   }
-
-  class VncDisplay extends React.Component<VncDisplayProps> {
-    rfb: any;
-  }
-
-  export default VncDisplay;
+  export default RFB;
 }
