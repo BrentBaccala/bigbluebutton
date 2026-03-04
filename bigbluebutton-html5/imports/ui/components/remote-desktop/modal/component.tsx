@@ -115,6 +115,7 @@ const RemoteDesktopModal: React.FC<RemoteDesktopModalProps> = ({
               name="remote-desktop-modal-input"
               placeholder={intl.formatMessage(intlMessages.urlInput)}
               aria-describedby="remote-desktop-note"
+              data-test="remoteDesktopModalInput"
               onPaste={(e) => { e.stopPropagation(); }}
               onCut={(e) => { e.stopPropagation(); }}
               onCopy={(e) => { e.stopPropagation(); }}

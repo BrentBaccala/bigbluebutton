@@ -357,6 +357,14 @@ exports.youtubeLink = 'https://www.youtube.com/watch?v=Wjx5_IONaNg&t=158s&ab_cha
 // The title we match for here is the title of the test video specified by youtubeLink
 exports.youtubeFrame = 'div[data-test="videoPlayer"]';
 exports.ytFrameTitle = 'a[class^="ytp-title-link"]';
+// Remote Desktop
+exports.shareRemoteDesktopBtn = 'li[data-test="shareRemoteDesktop"]';
+exports.remoteDesktopModalInput = 'input[data-test="remoteDesktopModalInput"]';
+exports.startShareRemoteDesktopBtn = 'button[data-test="shareRemoteDesktop"]';
+exports.remoteDesktop = 'div[data-test="remoteDesktop"]';
+exports.remoteDesktopUrl = 'wss://jammy-300.samsung/vnc';
+exports.remoteDesktopFullscreenBtn = 'button[data-test="webcamFullscreenButton"]';
+
 // Toasts
 exports.statingUploadPresentationToast = 'To be uploaded ...';
 exports.convertingPresentationFileToast = 'Converting file';
